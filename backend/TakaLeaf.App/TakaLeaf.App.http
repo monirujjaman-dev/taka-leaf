@@ -40,3 +40,22 @@ Content-Type: application/json
 ### Sign out
 POST {{api}}/auth/logout
 Authorization: Bearer {{login.response.body.accessToken}}
+
+### Forgot password - the reset link arrives in Mailpit
+POST {{api}}/auth/forgot-password
+Content-Type: application/json
+
+{ "email": "{{email}}" }
+
+### Reset password - paste the token from the link in the email
+POST {{api}}/auth/reset-password
+Content-Type: application/json
+
+{ "token": "PASTE-TOKEN-HERE", "password": "a-new-green-leaf-27" }
+
+### Change password (signed in)
+POST {{api}}/auth/change-password
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "currentPassword": "{{password}}", "newPassword": "a-new-green-leaf-27" }
