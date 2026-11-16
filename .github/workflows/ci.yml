@@ -62,7 +62,14 @@ jobs:
           docker run -d --name db --network tl -e POSTGRES_DB=takaleaf -e POSTGRES_USER=takaleaf -e POSTGRES_PASSWORD=ci_password postgres:18
           docker run -d --name mail --network tl -p 8025:8025 axllent/mailpit
           until docker exec db pg_isready -U takaleaf -d takaleaf; do sleep 1; done
+          # Production needs a data protection certificate; make a throwaway one for CI.
+          mkdir -p certs
+          openssl req -x509 -newkey rsa:2048 -sha256 -days 2 -nodes -subj "/CN=TakaLeaf CI" -keyout certs/dp.key -out certs/dp.crt
+          openssl pkcs12 -export -in certs/dp.crt -inkey certs/dp.key -out certs/dataprotection.pfx -passout pass:ci_password
+          chmod 644 certs/dataprotection.pfx
           docker run -d --name app --network tl -p 8080:8080 \
+            -v "$PWD/certs/dataprotection.pfx:/app/certs/dataprotection.pfx:ro" \
+            -e DataProtection__CertificatePassword=ci_password \
             -e ConnectionStrings__Database="Host=db;Database=takaleaf;Username=takaleaf;Password=ci_password" \
             -e Auth__SigningKey="ci-only-signing-key-0123456789-0123456789" \
             -e App__WebBaseUrl="http://localhost:8080" \

@@ -202,6 +202,11 @@ a rule can't be recorded (for example its wallet was deleted), it stays in the u
 - **Logging:** Serilog writes to the console and to daily JSON files in `logs/`, kept for 14 days.
   Seq is added in development and is optional in production. Every request line has the user's
   email (or "anonymous"), client IP, user id, status and time taken.
+- **Data protection:** ASP.NET Core data protection keys are written to `DataProtection:KeysPath`
+  (`/app/keys` in the image, a volume in production) and encrypted with the PFX certificate in
+  `DataProtection:CertificatePath`. `DataProtection:PreviousCertificatePaths` lets old certificates
+  still decrypt existing keys after a change. Both are optional; without them the framework defaults
+  apply (`Common/DataProtectionSetup.cs`).
 - **Production:** a single Docker image (see `Dockerfile`). Migrations run on start. The health
   endpoint is `/api/health`. Backups are daily `pg_dump` to S3 through Dokploy.
 
