@@ -1,0 +1,42 @@
+# Requests to try the API by hand (VS Code REST Client, Rider or Visual Studio).
+# Emails sent in development arrive in Mailpit: http://localhost:8025
+
+@api = http://localhost:5080/api
+@email = you@example.com
+@password = green-leaf-2026
+
+### Health
+GET {{api}}/health
+
+### Register
+POST {{api}}/auth/register
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+### Verify email - paste the token from the link in the email
+POST {{api}}/auth/verify-email
+Content-Type: application/json
+
+{ "token": "PASTE-TOKEN-HERE" }
+
+### Sign in ("mobile" returns the refresh token in the body; the web app uses a cookie)
+# @name login
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}", "client": "mobile" }
+
+### Who am I
+GET {{api}}/auth/me
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Refresh
+POST {{api}}/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "{{login.response.body.refreshToken}}" }
+
+### Sign out
+POST {{api}}/auth/logout
+Authorization: Bearer {{login.response.body.accessToken}}

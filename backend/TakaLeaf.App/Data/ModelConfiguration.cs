@@ -82,3 +82,40 @@ internal sealed class TransactionConfiguration : IEntityTypeConfiguration<Transa
         builder.HasIndex(e => new { e.UserId, e.OccurredAt });
     }
 }
+
+internal sealed class SessionConfiguration : IEntityTypeConfiguration<Session>
+{
+    public void Configure(EntityTypeBuilder<Session> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.UserAgent).HasMaxLength(200);
+        builder.HasOne<User>().WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+{
+    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.TokenHash).HasMaxLength(64);
+        builder.HasIndex(e => e.TokenHash).IsUnique();
+        builder.HasOne<Session>().WithMany().HasForeignKey(e => e.SessionId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class UserTokenConfiguration : IEntityTypeConfiguration<UserToken>
+{
+    public void Configure(EntityTypeBuilder<UserToken> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.Purpose).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.TokenHash).HasMaxLength(64);
+        builder.Property(e => e.PasswordHash).HasMaxLength(500);
+        builder.HasIndex(e => e.TokenHash).IsUnique();
+        builder.HasOne<User>().WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
+    }
+}

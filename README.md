@@ -33,6 +33,22 @@ pnpm install
 pnpm dev
 ```
 
+Emails sent in development (verification links) arrive in Mailpit at http://localhost:8025.
+`backend/TakaLeaf.App/TakaLeaf.App.http` has ready-made requests for trying the API by hand.
+
+## Configuration
+
+Development settings live in `appsettings.Development.json`. In production, set these as
+environment variables (never in Git):
+
+| Setting | Environment variable | What |
+| --- | --- | --- |
+| Database connection | `ConnectionStrings__Database` | PostgreSQL connection string |
+| Token signing key | `Auth__SigningKey` | Random secret, at least 32 characters |
+| Web address | `App__WebBaseUrl` | Used in links inside emails |
+| Email server | `Email__Host`, `Email__Port`, `Email__Security`, `Email__Username`, `Email__Password`, `Email__From` | SMTP provider |
+| Migrations on start | `Database__MigrateOnStartup` | `true` to apply migrations when the API starts |
+
 ## Tests
 
 ```bash

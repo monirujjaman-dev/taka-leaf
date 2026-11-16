@@ -1,18 +1,19 @@
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
+using TakaLeaf.App.Tests.Support;
 
 namespace TakaLeaf.App.Tests.Data;
 
 /// <summary>
-/// Starts the app against a real PostgreSQL (the one from deploy/docker-compose.dev.yml locally,
-/// the service container in CI) and applies the migrations once for all database tests.
+/// One running app against a real PostgreSQL (the one from deploy/docker-compose.dev.yml locally,
+/// the service container in CI), shared by every test that needs the database or the API.
+/// Those tests sit in one collection, so they never start apps or migrate at the same time.
 /// </summary>
 public sealed class DatabaseFixture : IAsyncLifetime
 {
-    public WebApplicationFactory<Program> Factory { get; } = new();
+    public TestApp Factory { get; } = new();
 
     public async Task InitializeAsync()
     {
