@@ -9,7 +9,8 @@ import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { WALLET_TYPE_LABEL } from "../../ui/format";
 import { WalletForm } from "./WalletForm";
 
-const ORDER: WalletType[] = ["Cash", "Mfs", "Bank", "CreditCard", "Lent", "Borrowed"];
+// Lent and Borrowed wallets belong to people and are shown on the People page.
+const ORDER: WalletType[] = ["Cash", "Mfs", "Bank", "CreditCard"];
 
 function WalletCard({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
   const negative = wallet.balance < 0;
@@ -53,7 +54,7 @@ export function WalletsPage() {
   const [showArchived, setShowArchived] = useState(false);
   const adding = params.get("add") === "1";
 
-  const all = wallets.data?.wallets ?? [];
+  const all = (wallets.data?.wallets ?? []).filter((w) => w.personId === null);
   const visible = all.filter((w) => showArchived || !w.archived);
   const archivedCount = all.filter((w) => w.archived).length;
   const closeForm = () => {

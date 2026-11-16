@@ -9,12 +9,14 @@ import { Icon, type IconName } from "../ui/Icon";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { TransactionSheetProvider, useTransactionSheet } from "./TransactionSheet";
 
-const NAV: { to: string; label: string; short: string; icon: IconName }[] = [
-  { to: "/", label: "Dashboard", short: "Home", icon: "home" },
-  { to: "/transactions", label: "Transactions", short: "History", icon: "list" },
-  { to: "/wallets", label: "Wallets", short: "Wallets", icon: "wallet" },
-  { to: "/categories", label: "Categories", short: "Categories", icon: "tag" },
-  { to: "/settings", label: "Settings", short: "Settings", icon: "settings" },
+/** `phone: false` items are reached from Settings on phones, to keep the tab bar at five. */
+const NAV: { to: string; label: string; short: string; icon: IconName; phone: boolean }[] = [
+  { to: "/", label: "Dashboard", short: "Home", icon: "home", phone: true },
+  { to: "/transactions", label: "Transactions", short: "History", icon: "list", phone: true },
+  { to: "/wallets", label: "Wallets", short: "Wallets", icon: "wallet", phone: true },
+  { to: "/people", label: "People", short: "People", icon: "people", phone: true },
+  { to: "/categories", label: "Categories", short: "Categories", icon: "tag", phone: false },
+  { to: "/settings", label: "Settings", short: "Settings", icon: "settings", phone: true },
 ];
 
 function AddButton({ className = "" }: { className?: string }) {
@@ -97,7 +99,7 @@ export function AppShell() {
           aria-label="Main"
           className="glass fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 rounded-[22px] p-1.5 lg:hidden"
         >
-          {NAV.map((item) => (
+          {NAV.filter((item) => item.phone).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

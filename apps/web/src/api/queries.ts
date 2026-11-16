@@ -2,6 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import type {
   Category,
+  LoanInput,
+  PeopleList,
+  Person,
+  PersonDetail,
   CategoryKind,
   Dashboard,
   Transaction,
@@ -13,7 +17,7 @@ import type {
 } from "./types";
 
 /** Anything that changes money touches these, so they are refreshed together after a change. */
-const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"]] as const;
+const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"]] as const;
 
 function useInvalidateMoney() {
   const client = useQueryClient();
@@ -141,5 +145,51 @@ export function useArchiveCategory() {
     mutationFn: ({ id, archived }: { id: string; archived: boolean }) =>
       api<void>(`/categories/${id}/${archived ? "archive" : "unarchive"}`, { method: "POST" }),
     onSuccess: () => client.invalidateQueries({ queryKey: ["categories"] }),
+  });
+}
+
+export function usePeople() {
+  return useQuery({ queryKey: ["people"], queryFn: ({ signal }) => api<PeopleList>("/people", { signal }) });
+}
+
+export function usePerson(id: string) {
+  return useQuery({ queryKey: ["people", id], queryFn: ({ signal }) => api<PersonDetail>(`/people/${id}`, { signal }) });
+}
+
+export function useSavePerson() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name, note }: { id: string | null; name: string; note: string | null }) =>
+      id
+        ? api<Person>(`/people/${id}`, { method: "PUT", body: { name, note } })
+        : api<Person>("/people", { method: "POST", body: { name, note } }),
+    onSuccess: () => Promise.all([client.invalidateQueries({ queryKey: ["people"] }), client.invalidateQueries({ queryKey: ["wallets"] })]),
+  });
+}
+
+export function useDeletePerson() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<void>(`/people/${id}`, { method: "DELETE" }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["people"] }),
+  });
+}
+
+export function useSaveLoan(personId: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string | null; input: LoanInput }) =>
+      id
+        ? api(`/people/${personId}/loans/${id}`, { method: "PUT", body: input })
+        : api(`/people/${personId}/loans`, { method: "POST", body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteLoan(personId: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (id: string) => api<void>(`/people/${personId}/loans/${id}`, { method: "DELETE" }),
+    onSuccess: invalidate,
   });
 }
