@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -12,13 +13,18 @@ using TakaLeaf.App.Common.Logging;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Auth;
+using TakaLeaf.App.Features.Categories;
 using TakaLeaf.App.Features.Health;
+using TakaLeaf.App.Features.Wallets;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTakaLeafLogging();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
+
+// Enums travel as their names ("CreditCard", "Expense"), not numbers.
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
@@ -99,6 +105,8 @@ app.UseRateLimiter();
 var api = app.MapGroup("/api");
 api.MapGetHealth();
 api.MapAuth();
+api.MapWallets();
+api.MapCategories();
 
 app.Run();
 

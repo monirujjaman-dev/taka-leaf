@@ -47,6 +47,15 @@ public sealed class AuthClient(DatabaseFixture fixture)
         return email;
     }
 
+    /// <summary>A new verified account, and a client that sends its access token on every request.</summary>
+    public async Task<(HttpClient Client, AuthResult Session)> SignedInClient()
+    {
+        var client = NewClient();
+        var session = await SignIn(client, await RegisterVerified(client));
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
+        return (client, session);
+    }
+
     public static async Task<AuthResult> SignIn(HttpClient client, string email, string password = Password)
     {
         var response = await Login(client, email, password);
