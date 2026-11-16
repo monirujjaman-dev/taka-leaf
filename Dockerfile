@@ -29,11 +29,13 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=api /out ./
 COPY --from=web /src/apps/web/dist ./wwwroot
-# Log files go here; mount a volume on /app/logs to keep them across deploys.
-RUN mkdir -p /app/logs && chown "$APP_UID" /app/logs
+# Log files and data protection keys go here; mount volumes on /app/logs and /app/keys to keep
+# them across deploys.
+RUN mkdir -p /app/logs /app/keys && chown "$APP_UID" /app/logs /app/keys
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     ASPNETCORE_ENVIRONMENT=Production \
-    Database__MigrateOnStartup=true
+    Database__MigrateOnStartup=true \
+    DataProtection__KeysPath=/app/keys
 USER $APP_UID
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "TakaLeaf.App.dll"]

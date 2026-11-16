@@ -50,6 +50,21 @@ Open http://localhost:5173, create an account, then open the verification link f
 http://localhost:8025 (every email sent in development lands there) and sign in.
 `backend/TakaLeaf.App/TakaLeaf.App.http` has ready-made requests for trying the API by hand.
 
+### Data protection certificate (local dev)
+
+Data protection keys can be encrypted with a certificate. To make a local development one, run
+this in the project root (it writes `dataprotection.pfx`, which Git ignores):
+
+```bash
+dotnet dev-certs https -v -ep dataprotection.pfx -p 5e86a1e1-ce12-476c-b3f7-d685f7928265
+```
+
+`appsettings.Development.json` already points at it (`../../dataprotection.pfx` from
+`backend/TakaLeaf.App`) with that password, and keeps the keys in `backend/TakaLeaf.App/keys`.
+Without the file the backend still starts in development (and in CI), logs a warning and keeps the
+keys unencrypted. Production uses its own certificate and will not start without it; see
+[deploy/production.env.example](deploy/production.env.example).
+
 ## Deploying
 
 Production runs on a Linux VPS with Dokploy: one Docker image (API and web app together) and a

@@ -35,7 +35,10 @@ Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ takaleaf app :8080 ─�
 4. **Environment**: paste [`production.env.example`](production.env.example) and fill in every `<...>`.
    Make the signing key with `openssl rand -base64 48`.
 5. **Advanced → Volumes/Mounts**: add a volume mount, name `takaleaf-logs`, mount path `/app/logs`
-   (keeps the daily log files across deploys).
+   (keeps the daily log files across deploys). Add a second one, name `takaleaf-keys`, mount path
+   `/app/keys` (keeps the data protection keys). Then put your `dataprotection.pfx` at
+   `/app/certs/dataprotection.pfx` (a file or bind mount; the `DataProtection__*` lines in the
+   environment example show how to make it).
 6. **Domains → Add Domain**: host `takaleaf.example.com`, path `/`, **container port `8080`**,
    HTTPS on, certificate **Let's Encrypt**.
 7. **Deploy**. The first build takes a few minutes. On start the app creates or updates the

@@ -12,6 +12,10 @@ obj/
 .idea/
 .DS_Store
 logs/
+# Local data protection key ring (backend/TakaLeaf.App/keys)
+keys/
+# Data protection certificates (dotnet dev-certs https -ep dataprotection.pfx)
+*.pfx
 
 # Claude Code: personal settings stay local
 .claude/settings.local.json
