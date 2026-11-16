@@ -17,6 +17,7 @@ dotnet test backend/TakaLeaf.App.Tests                  # backend tests (needs t
 pnpm install && pnpm dev                                # web on http://localhost:5173, /api proxied
 pnpm typecheck && pnpm test && pnpm build               # web + shared checks (same as CI)
 docker build -t takaleaf .                              # production image (web + API on :8080)
+pnpm --filter @takaleaf/e2e e2e                         # browser + accessibility tests (E2E_BASE_URL, E2E_MAILPIT_URL)
 ```
 
 ## Rules that must not break

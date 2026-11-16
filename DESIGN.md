@@ -17,6 +17,7 @@ colors:
   night-line: "#FFFFFF24"
   night-text: "#E7F5EC"
   night-muted: "#A9BDB3"
+  night-nav-active: "#A8E0BE"
   income: "#0F7A44"
   income-dark: "#83CFA2"
   expense: "#A8412A"
@@ -130,8 +131,8 @@ components:
     textColor: "{colors.forest}"
     typography: "{typography.label}"
     rounded: "{rounded.pill}"
-    padding: "0 12px"
-    height: "32px"
+    padding: "0 14px"
+    height: "44px"
   nav-item-active:
     backgroundColor: "{colors.mint}"
     textColor: "{colors.forest}"
@@ -175,7 +176,7 @@ Key characteristics:
   inset 16 px, with content at most 1024 px wide. Content padding is 16 px on phones and 32 px on
   desktop. Grids collapse to one column on phones. Nothing scrolls sideways at 390 px.
 - **Motion** is minimal: colour and brightness transitions on hover and press (≈150 ms), with no
-  entrance animations. It respects reduced motion.
+  entrance animations. `prefers-reduced-motion` turns transitions off.
 
 ## Colors
 
@@ -194,6 +195,7 @@ The palette comes from the brand board: natural greens with one warm counterweig
 | income | #0F7A44 | #83CFA2 | Income amounts, "owes you" |
 | expense | #A8412A | #F0997F | Expense amounts, "you owe", over budget, errors, delete |
 | budget near | #C98A1B (bar) | same | Budget at 80% or more |
+| active nav text | `forest` | `night-nav-active` #A8E0BE | Active sidebar item and tab (4.5:1 on the chip tint) |
 | glow A / B | leaf 30% / sage 55% | leaf 28% / forest 55% | The two blurred background circles |
 
 Rules:
@@ -250,20 +252,21 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   with radius 16 px. The selected segment is a solid surface with primary text and a light shadow.
 - **Glass card**: radius 20–22 px, padding 16–20 px, holding a title row with a primary text link on
   the right ("See all").
-- **Balance card**: the solid forest hero with the display amount and a row of light-green
-  sub-figures (assets, owed).
+- **Balance card**: the solid forest hero with the display amount and a row of mint (#E7F5EC,
+  4.8:1) sub-figures (assets, owed).
 - **Stat tile**: a small glass card with a caption label and an 18–20px/800 amount.
 - **Transaction row**: a 40 px chip-tinted icon tile (arrow up for expense, arrow down for income,
   swap for transfer), a bold title and a muted "time · note · wallet" line, and a right-aligned
   signed amount. The whole row is a button, with the chip tint on hover.
 - **Progress bar**: an 8–10 px track in the chip tint, filled with leaf (budget near: amber; over:
   expense), with the amount spent and left or over written underneath.
-- **Navigation**: a sidebar of 44 px items with the active item on the chip tint in primary text. The
+- **Navigation**: a sidebar of 44 px items with the active item on the chip tint in primary text
+  (`night-nav-active` in dark). The
   phone tab bar shows five icon-over-label items, with the active one on the chip tint.
 - **Dialog / sheet**: a bottom sheet on phones (top corners 26 px) and a centred 512 px dialog on
   desktop. It has a solid surface, a title with a round 40 px close button, and actions on the right
   (Cancel secondary, Save primary), with any destructive action on the left.
-- **Chip**: 32–36 px, pill, chip tint, primary 13px/700 text. Used for MFS name shortcuts, "All of
+- **Chip**: 44 px, pill, chip tint, primary 13px/700 text. Used for MFS name shortcuts, "All of
   it", sub-categories and "+ Sub-category".
 - **Empty state**: centred bold title, one muted sentence, and at most one primary action.
 - **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house

@@ -212,7 +212,9 @@ a rule can't be recorded (for example its wallet was deleted), it stays in the u
 | Backend | `dotnet test`. Every slice is exercised through HTTP with `WebApplicationFactory` against a real PostgreSQL. Each test creates its own users, so tests don't affect each other. Test names follow the testing plan's case ids (T-, F-, L-, B-, R-, P-, X-). |
 | Web | `pnpm test` (Vitest + Testing Library). `fakeApi` stands in for the backend and records calls, so tests check what was sent (for example amounts in poisha). |
 | Shared | Money formatting is checked against `contract/fixtures/money-format.json` on both sides. |
-| Image | CI builds the Dockerfile, runs it next to PostgreSQL, and checks health, the web app, SPA fallback, API 404 and time zone data. |
+| Image | CI builds the Dockerfile, runs it next to PostgreSQL and Mailpit, and checks health, the web app, SPA fallback, API 404 and time zone data. |
+| Browser | Playwright (`e2e/`) against that container: register via the emailed link, wallets, expense, transfer with fee, balances; phone layout; axe WCAG 2.2 AA on every main screen in both themes. |
+| Performance | 50,000 transactions; p95 per endpoint must stay under 300 ms (slowest measured: 90 ms). |
 
 ## 11. Version 2: Android app and sync (planned)
 
