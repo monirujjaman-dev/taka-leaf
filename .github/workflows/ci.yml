@@ -46,3 +46,5 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet test backend/TakaLeaf.App.Tests/TakaLeaf.App.Tests.csproj --configuration Release
+      - name: Packages in use
+        run: dotnet list backend/TakaLeaf.App/TakaLeaf.App.csproj package
