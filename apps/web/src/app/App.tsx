@@ -6,10 +6,12 @@ import { ResetPasswordPage } from "../auth/ResetPasswordPage";
 import { SignInPage } from "../auth/SignInPage";
 import { VerifyEmailPage } from "../auth/VerifyEmailPage";
 import { AppShell } from "../layout/AppShell";
+import { BudgetsPage } from "../pages/budgets/BudgetsPage";
 import { CategoriesPage } from "../pages/categories/CategoriesPage";
 import { DashboardPage } from "../pages/dashboard/DashboardPage";
 import { PeoplePage } from "../pages/people/PeoplePage";
 import { PersonPage } from "../pages/people/PersonPage";
+import { RecurringPage } from "../pages/recurring/RecurringPage";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TransactionsPage } from "../pages/transactions/TransactionsPage";
 import { WalletsPage } from "../pages/wallets/WalletsPage";
@@ -58,6 +60,8 @@ export function App() {
           <Route path="/wallets" element={<WalletsPage />} />
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/people/:id" element={<PersonPage />} />
+          <Route path="/budgets" element={<BudgetsPage />} />
+          <Route path="/recurring" element={<RecurringPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

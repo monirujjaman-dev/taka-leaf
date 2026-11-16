@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import type {
+  BudgetList,
+  RecurringInput,
+  RecurringRule,
   Category,
   LoanInput,
   PeopleList,
@@ -17,7 +20,7 @@ import type {
 } from "./types";
 
 /** Anything that changes money touches these, so they are refreshed together after a change. */
-const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"]] as const;
+const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"]] as const;
 
 function useInvalidateMoney() {
   const client = useQueryClient();
@@ -190,6 +193,56 @@ export function useDeleteLoan(personId: string) {
   const invalidate = useInvalidateMoney();
   return useMutation({
     mutationFn: (id: string) => api<void>(`/people/${personId}/loans/${id}`, { method: "DELETE" }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useBudgets(month: string) {
+  return useQuery({ queryKey: ["budgets", month], queryFn: ({ signal }) => api<BudgetList>(`/budgets?month=${month}`, { signal }) });
+}
+
+export function useSaveBudget() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, categoryId, amount }: { id: string | null; categoryId: string | null; amount: number }) =>
+      id ? api(`/budgets/${id}`, { method: "PUT", body: { amount } }) : api("/budgets", { method: "POST", body: { categoryId, amount } }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["budgets"] }),
+  });
+}
+
+export function useDeleteBudget() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<void>(`/budgets/${id}`, { method: "DELETE" }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["budgets"] }),
+  });
+}
+
+export function useRecurring() {
+  return useQuery({ queryKey: ["recurring", "all"], queryFn: ({ signal }) => api<RecurringRule[]>("/recurring", { signal }) });
+}
+
+export function useRecurringDue() {
+  return useQuery({ queryKey: ["recurring", "due"], queryFn: ({ signal }) => api<RecurringRule[]>("/recurring/due", { signal }) });
+}
+
+export function useSaveRecurring() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string | null; input: RecurringInput }) =>
+      id ? api<RecurringRule>(`/recurring/${id}`, { method: "PUT", body: input }) : api<RecurringRule>("/recurring", { method: "POST", body: input }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["recurring"] }),
+  });
+}
+
+/** Record or skip the next date, pause, resume or delete. Recording changes money, so everything refreshes. */
+export function useRecurringAction() {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: ({ id, action, amount }: { id: string; action: "record" | "skip" | "pause" | "resume" | "delete"; amount?: number }) =>
+      action === "delete"
+        ? api<void>(`/recurring/${id}`, { method: "DELETE" })
+        : api(`/recurring/${id}/${action}`, { method: "POST", body: action === "record" ? { amount } : undefined }),
     onSuccess: invalidate,
   });
 }

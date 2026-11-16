@@ -15,7 +15,9 @@ using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Auth;
 using TakaLeaf.App.Features.Categories;
 using TakaLeaf.App.Features.Dashboard;
+using TakaLeaf.App.Features.Budgets;
 using TakaLeaf.App.Features.People;
+using TakaLeaf.App.Features.Recurring;
 using TakaLeaf.App.Features.Health;
 using TakaLeaf.App.Features.Transactions;
 using TakaLeaf.App.Features.Wallets;
@@ -30,6 +32,9 @@ builder.Services.AddProblemDetails();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<LocalCalendar>();
+builder.Services.Configure<RecurringOptions>(builder.Configuration.GetSection(RecurringOptions.Section));
+builder.Services.AddScoped<RecurringRecorder>();
+builder.Services.AddHostedService<RecurringWorker>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
@@ -114,6 +119,8 @@ api.MapCategories();
 api.MapTransactions();
 api.MapDashboard();
 api.MapPeople();
+api.MapBudgets();
+api.MapRecurring();
 
 app.Run();
 

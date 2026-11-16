@@ -25,6 +25,12 @@ public sealed class Transaction : SyncedEntity
 
     /// <summary>For a transfer fee: the transfer this expense belongs to.</summary>
     public Guid? FeeOfId { get; set; }
+
+    /// <summary>The recurring rule this was recorded from, if any.</summary>
+    public Guid? RecurringRuleId { get; set; }
+
+    /// <summary>For a recurring transaction: the local date it was due, so the same date is never recorded twice.</summary>
+    public DateOnly? RecurringDate { get; set; }
     public DateTimeOffset OccurredAt { get; set; }
     public string? Note { get; set; }
 }

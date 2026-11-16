@@ -64,6 +64,7 @@ export function dayLabel(day: string): string {
   const yesterday = localDate(new Date(Date.now() - 86_400_000));
   if (day === today) return "Today";
   if (day === yesterday) return "Yesterday";
+  if (day === localDate(new Date(Date.now() + 86_400_000))) return "Tomorrow";
   return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(
     new Date(`${day}T00:00:00Z`),
   );
@@ -96,3 +97,10 @@ export const WALLET_TYPE_LABEL: Record<WalletType, string> = {
   Lent: "Lent",
   Borrowed: "Borrowed",
 };
+
+const UNIT = { Daily: "day", Weekly: "week", Monthly: "month", Yearly: "year" } as const;
+
+/** "Every month", "Every 2 weeks". */
+export function scheduleLabel(frequency: keyof typeof UNIT, interval: number): string {
+  return interval === 1 ? `Every ${UNIT[frequency]}` : `Every ${interval} ${UNIT[frequency]}s`;
+}

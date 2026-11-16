@@ -23,7 +23,8 @@ public sealed record TransactionDto(
     Guid? FeeOfId,
     long? Fee,
     DateTimeOffset OccurredAt,
-    string? Note);
+    string? Note,
+    Guid? RecurringRuleId);
 
 /// <summary>
 /// Adding and editing take the same fields; an edit replaces all of them.
@@ -252,7 +253,8 @@ internal static class TransactionRules
             t.FeeOfId,
             fees.TryGetValue(t.Id, out var fee) ? fee : null,
             t.OccurredAt,
-            t.Note)).ToList();
+            t.Note,
+            t.RecurringRuleId)).ToList();
     }
 
     private static string? NameOf(Dictionary<Guid, string> names, Guid? id) =>

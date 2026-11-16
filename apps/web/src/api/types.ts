@@ -69,6 +69,7 @@ export interface Transaction {
   fee: number | null;
   occurredAt: string;
   note: string | null;
+  recurringRuleId?: string | null;
 }
 
 export interface TransactionInput {
@@ -148,4 +149,60 @@ export interface LoanInput {
   walletId: string;
   occurredAt?: string;
   note?: string | null;
+}
+
+export type BudgetStatus = "OnTrack" | "Near" | "Over";
+
+export interface Budget {
+  id: string;
+  categoryId: string | null;
+  name: string;
+  amount: number;
+  spent: number;
+  remaining: number;
+  percent: number;
+  status: BudgetStatus;
+}
+
+export interface BudgetList {
+  month: string;
+  budgets: Budget[];
+}
+
+export type Frequency = "Daily" | "Weekly" | "Monthly" | "Yearly";
+
+export interface RecurringRule {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  fromWalletId: string | null;
+  fromWalletName: string | null;
+  toWalletId: string | null;
+  toWalletName: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  note: string | null;
+  frequency: Frequency;
+  interval: number;
+  startDate: string;
+  endDate: string | null;
+  /** Null once the rule has passed its last date. */
+  nextDate: string | null;
+  dueCount: number;
+  autoRecord: boolean;
+  paused: boolean;
+}
+
+export interface RecurringInput {
+  type: TransactionType;
+  amount: number;
+  fromWalletId: string | null;
+  toWalletId: string | null;
+  categoryId: string | null;
+  note: string | null;
+  frequency: Frequency;
+  interval: number;
+  startDate: string;
+  endDate: string | null;
+  autoRecord: boolean;
 }

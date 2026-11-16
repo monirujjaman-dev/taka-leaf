@@ -24,6 +24,62 @@ namespace TakaLeaf.App.Data.Migrations
 
             modelBuilder.HasSequence("server_seq");
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.Budget", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<long>("ServerSeq")
+                        .HasColumnType("bigint")
+                        .HasColumnName("server_seq");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_budgets");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_budgets_category_id");
+
+                    b.HasIndex("UserId", "CategoryId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_budgets_user_id_category_id")
+                        .HasFilter("deleted_at IS NULL");
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("UserId", "CategoryId"), false);
+
+                    b.HasIndex("UserId", "ServerSeq")
+                        .HasDatabaseName("ix_budgets_user_id_server_seq");
+
+                    b.ToTable("budgets", t =>
+                        {
+                            t.HasCheckConstraint("ck_budgets_amount_positive", "amount > 0");
+                        });
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -140,6 +196,119 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasDatabaseName("ix_people_user_id_server_seq");
 
                     b.ToTable("people");
+                });
+
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.RecurringRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount");
+
+                    b.Property<bool>("AutoRecord")
+                        .HasColumnType("boolean")
+                        .HasColumnName("auto_record");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("frequency");
+
+                    b.Property<Guid?>("FromWalletId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_wallet_id");
+
+                    b.Property<int>("Interval")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval");
+
+                    b.Property<DateOnly>("NextDate")
+                        .HasColumnType("date")
+                        .HasColumnName("next_date");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("Occurrences")
+                        .HasColumnType("integer")
+                        .HasColumnName("occurrences");
+
+                    b.Property<bool>("Paused")
+                        .HasColumnType("boolean")
+                        .HasColumnName("paused");
+
+                    b.Property<long>("ServerSeq")
+                        .HasColumnType("bigint")
+                        .HasColumnName("server_seq");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<Guid?>("ToWalletId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_wallet_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_recurring_rules");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_recurring_rules_category_id");
+
+                    b.HasIndex("FromWalletId")
+                        .HasDatabaseName("ix_recurring_rules_from_wallet_id");
+
+                    b.HasIndex("ToWalletId")
+                        .HasDatabaseName("ix_recurring_rules_to_wallet_id");
+
+                    b.HasIndex("NextDate", "AutoRecord")
+                        .HasDatabaseName("ix_recurring_rules_next_date_auto_record");
+
+                    b.HasIndex("UserId", "ServerSeq")
+                        .HasDatabaseName("ix_recurring_rules_user_id_server_seq");
+
+                    b.ToTable("recurring_rules", t =>
+                        {
+                            t.HasCheckConstraint("ck_recurring_rules_amount_positive", "amount > 0");
+
+                            t.HasCheckConstraint("ck_recurring_rules_interval", "interval BETWEEN 1 AND 366");
+                        });
                 });
 
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.RefreshToken", b =>
@@ -262,6 +431,14 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("person_id");
 
+                    b.Property<DateOnly?>("RecurringDate")
+                        .HasColumnType("date")
+                        .HasColumnName("recurring_date");
+
+                    b.Property<Guid?>("RecurringRuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recurring_rule_id");
+
                     b.Property<long>("ServerSeq")
                         .HasColumnType("bigint")
                         .HasColumnName("server_seq");
@@ -301,6 +478,11 @@ namespace TakaLeaf.App.Data.Migrations
 
                     b.HasIndex("ToWalletId")
                         .HasDatabaseName("ix_transactions_to_wallet_id");
+
+                    b.HasIndex("RecurringRuleId", "RecurringDate")
+                        .IsUnique()
+                        .HasDatabaseName("ix_transactions_recurring_rule_id_recurring_date")
+                        .HasFilter("recurring_rule_id IS NOT NULL AND deleted_at IS NULL");
 
                     b.HasIndex("UserId", "OccurredAt")
                         .HasDatabaseName("ix_transactions_user_id_occurred_at");
@@ -494,6 +676,22 @@ namespace TakaLeaf.App.Data.Migrations
                     b.ToTable("wallets");
                 });
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.Budget", b =>
+                {
+                    b.HasOne("TakaLeaf.App.Data.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_budgets_categories_category_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_budgets_users_user_id");
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Category", b =>
                 {
                     b.HasOne("TakaLeaf.App.Data.Entities.Category", null)
@@ -518,6 +716,34 @@ namespace TakaLeaf.App.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_people_users_user_id");
+                });
+
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.RecurringRule", b =>
+                {
+                    b.HasOne("TakaLeaf.App.Data.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_recurring_rules_categories_category_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.Wallet", null)
+                        .WithMany()
+                        .HasForeignKey("FromWalletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_recurring_rules_wallets_from_wallet_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.Wallet", null)
+                        .WithMany()
+                        .HasForeignKey("ToWalletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_recurring_rules_wallets_to_wallet_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_recurring_rules_users_user_id");
                 });
 
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.RefreshToken", b =>
@@ -565,6 +791,12 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_transactions_people_person_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.RecurringRule", null)
+                        .WithMany()
+                        .HasForeignKey("RecurringRuleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_transactions_recurring_rules_recurring_rule_id");
 
                     b.HasOne("TakaLeaf.App.Data.Entities.Wallet", null)
                         .WithMany()
