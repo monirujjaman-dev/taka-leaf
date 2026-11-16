@@ -80,6 +80,43 @@ internal sealed class TransactionConfiguration : IEntityTypeConfiguration<Transa
         builder.HasOne<Person>().WithMany().HasForeignKey(e => e.PersonId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Transaction>().WithMany().HasForeignKey(e => e.FeeOfId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(e => new { e.UserId, e.OccurredAt });
+        builder.HasOne<RecurringRule>().WithMany().HasForeignKey(e => e.RecurringRuleId).OnDelete(DeleteBehavior.Restrict);
+
+        // A recurring date is recorded at most once, even if two requests race.
+        builder.HasIndex(e => new { e.RecurringRuleId, e.RecurringDate }).IsUnique().HasFilter("recurring_rule_id IS NOT NULL AND deleted_at IS NULL");
+    }
+}
+
+internal sealed class BudgetConfiguration : IEntityTypeConfiguration<Budget>
+{
+    public void Configure(EntityTypeBuilder<Budget> builder)
+    {
+        builder.ConfigureSynced();
+        builder.ToTable(table => table.HasCheckConstraint("ck_budgets_amount_positive", "amount > 0"));
+        builder.HasOne<Category>().WithMany().HasForeignKey(e => e.CategoryId).OnDelete(DeleteBehavior.Restrict);
+
+        // One budget per category, and one overall budget (null category), per user.
+        builder.HasIndex(e => new { e.UserId, e.CategoryId }).IsUnique().HasFilter("deleted_at IS NULL").AreNullsDistinct(false);
+    }
+}
+
+internal sealed class RecurringRuleConfiguration : IEntityTypeConfiguration<RecurringRule>
+{
+    public void Configure(EntityTypeBuilder<RecurringRule> builder)
+    {
+        builder.ConfigureSynced();
+        builder.ToTable(table =>
+        {
+            table.HasCheckConstraint("ck_recurring_rules_amount_positive", "amount > 0");
+            table.HasCheckConstraint("ck_recurring_rules_interval", "interval BETWEEN 1 AND 366");
+        });
+        builder.Property(e => e.Type).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.Frequency).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.Note).HasMaxLength(500);
+        builder.HasOne<Wallet>().WithMany().HasForeignKey(e => e.FromWalletId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Wallet>().WithMany().HasForeignKey(e => e.ToWalletId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Category>().WithMany().HasForeignKey(e => e.CategoryId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(e => new { e.NextDate, e.AutoRecord });
     }
 }
 
