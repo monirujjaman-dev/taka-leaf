@@ -18,6 +18,6 @@ public static class GetMe
     {
         var userId = principal.UserId();
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-        return user is null ? Results.Unauthorized() : Results.Ok(new AuthUser(user.Id, user.Email));
+        return user is null ? Results.Unauthorized() : Results.Ok(AuthUser.From(user));
     }
 }

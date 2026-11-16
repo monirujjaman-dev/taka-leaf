@@ -61,6 +61,8 @@ Automated at the backend integration level unless marked; ★ cases also run end
 | A-8 | Reset link reused or after 30 minutes | Refused |
 | A-9★ | Reset password | New password works, old one does not, every device signed out |
 | A-10 | Change password with a wrong current one | Refused |
+| A-11 | Register without a name, or with more than 100 characters | Refused with the message next to the name field; no email sent |
+| A-12 | Change the name in Settings | The new name shows at once and after signing in again; a blank name is refused |
 
 ### 3.2 Wallets
 

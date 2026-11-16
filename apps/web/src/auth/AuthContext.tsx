@@ -9,6 +9,8 @@ interface AuthValue {
   state: AuthState;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /** After Settings changes the name: keeps the signed-in user in step without a reload. */
+  updateUser: (user: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -49,7 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [queryClient]);
 
-  const value = useMemo(() => ({ state, signIn, signOut }), [state, signIn, signOut]);
+  const updateUser = useCallback((user: AuthUser) => setState({ status: "signedIn", user }), []);
+  const value = useMemo(() => ({ state, signIn, signOut, updateUser }), [state, signIn, signOut, updateUser]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

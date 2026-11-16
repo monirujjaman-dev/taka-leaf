@@ -1,0 +1,12 @@
+[
+  { "input": "Monir Hossain", "name": "Monir Hossain" },
+  { "input": "  মনিরুজ্জামান  ", "name": "মনিরুজ্জামান" },
+  { "input": "Rafi    Ahmed", "name": "Rafi Ahmed" },
+  { "input": "Ann\tLee\n", "name": "Ann Lee" },
+  { "input": "A", "name": "A" },
+  { "input": "", "error": "Enter your name." },
+  { "input": "   ", "error": "Enter your name." },
+  { "input": null, "error": "Enter your name." },
+  { "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+  { "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "error": "Use 100 characters or fewer." }
+]

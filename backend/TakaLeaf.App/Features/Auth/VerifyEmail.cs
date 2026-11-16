@@ -43,6 +43,11 @@ public static class VerifyEmail
             user.PasswordHash = token.PasswordHash;
         }
 
+        if (!string.IsNullOrEmpty(token.Name))
+        {
+            user.Name = token.Name;
+        }
+
         user.EmailVerifiedAt ??= now;
 
         // Every other verification link for this account stops working now.

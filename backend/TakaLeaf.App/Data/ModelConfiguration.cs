@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TakaLeaf.App.Common;
 using TakaLeaf.App.Data.Entities;
 
 namespace TakaLeaf.App.Data;
@@ -25,6 +26,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedNever();
         builder.Property(e => e.Email).HasMaxLength(254);
+        builder.Property(e => e.Name).HasMaxLength(NameRules.MaxLength);
         builder.Property(e => e.PasswordHash).HasMaxLength(500);
         builder.HasIndex(e => e.Email).IsUnique();
     }
@@ -152,6 +154,7 @@ internal sealed class UserTokenConfiguration : IEntityTypeConfiguration<UserToke
         builder.Property(e => e.Purpose).HasConversion<string>().HasMaxLength(20);
         builder.Property(e => e.TokenHash).HasMaxLength(64);
         builder.Property(e => e.PasswordHash).HasMaxLength(500);
+        builder.Property(e => e.Name).HasMaxLength(NameRules.MaxLength);
         builder.HasIndex(e => e.TokenHash).IsUnique();
         builder.HasOne<User>().WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
     }

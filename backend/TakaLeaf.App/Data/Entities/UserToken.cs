@@ -22,6 +22,9 @@ public sealed class UserToken
     /// the same unverified email cannot end up owning the account once the real owner verifies.
     /// </summary>
     public string? PasswordHash { get; set; }
+
+    /// <summary>For email verification: the name given at that registration, applied the same way.</summary>
+    public string? Name { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset ExpiresAt { get; set; }
     public DateTimeOffset? UsedAt { get; set; }

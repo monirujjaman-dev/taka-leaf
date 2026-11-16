@@ -44,7 +44,7 @@ export const session = (email = "monir@example.com", token = "access-1") => ({
   accessToken: token,
   accessTokenExpiresAt: "2026-11-16T08:00:00Z",
   refreshToken: null,
-  user: { id: "u1", email },
+  user: { id: "u1", email, name: "Monir Hossain" },
 });
 
 export const signedOut = { status: 401, body: { title: "Your session has ended. Sign in again." } };

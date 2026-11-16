@@ -103,7 +103,7 @@ These hold everywhere. Code that breaks one of them is a bug.
 
 | Table | Key fields | Notes |
 | --- | --- | --- |
-| `users` | email (unique), password_hash, email_verified_at, failed_sign_in_count, locked_until | Not synced. |
+| `users` | email (unique), name (1–100 characters; "" for accounts made before names), password_hash, email_verified_at, failed_sign_in_count, locked_until | Not synced. The name is cleaned by `NameRules` / `checkName` (contract fixture `person-name.json`). An unverified re-registration keeps its name and password on the emailed link and applies them only when that link is opened. |
 | `sessions`, `refresh_tokens` | token hashes, used_at, revoked_at | One session per signed-in device. |
 | `user_tokens` | purpose (VerifyEmail / ResetPassword), token_hash, expires_at, used_at | Single-use email links. |
 | `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person. |
@@ -135,7 +135,7 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Area | Endpoints |
 | --- | --- |
 | Health | `GET /health`: API up, database up/down |
-| Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me`; `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `POST /auth/sessions/sign-out-others` |
+| Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me`, `PUT /auth/me` (name); register takes `name`, and every user in an auth response has `name`; `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `POST /auth/sessions/sign-out-others` |
 | Wallets | `GET/POST /wallets`, `GET/PUT/DELETE /wallets/{id}`, `POST /wallets/{id}/archive`, `/unarchive` |
 | Categories | `GET/POST /categories`, `PUT/DELETE /categories/{id}`, `POST /{id}/archive`, `/unarchive`, `/merge` |
 | Transactions | `GET /transactions` (from, to, walletId, categoryId, uncategorised, type, search, page, pageSize; totals over all matches), `GET /transactions/export.csv` (same filters; UTF-8 CSV, amounts in taka, formula-like text neutralised), `GET/PUT/DELETE /transactions/{id}`, `POST /transactions` |

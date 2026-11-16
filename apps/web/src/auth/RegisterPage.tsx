@@ -1,3 +1,4 @@
+import { checkName, NAME_MAX_LENGTH } from "@takaleaf/shared";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { api, ApiError } from "../api/client";
@@ -9,6 +10,8 @@ import { AuthLayout, linkClass } from "./AuthLayout";
 import { PASSWORD_HINT, PasswordField } from "./PasswordField";
 
 export function RegisterPage() {
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<ApiError | null>(null);
@@ -17,10 +20,13 @@ export function RegisterPage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    const checked = checkName(name);
+    setNameError(checked.error);
+    if (checked.error) return;
     setBusy(true);
     setError(null);
     try {
-      const response = await api<MessageResponse>("/auth/register", { method: "POST", body: { email, password } });
+      const response = await api<MessageResponse>("/auth/register", { method: "POST", body: { name: checked.name, email, password } });
       setDone(response.message);
     } catch (caught) {
       setError(caught instanceof ApiError ? caught : new ApiError(0, "Something went wrong. Try again."));
@@ -47,6 +53,15 @@ export function RegisterPage() {
     <AuthLayout title="Create your account" intro="One account for TakaLeaf on the web, and on Android later.">
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         <TextField
+          label="Your name"
+          autoComplete="name"
+          maxLength={NAME_MAX_LENGTH}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          hint="How TakaLeaf greets you. You can change it later in Settings."
+          error={nameError ?? error?.field("name")}
+        />
+        <TextField
           label="Email"
           type="email"
           autoComplete="email"
@@ -62,8 +77,8 @@ export function RegisterPage() {
           hint={PASSWORD_HINT}
           error={error?.field("password")}
         />
-        {error && !error.field("email") && !error.field("password") ? <ErrorNote>{error.message}</ErrorNote> : null}
-        <Button type="submit" disabled={busy || !email || !password} className="mt-1 h-[54px] rounded-[18px] text-base font-extrabold">
+        {error && !error.field("name") && !error.field("email") && !error.field("password") ? <ErrorNote>{error.message}</ErrorNote> : null}
+        <Button type="submit" disabled={busy || !name.trim() || !email || !password} className="mt-1 h-[54px] rounded-[18px] text-base font-extrabold">
           {busy ? "Creating…" : "Create account"}
         </Button>
       </form>

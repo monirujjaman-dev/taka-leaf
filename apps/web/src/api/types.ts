@@ -3,6 +3,8 @@
 export interface AuthUser {
   id: string;
   email: string;
+  /** "" for accounts made before names were asked for. */
+  name: string;
 }
 
 export interface AuthResponse {

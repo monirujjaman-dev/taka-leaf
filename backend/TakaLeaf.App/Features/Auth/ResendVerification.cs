@@ -28,7 +28,7 @@ public static class ResendVerification
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
             if (user is { EmailVerifiedAt: null })
             {
-                await emails.SendVerificationAsync(user, user.PasswordHash, cancellationToken);
+                await emails.SendVerificationAsync(user, user.PasswordHash, user.Name, cancellationToken);
             }
         }
 

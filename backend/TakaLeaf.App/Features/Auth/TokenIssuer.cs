@@ -81,7 +81,7 @@ public sealed class TokenIssuer(AppDbContext db, IOptions<AuthOptions> options, 
             http.Response.Cookies.Append(RefreshCookie, refreshToken, RefreshCookieOptions(session.ExpiresAt));
         }
 
-        return new AuthResponse(accessToken, expires, web ? null : refreshToken, new AuthUser(user.Id, user.Email));
+        return new AuthResponse(accessToken, expires, web ? null : refreshToken, AuthUser.From(user));
     }
 
     public static void ClearRefreshCookie(HttpContext http) =>

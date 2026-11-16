@@ -524,6 +524,12 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("locked_until");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -553,6 +559,11 @@ namespace TakaLeaf.App.Data.Migrations
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.Property<string>("PasswordHash")
                         .HasMaxLength(500)
