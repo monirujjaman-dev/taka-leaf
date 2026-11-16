@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Options;
+using System.Globalization;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Common.Email;
 using TakaLeaf.App.Data;
@@ -10,13 +10,12 @@ namespace TakaLeaf.App.Features.Auth;
 public sealed class PasswordEmails(
     AppDbContext db,
     IEmailSender sender,
-    IOptions<AppOptions> app,
+    EmailTemplates templates,
+    LocalCalendar calendar,
     TimeProvider clock,
     ILogger<PasswordEmails> logger)
 {
     public static readonly TimeSpan ResetLinkLifetime = TimeSpan.FromMinutes(30);
-
-    private string WebBaseUrl => app.Value.WebBaseUrl.TrimEnd('/');
 
     /// <summary>Saves a single-use reset link and emails it.</summary>
     public async Task SendResetLinkAsync(User user, CancellationToken cancellationToken)
@@ -33,27 +32,39 @@ public sealed class PasswordEmails(
         });
         await db.SaveChangesAsync(cancellationToken);
 
-        var body = string.Join('\n',
-            "Someone asked to reset the password of your TakaLeaf account.",
-            "",
-            "Open this link to choose a new password:",
-            $"{WebBaseUrl}/reset-password?token={token}",
-            "",
-            "The link works once and expires in 30 minutes.",
-            "If you did not ask for this, you can ignore this email. Your password has not changed.");
-        await SendAsync(new EmailMessage(user.Email, "Reset your TakaLeaf password", body), cancellationToken);
+        var message = templates.Render(
+            "reset-password",
+            user.Email,
+            "Reset your TakaLeaf password",
+            "Choose a new password. The link works for 30 minutes.",
+            new Dictionary<string, string>
+            {
+                ["greeting"] = EmailTemplates.Greeting(user.Name),
+                ["actionUrl"] = templates.Link($"/reset-password?token={token}"),
+            });
+        await SendAsync(message, cancellationToken);
     }
 
     /// <summary>Tells the owner that the password changed, in case it was not them.</summary>
     public async Task SendPasswordChangedAsync(User user, CancellationToken cancellationToken)
     {
-        var body = string.Join('\n',
-            "The password of your TakaLeaf account was just changed.",
-            "",
-            "If this was you, there is nothing to do.",
-            $"If it was not, reset your password now: {WebBaseUrl}/forgot-password");
-        await SendAsync(new EmailMessage(user.Email, "Your TakaLeaf password was changed", body), cancellationToken);
+        var message = templates.Render(
+            "password-changed",
+            user.Email,
+            "Your TakaLeaf password was changed",
+            "If this was not you, reset your password now.",
+            new Dictionary<string, string>
+            {
+                ["greeting"] = EmailTemplates.Greeting(user.Name),
+                ["when"] = When(clock.GetUtcNow()),
+                ["actionUrl"] = templates.Link("/forgot-password"),
+            });
+        await SendAsync(message, cancellationToken);
     }
+
+    /// <summary>"17 Nov 2026, 1:03 AM (Dhaka time)": the local time, as the apps show it.</summary>
+    private string When(DateTimeOffset moment) =>
+        calendar.ToLocal(moment).ToString("d MMM yyyy, h:mm tt", CultureInfo.InvariantCulture) + " (Dhaka time)";
 
     private async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
     {

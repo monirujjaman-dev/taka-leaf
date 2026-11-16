@@ -10,9 +10,13 @@ async function linkFromEmail(email: string, path: string): Promise<string> {
     const search = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
     const { messages = [] } = (await search.json()) as { messages?: { ID: string }[] };
     if (messages[0]) {
-      const message = (await (await fetch(`${MAILPIT}/api/v1/message/${messages[0].ID}`)).json()) as { Text: string };
+      const message = (await (await fetch(`${MAILPIT}/api/v1/message/${messages[0].ID}`)).json()) as { Text: string; HTML: string };
       const link = new RegExp(`https?://\\S+${path}\\?token=[\\w-]+`).exec(message.Text)?.[0];
-      if (link) return new URL(link).pathname + new URL(link).search;
+      if (link) {
+        // The branded HTML part carries the same link as the plain text.
+        expect(message.HTML).toContain(link);
+        return new URL(link).pathname + new URL(link).search;
+      }
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }

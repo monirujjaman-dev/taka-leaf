@@ -127,3 +127,18 @@ The same areas and flows, with Android in mind: bottom tabs, a number-pad amount
 an expense to four taps plus the amount, a sync status line (last sync, changes waiting, rejected
 changes), a Sync button, app lock with PIN or fingerprint, and a daily reminder. Glass blur is
 used on few surfaces, with a plain translucent fallback on slower phones.
+
+## 9. Emails
+
+Every email has one job, one button and a plain-text twin. Wording is short and calm, and it
+always says what to do if the email was not expected.
+
+| Email | Subject | Button | Also says |
+| --- | --- | --- | --- |
+| Verify email | Verify your TakaLeaf email | Verify email | The link works once and expires in 24 hours; ignore it if you did not sign up |
+| Already registered | You already have a TakaLeaf account | Sign in | "Forgot your password? Reset it here"; your account has not changed |
+| Reset password | Reset your TakaLeaf password | Choose a new password | 30 minutes, once; every device is signed out after the change |
+| Password changed | Your TakaLeaf password was changed | Reset my password | Account and local time of the change; a warning box for "Was this not you?" |
+
+Greeting: "Hi {name}," or "Hello," for accounts without a name. Designs: the "Emails" row of the UI
+design canvas (desktop, phone and dark mode).

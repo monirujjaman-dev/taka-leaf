@@ -110,6 +110,7 @@ try
     builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
     builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
     builder.Services.AddScoped<TokenIssuer>();
+    builder.Services.AddSingleton<EmailTemplates>();
     builder.Services.AddScoped<VerificationEmails>();
     builder.Services.AddScoped<PasswordEmails>();
 

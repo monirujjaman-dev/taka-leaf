@@ -2,7 +2,6 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using MimeKit.Text;
 
 namespace TakaLeaf.App.Common.Email;
 
@@ -18,7 +17,7 @@ public sealed class EmailOptions
     public string From { get; set; } = "TakaLeaf <no-reply@takaleaf.local>";
 }
 
-/// <summary>Sends plain-text email over SMTP. In development the mail catcher on port 1025 receives it.</summary>
+/// <summary>Sends email (text, plus HTML when there is some) over SMTP. In development the mail catcher on port 1025 receives it.</summary>
 public sealed class SmtpEmailSender(IOptions<EmailOptions> options) : IEmailSender
 {
     public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
@@ -28,7 +27,8 @@ public sealed class SmtpEmailSender(IOptions<EmailOptions> options) : IEmailSend
         mime.From.Add(MailboxAddress.Parse(settings.From));
         mime.To.Add(MailboxAddress.Parse(message.To));
         mime.Subject = message.Subject;
-        mime.Body = new TextPart(TextFormat.Plain) { Text = message.TextBody };
+        // multipart/alternative: mail apps show the HTML and fall back to the text.
+        mime.Body = new BodyBuilder { TextBody = message.TextBody, HtmlBody = message.HtmlBody }.ToMessageBody();
 
         using var client = new SmtpClient();
         await client.ConnectAsync(settings.Host, settings.Port, settings.Security, cancellationToken);

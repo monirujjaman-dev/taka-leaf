@@ -288,6 +288,15 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 - **Empty state**: centred bold title, one muted sentence, and at most one primary action.
 - **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house
   (`ui/Icon.tsx`).
+- **Email**: a 600 px column on mint; the leaf mark (40 px PNG) and a live-text "TakaLeaf" wordmark
+  above a white card (radius 20, 1 px line border, padding 40, 24 px on phones where the card goes
+  edge to edge). Inside: a 24px/800 title, "Hi {name}," (or "Hello,"), 15px/24px body, one forest
+  button (radius 14, 15 × 28 px padding, 16px/800 white; a table cell so Outlook draws it), a mint
+  note (radius 14) for link lifetimes or a rust-tinted warning, "Button not working?" with the
+  raw link, a rule, and a 13px muted line on what to do if it was not you. A 12px muted footer
+  names the address and server. Inline styles, tables for layout, system fonts after Inter; a
+  `prefers-color-scheme: dark` block for mail apps that support it. Every email has a plain-text
+  part with the same words and links.
 
 ## Do's and Don'ts
 
