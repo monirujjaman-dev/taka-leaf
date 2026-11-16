@@ -216,13 +216,28 @@ a rule can't be recorded (for example its wallet was deleted), it stays in the u
 | Browser | Playwright (`e2e/`) against that container: register via the emailed link, wallets, expense, transfer with fee, balances; phone layout; axe WCAG 2.2 AA on every main screen in both themes. |
 | Performance | 50,000 transactions; p95 per endpoint must stay under 300 ms (slowest measured: 90 ms). |
 
-## 11. Version 2: Android app and sync (planned)
+## 11. Version 2: Android app and sync (in progress)
 
 Version 2 adds an Android app that works fully offline on SQLite and syncs with this backend. The
 backend is already prepared for it: client-made Guid v7 ids, `UpdatedAt`, soft delete and `ServerSeq`
 on every user table, and refresh tokens in the response body for `client: "mobile"`.
 
-### Planned Android stack
+The app is in `apps/mobile/`: Expo SDK 58, React Native 0.88, Expo Router, TypeScript strict,
+Android 7.0 (API 24) and newer, package `com.takaleaf.app`. The `Android` workflow builds an APK.
+
+```text
+apps/mobile/
+  app/             Expo Router screens (_layout runs the SQLite migrations)
+  src/db/          schema.ts (Drizzle), client.ts (expo-sqlite), store.ts (queries on any sync Drizzle DB)
+  src/api/         calls to the user's server
+  src/background.ts  the background task (defined at start-up so Android can run it with the app closed)
+  drizzle/         migrations from `pnpm --filter @takaleaf/mobile db:generate`; never edit by hand
+```
+
+Store functions take an `AppDb` (any synchronous Drizzle SQLite database), so the unit tests run
+the same queries and migrations in Node on sql.js. Colours come from `packages/shared` (`themes`).
+
+### Android stack
 
 | Layer | Choice | Why |
 | --- | --- | --- |

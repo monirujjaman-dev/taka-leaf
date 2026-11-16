@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "TakaLeaf",
+    "slug": "takaleaf",
+    "scheme": "takaleaf",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "platforms": [
+      "android"
+    ],
+    "android": {
+      "package": "com.takaleaf.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-foreground.png",
+        "monochromeImage": "./assets/adaptive-monochrome.png",
+        "backgroundColor": "#E7F5EC"
+      },
+      "allowBackup": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-background-task",
+      "expo-secure-store",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/adaptive-foreground.png",
+          "imageWidth": 160,
+          "backgroundColor": "#E7F5EC",
+          "dark": {
+            "image": "./assets/adaptive-foreground.png",
+            "backgroundColor": "#0A1F15"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
