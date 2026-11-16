@@ -37,6 +37,7 @@ export function TransactionsPage() {
     to: params.get("to") ?? lastDayOf(month),
     walletId: params.get("walletId") ?? "",
     categoryId: params.get("categoryId") ?? "",
+    uncategorised: params.get("uncategorised") === "true" ? "true" : "",
     type: params.get("type") ?? "",
     search: params.get("search") ?? "",
     page: Number(params.get("page") ?? "1") || 1,
@@ -44,7 +45,7 @@ export function TransactionsPage() {
 
   const [search, setSearch] = useState(filters.search);
   const [moreFilters, setMoreFilters] = useState(false);
-  const activeExtra = [filters.walletId, filters.type, filters.categoryId].filter(Boolean).length;
+  const activeExtra = [filters.walletId, filters.type, filters.categoryId, filters.uncategorised].filter(Boolean).length;
   useEffect(() => {
     const timer = setTimeout(() => {
       if (search !== filters.search) update({ search });
@@ -99,8 +100,15 @@ export function TransactionsPage() {
           <option value="Income">Income</option>
           <option value="Transfer">Transfers</option>
         </SelectField>
-        <SelectField label="Category" value={filters.categoryId} onChange={(e) => update({ categoryId: e.target.value })}>
+        <SelectField
+          label="Category"
+          value={filters.uncategorised ? "none" : filters.categoryId}
+          onChange={(e) =>
+            e.target.value === "none" ? update({ categoryId: "", uncategorised: "true" }) : update({ categoryId: e.target.value, uncategorised: "" })
+          }
+        >
           <option value="">All categories</option>
+          <option value="none">No category</option>
           <CategoryOptions categories={categories.data ?? []} keep={filters.categoryId} />
         </SelectField>
         </div>

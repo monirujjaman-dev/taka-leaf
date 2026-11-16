@@ -104,3 +104,18 @@ const UNIT = { Daily: "day", Weekly: "week", Monthly: "month", Yearly: "year" } 
 export function scheduleLabel(frequency: keyof typeof UNIT, interval: number): string {
   return interval === 1 ? `Every ${UNIT[frequency]}` : `Every ${interval} ${UNIT[frequency]}s`;
 }
+
+/** Short amount for chart labels: ৳950, 48k, 1.2L (lakh), 3.4Cr (crore). */
+export function compactTaka(poisha: number): string {
+  const taka = Math.round(Math.abs(poisha) / 100);
+  const sign = poisha < 0 ? "−" : "";
+  const short = (n: number) => (n >= 10 ? Math.round(n).toString() : (Math.round(n * 10) / 10).toString());
+  if (taka >= 1_00_00_000) return `${sign}${short(taka / 1_00_00_000)}Cr`;
+  if (taka >= 1_00_000) return `${sign}${short(taka / 1_00_000)}L`;
+  if (taka >= 1_000) return `${sign}${short(taka / 1_000)}k`;
+  return `${sign}৳${taka}`;
+}
+
+export function shortMonth(month: string): string {
+  return new Intl.DateTimeFormat("en-GB", { month: "short", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
+}

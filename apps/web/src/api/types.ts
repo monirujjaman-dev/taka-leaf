@@ -206,3 +206,27 @@ export interface RecurringInput {
   endDate: string | null;
   autoRecord: boolean;
 }
+
+export type ReportPeriod = "Month" | "Year";
+
+export interface CategoryTotal {
+  categoryId: string | null;
+  name: string;
+  amount: number;
+  percent: number;
+  children: { categoryId: string | null; name: string; amount: number }[];
+}
+
+export interface Report {
+  period: ReportPeriod;
+  label: string;
+  from: string;
+  to: string;
+  income: number;
+  expense: number;
+  saved: number;
+  savedPercent: number | null;
+  spending: CategoryTotal[];
+  earning: CategoryTotal[];
+  trend: { month: string; income: number; expense: number }[];
+}

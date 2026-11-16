@@ -8,6 +8,7 @@ namespace TakaLeaf.App.Features.Categories;
 /// <summary>
 /// POST /api/categories/{id}/merge - moves every transaction of this category into another one
 /// of the same kind, then removes this category. Totals do not change; only the label does.
+/// Recurring rules move with it; its budget moves too unless the target already has one.
 /// </summary>
 public static class MergeCategory
 {
@@ -69,7 +70,31 @@ public static class MergeCategory
             transaction.CategoryId = target.Id;
         }
 
-        source.DeletedAt = clock.GetUtcNow();
+        // Recurring rules follow their category.
+        var rules = await db.RecurringRules
+            .Where(r => r.UserId == userId && r.CategoryId == source.Id)
+            .ToListAsync(cancellationToken);
+        foreach (var rule in rules)
+        {
+            rule.CategoryId = target.Id;
+        }
+
+        // A budget moves to the target, unless the target already has its own; then the source's goes.
+        var now = clock.GetUtcNow();
+        var budget = await db.Budgets.FirstOrDefaultAsync(b => b.UserId == userId && b.CategoryId == source.Id, cancellationToken);
+        if (budget is not null)
+        {
+            if (await db.Budgets.AnyAsync(b => b.UserId == userId && b.CategoryId == target.Id, cancellationToken))
+            {
+                budget.DeletedAt = now;
+            }
+            else
+            {
+                budget.CategoryId = target.Id;
+            }
+        }
+
+        source.DeletedAt = now;
         await db.SaveChangesAsync(cancellationToken);
 
         return Results.Ok(new MergeCategoryResponse(transactions.Count));

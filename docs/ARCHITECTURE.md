@@ -138,8 +138,9 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me` |
 | Wallets | `GET/POST /wallets`, `GET/PUT/DELETE /wallets/{id}`, `POST /wallets/{id}/archive`, `/unarchive` |
 | Categories | `GET/POST /categories`, `PUT/DELETE /categories/{id}`, `POST /{id}/archive`, `/unarchive`, `/merge` |
-| Transactions | `GET /transactions` (from, to, walletId, categoryId, type, search, page, pageSize; totals over all matches), `GET/PUT/DELETE /transactions/{id}`, `POST /transactions` |
+| Transactions | `GET /transactions` (from, to, walletId, categoryId, uncategorised, type, search, page, pageSize; totals over all matches), `GET/PUT/DELETE /transactions/{id}`, `POST /transactions` |
 | Dashboard | `GET /dashboard?month=yyyy-MM` |
+| Reports | `GET /reports?period=Month&month=yyyy-MM` or `?period=Year&year=yyyy`: income, expense, saved, by category (with sub-categories), trend (6 or 12 months). Only income and expense count |
 | People | `GET/POST /people`, `GET/PUT/DELETE /people/{id}`, `POST /people/{id}/loans`, `PUT/DELETE /people/{id}/loans/{loanId}` (Lend, GotBack, Borrow, PaidBack) |
 | Budgets | `GET /budgets?month=`, `POST /budgets`, `PUT/DELETE /budgets/{id}` (status OnTrack / Near ≥ 80% / Over) |
 | Recurring | `GET /recurring`, `GET /recurring/due`, `GET/PUT/DELETE /recurring/{id}`, `POST /recurring`, `POST /{id}/record`, `/skip`, `/pause`, `/resume` |
@@ -172,7 +173,7 @@ src/api/        client.ts (fetch + silent refresh), queries.ts (TanStack Query h
 src/auth/       AuthContext, sign-in / register / verify / forgot / reset pages
 src/layout/     AppShell (sidebar on desktop; top bar, bottom tabs, add button on phones),
                 TransactionSheet (one transaction form for the whole app)
-src/pages/      dashboard, transactions, wallets, people, budgets, recurring, categories, settings
+src/pages/      dashboard, transactions, wallets, people, reports, budgets, recurring, categories, settings
 src/ui/         Button, Field, Modal, Feedback, Icon, format.ts (dates in Asia/Dhaka, amounts)
 src/test/       fakeApi (fetch stand-in), renderApp
 ```

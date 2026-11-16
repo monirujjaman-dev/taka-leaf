@@ -12,6 +12,7 @@ import { DashboardPage } from "../pages/dashboard/DashboardPage";
 import { PeoplePage } from "../pages/people/PeoplePage";
 import { PersonPage } from "../pages/people/PersonPage";
 import { RecurringPage } from "../pages/recurring/RecurringPage";
+import { ReportsPage } from "../pages/reports/ReportsPage";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TransactionsPage } from "../pages/transactions/TransactionsPage";
 import { WalletsPage } from "../pages/wallets/WalletsPage";
@@ -60,6 +61,7 @@ export function App() {
           <Route path="/wallets" element={<WalletsPage />} />
           <Route path="/people" element={<PeoplePage />} />
           <Route path="/people/:id" element={<PersonPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/budgets" element={<BudgetsPage />} />
           <Route path="/recurring" element={<RecurringPage />} />
           <Route path="/categories" element={<CategoriesPage />} />

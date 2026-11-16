@@ -24,17 +24,18 @@ TakaLeaf UI design canvas in claude.ai; the web app now follows them in code.
 | Transactions | `/transactions` | History with filters, search, totals |
 | Wallets | `/wallets` | Where the money is: balances by wallet type |
 | People | `/people`, `/people/:id` | Lending and borrowing, per person |
+| Reports | `/reports` | Month or year: income against expense, savings, trend, by category with drill-down |
 | Budgets | `/budgets` | Monthly limits and progress |
 | Recurring | `/recurring` | Rent, salary, subscriptions; items waiting to be recorded |
 | Categories | `/categories` | Income and expense categories, two levels |
-| Settings | `/settings` | Account, theme, password, sign out (on phones also links to Budgets, Recurring, Categories) |
+| Settings | `/settings` | Account, theme, password, sign out (on phones also links to Reports, Budgets, Recurring, Categories) |
 | Sign-in flow | `/sign-in`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password` | Account access; email links land on the last two |
 
 ### Navigation
 
 | Width | Pattern |
 | --- | --- |
-| ≥ 1024 px | Fixed glass sidebar: logo, **Add transaction** button, eight sections, theme switch, email, sign out |
+| ≥ 1024 px | Fixed glass sidebar: logo, **Add transaction** button, nine sections, theme switch, email, sign out |
 | < 1024 px | Glass top bar (logo, theme) · bottom tab bar with five tabs: **Home, History, Wallets, People, More** · floating round **+** above the tab bar |
 
 The **Add transaction** form is one sheet for the whole app, opened from the sidebar, the floating
@@ -56,15 +57,15 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Add / edit wallet | Type (new only), name with MFS shortcuts, starting balance or "amount owed now" for cards, credit limit, leave out of net balance, archive, delete | Delete refused if used → archive instead |
 | People | Owe-you / you-owe totals; person cards with initial, note and standing | "Nobody here yet" |
 | Person | Standing (Owes you / You owe / All settled); Lend · Got paid back · Borrow · Pay back; history | Repay buttons disabled when nothing is owed; "All of it" fills the amount owed |
+| Reports | Month · Year switch with month or year arrows (kept in the address); **Income and expense** bars with "Saved ৳X · Y% of income"; **Expense, last 6 months** (or by month for a year) with the chosen month highlighted; **Spending by category** and **Income by category**, each category opening to its sub-categories with links to the matching transactions; Budgets (month only) | "Nothing recorded in …" |
 | Budgets | Month switcher; cards with percent, bar, spent of limit, left or over; "Close to the limit" / "Over budget" labels | "No budgets yet" |
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |
 | Add / edit recurring | Type switch, amount, wallets, category, note, repeat every N unit, first and last date, record automatically, pause/resume, delete | |
-| Categories | Expense / Income tabs; parent cards with sub-category chips; add, add sub-category, rename, archive | Archived shown dimmed / struck through |
+| Categories | Expense / Income tabs; parent cards with sub-category chips; add, add sub-category, rename, archive; in the edit sheet, merge into another category or delete (confirm in place) | Archived shown dimmed / struck through; a parent with sub-categories asks to sort those first |
 | Settings | Account email, theme, sign out; change password; (phones) links to Budgets, Recurring, Categories | Success message after password change |
 
-Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): Reports (monthly,
-yearly, trend, drill-down), CSV export, signed-in devices, and the Android screens (number-pad
-entry, sync status, app lock).
+Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): CSV export,
+signed-in devices, and the Android screens (number-pad entry, sync status, app lock).
 
 ## 4. Key flows
 

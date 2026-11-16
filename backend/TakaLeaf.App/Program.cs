@@ -19,6 +19,7 @@ using TakaLeaf.App.Features.Budgets;
 using TakaLeaf.App.Features.Dashboard;
 using TakaLeaf.App.Features.People;
 using TakaLeaf.App.Features.Recurring;
+using TakaLeaf.App.Features.Reports;
 using TakaLeaf.App.Features.Health;
 using TakaLeaf.App.Features.Transactions;
 using TakaLeaf.App.Features.Wallets;
@@ -144,6 +145,7 @@ api.MapDashboard();
 api.MapPeople();
 api.MapBudgets();
 api.MapRecurring();
+api.MapReports();
 
 // An unknown API address is a 404 problem, never the web app's page.
 api.Map("/{**rest}", () => Results.Problem(title: "There is nothing at this address.", statusCode: StatusCodes.Status404NotFound))

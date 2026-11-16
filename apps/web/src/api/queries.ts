@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import type {
   BudgetList,
+  Report,
+  ReportPeriod,
   RecurringInput,
   RecurringRule,
   Category,
@@ -20,7 +22,7 @@ import type {
 } from "./types";
 
 /** Anything that changes money touches these, so they are refreshed together after a change. */
-const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"]] as const;
+const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"], ["reports"]] as const;
 
 function useInvalidateMoney() {
   const client = useQueryClient();
@@ -55,6 +57,7 @@ export interface TransactionFilters {
   to?: string;
   walletId?: string;
   categoryId?: string;
+  uncategorised?: string;
   type?: string;
   search?: string;
   page?: number;
@@ -244,5 +247,29 @@ export function useRecurringAction() {
         ? api<void>(`/recurring/${id}`, { method: "DELETE" })
         : api(`/recurring/${id}/${action}`, { method: "POST", body: action === "record" ? { amount } : undefined }),
     onSuccess: invalidate,
+  });
+}
+
+/** Month report for "2026-11", or year report for "2026". */
+export function useReport(period: ReportPeriod, key: string) {
+  const query = period === "Year" ? `period=Year&year=${key}` : `period=Month&month=${key}`;
+  return useQuery({ queryKey: ["reports", period, key], queryFn: ({ signal }) => api<Report>(`/reports?${query}`, { signal }) });
+}
+
+export function useMergeCategory() {
+  const invalidate = useInvalidateMoney();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, intoCategoryId }: { id: string; intoCategoryId: string }) =>
+      api<{ movedTransactions: number }>(`/categories/${id}/merge`, { method: "POST", body: { intoCategoryId } }),
+    onSuccess: () => Promise.all([invalidate(), client.invalidateQueries({ queryKey: ["categories"] })]),
+  });
+}
+
+export function useDeleteCategory() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<void>(`/categories/${id}`, { method: "DELETE" }),
+    onSuccess: () => Promise.all([client.invalidateQueries({ queryKey: ["categories"] }), client.invalidateQueries({ queryKey: ["budgets"] })]),
   });
 }
