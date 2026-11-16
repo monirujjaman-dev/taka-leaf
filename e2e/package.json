@@ -1,0 +1,17 @@
+{
+  "name": "@takaleaf/e2e",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "End-to-end tests in a real browser against a running TakaLeaf (the Docker image in CI).",
+  "scripts": {
+    "e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}

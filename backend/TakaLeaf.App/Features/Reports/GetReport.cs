@@ -121,15 +121,17 @@ public static class GetReport
             .Where(c => c.UserId == userId)
             .ToDictionaryAsync(c => c.Id, cancellationToken);
 
+        // Each row's local month is worked out once, then summed per month.
+        var byMonth = rows
+            .GroupBy(r => { var d = calendar.DateOf(r.OccurredAt); return (d.Year, d.Month); })
+            .ToDictionary(
+                g => g.Key,
+                g => (Income: g.Where(r => r.Type == TransactionType.Income).Sum(r => r.Amount), Expense: g.Where(r => r.Type == TransactionType.Expense).Sum(r => r.Amount)));
         var trend = new List<TrendPoint>();
         for (var m = trendFrom; m <= to; m = m.AddMonths(1))
         {
-            var key = (m.Year, m.Month);
-            var monthRows = rows.Where(r => { var d = calendar.DateOf(r.OccurredAt); return (d.Year, d.Month) == key; }).ToList();
-            trend.Add(new TrendPoint(
-                m.ToString("yyyy-MM", CultureInfo.InvariantCulture),
-                monthRows.Where(r => r.Type == TransactionType.Income).Sum(r => r.Amount),
-                monthRows.Where(r => r.Type == TransactionType.Expense).Sum(r => r.Amount)));
+            var totals = byMonth.GetValueOrDefault((m.Year, m.Month));
+            trend.Add(new TrendPoint(m.ToString("yyyy-MM", CultureInfo.InvariantCulture), totals.Income, totals.Expense));
         }
 
         return Results.Ok(new ReportDto(

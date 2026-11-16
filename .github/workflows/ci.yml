@@ -10,9 +10,9 @@ jobs:
     name: Web and shared package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -41,30 +41,33 @@ jobs:
     env:
       ConnectionStrings__Database: Host=localhost;Port=5432;Database=takaleaf;Username=takaleaf;Password=takaleaf_dev
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - run: dotnet test backend/TakaLeaf.App.Tests/TakaLeaf.App.Tests.csproj --configuration Release
+      - run: dotnet test backend/TakaLeaf.App.Tests/TakaLeaf.App.Tests.csproj --configuration Release --logger "console;verbosity=detailed"
       - name: Packages in use
         run: dotnet list backend/TakaLeaf.App/TakaLeaf.App.csproj package
 
   image:
-    name: Docker image
+    name: Docker image and browser tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build the image Dokploy will build
         run: docker build -t takaleaf:ci .
-      - name: Start it next to PostgreSQL and check it answers
+      - name: Start it next to PostgreSQL and Mailpit, and check it answers
         run: |
           docker network create tl
           docker run -d --name db --network tl -e POSTGRES_DB=takaleaf -e POSTGRES_USER=takaleaf -e POSTGRES_PASSWORD=ci_password postgres:18
+          docker run -d --name mail --network tl -p 8025:8025 axllent/mailpit
           until docker exec db pg_isready -U takaleaf -d takaleaf; do sleep 1; done
           docker run -d --name app --network tl -p 8080:8080 \
             -e ConnectionStrings__Database="Host=db;Database=takaleaf;Username=takaleaf;Password=ci_password" \
             -e Auth__SigningKey="ci-only-signing-key-0123456789-0123456789" \
-            -e App__WebBaseUrl="https://takaleaf.example.com" \
+            -e App__WebBaseUrl="http://localhost:8080" \
+            -e Email__Host=mail -e Email__Port=1025 -e Email__Security=None \
+            -e RateLimits__AuthPerMinute=1000 \
             takaleaf:ci
           for i in $(seq 1 60); do curl -fs http://localhost:8080/api/health && break; sleep 1; done
           echo
@@ -74,6 +77,43 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/nothing)" = 404
           docker exec app ls /usr/share/zoneinfo/Asia/Dhaka
           echo "Image works."
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @takaleaf/e2e exec playwright install --with-deps chromium
+      - name: Browser tests (desktop and phone) against the running image
+        env:
+          E2E_BASE_URL: http://localhost:8080
+          E2E_MAILPIT_URL: http://localhost:8025
+        run: pnpm --filter @takaleaf/e2e e2e
+      - name: Browser test report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
       - name: App logs
         if: always()
         run: docker logs app || true
+
+  dependencies:
+    name: Dependency scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: .NET packages (fails on high or critical)
+        run: |
+          dotnet list backend/TakaLeaf.App/TakaLeaf.App.csproj package --vulnerable --include-transitive | tee vulnerable.txt
+          ! grep -qiE '\b(High|Critical)\b' vulnerable.txt
+      - name: npm packages (fails on high or critical)
+        run: pnpm audit --audit-level high
