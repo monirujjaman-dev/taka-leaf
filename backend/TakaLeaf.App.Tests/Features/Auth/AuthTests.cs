@@ -24,6 +24,8 @@ public class AuthTests(DatabaseFixture fixture)
 
     private sealed record MessageResult(string Message);
 
+    private sealed record ProblemResult(string Title, int Status);
+
     // https so the client keeps and sends the Secure refresh cookie.
     private HttpClient NewClient() =>
         fixture.Factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
@@ -213,7 +215,10 @@ public class AuthTests(DatabaseFixture fixture)
 
         Assert.Equal(HttpStatusCode.Unauthorized, unknown.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, wrong.StatusCode);
-        Assert.Equal(await unknown.Content.ReadAsStringAsync(), await wrong.Content.ReadAsStringAsync());
+        // Only the per-request trace id may differ.
+        var unknownBody = await unknown.Content.ReadFromJsonAsync<ProblemResult>();
+        var wrongBody = await wrong.Content.ReadFromJsonAsync<ProblemResult>();
+        Assert.Equal(unknownBody, wrongBody);
     }
 
     // A-5
