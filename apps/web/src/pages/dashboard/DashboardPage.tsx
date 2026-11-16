@@ -12,6 +12,7 @@ import { Button, buttonClass, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { MonthPicker } from "../../ui/MonthPicker";
+import { useWide } from "../../ui/useWide";
 import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatTile, walletIcon } from "../../ui/Parts";
 import { localMonth, monthLabel, WALLET_TYPE_LABEL } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetsPage";
@@ -31,7 +32,7 @@ function PhoneHeader({ month, onMonth }: { month: string; onMonth: (m: string) =
   const client = useQueryClient();
   const fetching = useIsFetching() > 0;
   return (
-    <div className="mb-2 flex h-14 items-center gap-2.5 lg:hidden">
+    <div className="mb-2 flex h-14 items-center gap-2.5">
       <h1 className="sr-only">Dashboard</h1>
       <span className="flex-1">
         <Logo theme={theme} size={30} />
@@ -52,6 +53,8 @@ export function DashboardPage() {
   const wallets = useWallets();
   const sheet = useTransactionSheet();
   const openRow = useOpenTransaction();
+  // One h1 either way: the phone header shows the logo, the wide one the title.
+  const wide = useWide();
 
   const own = (wallets.data?.wallets ?? []).filter((w) => w.personId === null && !w.archived);
   const hasWallets = own.length > 0;
@@ -59,13 +62,14 @@ export function DashboardPage() {
 
   return (
     <>
-      <PhoneHeader month={month} onMonth={setMonth} />
-      <div className="hidden lg:block">
+      {wide ? (
         <PageHeader title="Dashboard">
           <MonthPicker month={month} onChange={setMonth} />
           <AddTransactionButton />
         </PageHeader>
-      </div>
+      ) : (
+        <PhoneHeader month={month} onMonth={setMonth} />
+      )}
 
       {dashboard.isPending ? <Loading /> : null}
       {dashboard.error ? <ErrorNote>{messageOf(dashboard.error)}</ErrorNote> : null}
