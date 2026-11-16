@@ -41,8 +41,8 @@ Goals:
 | FR-A3 | Forgot password → emailed single-use link → set a new password | Must | ✅ |
 | FR-A4 | Change password while signed in (other devices are signed out) | Must | ✅ |
 | FR-A5 | Lock sign-in after repeated wrong passwords; rate-limit auth requests | Must | ✅ |
-| FR-A6 | See and sign out signed-in devices | Should | ⬜ |
-| FR-A7 | Switch off new registrations by a server setting once the owner's account exists | Should | ⬜ |
+| FR-A6 | See and sign out signed-in devices (takes effect at once) | Should | ✅ |
+| FR-A7 | Switch off new registrations by a server setting once the owner's account exists | Should | ✅ |
 
 ### 3.2 Wallets
 
@@ -111,7 +111,7 @@ Goals:
 | FR-D3 | Due recurring items and budgets at a glance | Should | ✅ |
 | FR-P1 | Monthly report: category totals, income against expense, drill-down to transactions | Must | ✅ |
 | FR-P2 | Yearly report and six-month trend | Should | ✅ |
-| FR-P3 | CSV export of filtered transactions | Should | ⬜ |
+| FR-P3 | CSV export of filtered transactions | Should | ✅ |
 | FR-P4 | PDF export | Could | ⬜ (after v2) |
 
 ### 3.8 Appearance and settings

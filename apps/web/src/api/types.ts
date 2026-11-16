@@ -110,6 +110,14 @@ export interface Dashboard {
   recent: Transaction[];
 }
 
+export interface SessionInfo {
+  id: string;
+  device: string;
+  signedInAt: string;
+  lastUsedAt: string;
+  current: boolean;
+}
+
 export type LoanKind = "Lend" | "GotBack" | "Borrow" | "PaidBack";
 
 export interface Person {

@@ -1,12 +1,14 @@
 import { formatBdt } from "@takaleaf/shared";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
+import { download } from "../../api/client";
 import { useCategories, useTransactions, useWallets } from "../../api/queries";
 import type { Transaction } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { useOpenTransaction, useTransactionSheet } from "../../layout/TransactionSheet";
 import { Button } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+
 import { SelectField, TextField } from "../../ui/Field";
 import { dayLabel, lastDayOf, localDate, localMonth } from "../../ui/format";
 import { CategoryOptions, WalletOptions } from "./pickers";
@@ -63,6 +65,25 @@ export function TransactionsPage() {
   }
 
   const list = useTransactions({ ...filters, pageSize: PAGE_SIZE });
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  /** The same filters as the list, without paging: the file holds every matching row. */
+  async function exportCsv() {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (key !== "page" && value !== "") query.set(key, String(value));
+    }
+    setExporting(true);
+    setExportError(null);
+    try {
+      await download(`/transactions/export.csv?${query}`, "takaleaf-transactions.csv");
+    } catch (error) {
+      setExportError(messageOf(error));
+    } finally {
+      setExporting(false);
+    }
+  }
   const data = list.data;
   const pages = data ? Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)) : 1;
   const ownWallets = (wallets.data?.wallets ?? []).filter((w) => w.personId === null);
@@ -70,10 +91,19 @@ export function TransactionsPage() {
   return (
     <>
       <PageHeader title="Transactions">
+        <Button variant="secondary" onClick={exportCsv} disabled={exporting}>
+          {exporting ? "Preparing…" : "Export CSV"}
+        </Button>
         <span className="hidden lg:block">
           <Button onClick={() => sheet.open()}>Add transaction</Button>
         </span>
       </PageHeader>
+
+      {exportError ? (
+        <div className="mb-4">
+          <ErrorNote>{exportError}</ErrorNote>
+        </div>
+      ) : null}
 
       <section aria-label="Filters" className="glass mb-4 grid grid-cols-1 gap-3 rounded-[22px] p-4 sm:grid-cols-2 lg:grid-cols-3">
         <TextField label="Search notes" type="search" value={search} placeholder="Bazaar, rent…" onChange={(e) => setSearch(e.target.value)} />

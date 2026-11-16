@@ -15,7 +15,7 @@ current.
 | M1 Backend core | Auth, wallets, categories, transactions, dashboard | 8 days | ✅ | #1–#5 |
 | M2 Web core | Auth screens, app shell, dashboard, transactions, wallets, categories, settings | 8 days | ✅ | #6 |
 | M3 Full features | People and loans, budgets, recurring, reports, category merge and delete | 8 days | ✅ | #7, #8, #12 |
-| M4 Hardening | Deploy setup, security headers ✅; CSV export, devices, performance, accessibility, dependency scan ⬜ | 5 days | 🟡 | #9 |
+| M4 Hardening | Deploy setup, security headers, CSV export, devices, closing registration ✅; performance, accessibility, end-to-end tests, dependency scan ⬜ | 5 days | 🟡 | #9, #13 |
 | M5 Release v1 | Running on the VPS with Dokploy, backups proven, a week of real use | 4 days | ⬜ | |
 | A1–A4 | Android setup, offline, sync, finish and ship (version 2) | 32 days | ⬜ | |
 
@@ -69,8 +69,8 @@ and 32 for version 2.
 - [x] Docker image (web + API) with a smoke test in CI
 - [x] Security headers, HSTS, trusted proxy networks
 - [x] Dark theme on every screen; phone-width pass (390 px)
-- [ ] CSV export (P-5)
-- [ ] Settings: signed-in devices and sign-out-everywhere; switch for closing registration
+- [x] CSV export (P-5)
+- [x] Settings: signed-in devices, sign out one or all others (immediate); `Auth__RegistrationOpen` to close registration
 - [ ] Seed account with 50,000 transactions; meet performance targets; add indexes where needed
 - [ ] Accessibility pass: 200% zoom, screen reader names, contrast, touch targets ≥ 44 px
 - [ ] Playwright end-to-end tests for register, sign in, add expense, transfer

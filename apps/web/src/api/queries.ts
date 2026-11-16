@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./client";
 import type {
+  SessionInfo,
   BudgetList,
   Report,
   ReportPeriod,
@@ -271,5 +272,18 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: (id: string) => api<void>(`/categories/${id}`, { method: "DELETE" }),
     onSuccess: () => Promise.all([client.invalidateQueries({ queryKey: ["categories"] }), client.invalidateQueries({ queryKey: ["budgets"] })]),
+  });
+}
+
+export function useSessions() {
+  return useQuery({ queryKey: ["sessions"], queryFn: ({ signal }) => api<SessionInfo[]>("/auth/sessions", { signal }) });
+}
+
+export function useSignOutSession() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string | "others") =>
+      id === "others" ? api("/auth/sessions/sign-out-others", { method: "POST" }) : api<void>(`/auth/sessions/${id}`, { method: "DELETE" }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["sessions"] }),
   });
 }
