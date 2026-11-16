@@ -10,12 +10,13 @@ using Microsoft.Extensions.Options;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Common.Email;
 using TakaLeaf.App.Common.Logging;
+using TakaLeaf.App.Common.Web;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Auth;
 using TakaLeaf.App.Features.Categories;
-using TakaLeaf.App.Features.Dashboard;
 using TakaLeaf.App.Features.Budgets;
+using TakaLeaf.App.Features.Dashboard;
 using TakaLeaf.App.Features.People;
 using TakaLeaf.App.Features.Recurring;
 using TakaLeaf.App.Features.Health;
@@ -54,6 +55,13 @@ builder.Services.AddOptions<ForwardedHeadersOptions>().Configure<IConfiguration>
     foreach (var address in configuration.GetSection("ReverseProxy:TrustedProxies").Get<string[]>() ?? [])
     {
         forwarded.KnownProxies.Add(IPAddress.Parse(address));
+    }
+
+    // Behind Dokploy, Traefik reaches the app over a private Docker network whose addresses
+    // change between deploys, so a whole network can be trusted (for example 10.0.0.0/8).
+    foreach (var network in configuration.GetSection("ReverseProxy:TrustedNetworks").Get<string[]>() ?? [])
+    {
+        forwarded.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
     }
 });
 
@@ -104,6 +112,21 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseForwardedHeaders();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
+app.UseSecurityHeaders();
+
+// The Docker image carries the built web app in wwwroot. Hashed files under /assets never
+// change, so browsers keep them for a year; everything else is checked on each visit.
+var webApp = app.Environment.WebRootFileProvider.GetFileInfo("index.html").Exists;
+if (webApp)
+{
+    app.UseStaticFiles(new StaticFileOptions { OnPrepareResponse = WebAppCaching.Apply });
+}
+
 app.UseTakaLeafRequestLogging();
 app.UseAuthentication();
 app.UseRequestLogContext();
@@ -121,6 +144,16 @@ api.MapDashboard();
 api.MapPeople();
 api.MapBudgets();
 api.MapRecurring();
+
+// An unknown API address is a 404 problem, never the web app's page.
+api.Map("/{**rest}", () => Results.Problem(title: "There is nothing at this address.", statusCode: StatusCodes.Status404NotFound))
+    .ExcludeFromDescription();
+
+// Any other address is a page of the web app (/wallets, /people/…): the app's router shows it.
+if (webApp)
+{
+    app.MapFallbackToFile("index.html", new StaticFileOptions { OnPrepareResponse = WebAppCaching.Apply });
+}
 
 app.Run();
 

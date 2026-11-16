@@ -1,0 +1,14 @@
+.git
+.github
+**/node_modules
+**/dist
+**/bin
+**/obj
+**/logs
+**/*.user
+backend/TakaLeaf.App.Tests
+deploy
+brand
+*.md
+.env
+.env.*

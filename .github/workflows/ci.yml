@@ -48,3 +48,32 @@ jobs:
       - run: dotnet test backend/TakaLeaf.App.Tests/TakaLeaf.App.Tests.csproj --configuration Release
       - name: Packages in use
         run: dotnet list backend/TakaLeaf.App/TakaLeaf.App.csproj package
+
+  image:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image Dokploy will build
+        run: docker build -t takaleaf:ci .
+      - name: Start it next to PostgreSQL and check it answers
+        run: |
+          docker network create tl
+          docker run -d --name db --network tl -e POSTGRES_DB=takaleaf -e POSTGRES_USER=takaleaf -e POSTGRES_PASSWORD=ci_password postgres:18
+          until docker exec db pg_isready -U takaleaf -d takaleaf; do sleep 1; done
+          docker run -d --name app --network tl -p 8080:8080 \
+            -e ConnectionStrings__Database="Host=db;Database=takaleaf;Username=takaleaf;Password=ci_password" \
+            -e Auth__SigningKey="ci-only-signing-key-0123456789-0123456789" \
+            -e App__WebBaseUrl="https://takaleaf.example.com" \
+            takaleaf:ci
+          for i in $(seq 1 60); do curl -fs http://localhost:8080/api/health && break; sleep 1; done
+          echo
+          curl -fs http://localhost:8080/api/health | grep -q '"database":"up"'
+          curl -fs http://localhost:8080/ | grep -q '<div id="root">'
+          curl -fs http://localhost:8080/people/123 | grep -q '<div id="root">'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/nothing)" = 404
+          docker exec app ls /usr/share/zoneinfo/Asia/Dhaka
+          echo "Image works."
+      - name: App logs
+        if: always()
+        run: docker logs app || true

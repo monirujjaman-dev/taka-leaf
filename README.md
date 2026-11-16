@@ -37,6 +37,11 @@ Open http://localhost:5173, create an account, then open the verification link f
 http://localhost:8025 (every email sent in development lands there) and sign in.
 `backend/TakaLeaf.App/TakaLeaf.App.http` has ready-made requests for trying the API by hand.
 
+## Deploying
+
+Production runs on a Linux VPS with Dokploy: one Docker image (API and web app together) and a
+PostgreSQL database. Step by step: [deploy/DOKPLOY.md](deploy/DOKPLOY.md).
+
 ## Logs
 
 The backend writes structured logs with Serilog to three places:
