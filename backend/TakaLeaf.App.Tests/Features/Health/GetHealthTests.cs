@@ -1,17 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
+using TakaLeaf.App.Tests.Data;
 
 namespace TakaLeaf.App.Tests.Features.Health;
 
-public class GetHealthTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+[Collection(DatabaseCollection.Name)]
+public class GetHealthTests(DatabaseFixture fixture)
 {
     private sealed record HealthResponse(string Status, string Database);
 
     [Fact]
-    public async Task Health_endpoint_answers_ok()
+    public async Task Health_endpoint_answers_ok_and_sees_the_database()
     {
-        var client = factory.CreateClient();
+        var client = fixture.Factory.CreateClient();
 
         var response = await client.GetAsync("/api/health");
 
@@ -19,6 +20,6 @@ public class GetHealthTests(WebApplicationFactory<Program> factory) : IClassFixt
         var body = await response.Content.ReadFromJsonAsync<HealthResponse>();
         Assert.NotNull(body);
         Assert.Equal("ok", body.Status);
-        Assert.Contains(body.Database, new[] { "up", "down" });
+        Assert.Equal("up", body.Database);
     }
 }
