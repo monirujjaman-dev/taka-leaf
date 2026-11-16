@@ -37,7 +37,7 @@ pnpm dev
 
 ```bash
 pnpm test                                   # shared package and web app
-dotnet test backend/TakaLeaf.App.Tests      # backend
+dotnet test backend/TakaLeaf.App.Tests      # backend (needs PostgreSQL from step 1)
 ```
 
 ## Rules worth knowing
@@ -46,3 +46,11 @@ dotnet test backend/TakaLeaf.App.Tests      # backend
   C# and TypeScript code must both pass.
 - A backend feature is a folder under `Features/`; each action is one file holding its endpoint,
   request and response types, validation and handler.
+
+## Database migrations
+
+Tables are created by EF Core migrations in `backend/TakaLeaf.App/Data/Migrations`.
+
+- Apply them locally: `dotnet ef database update --project backend/TakaLeaf.App`
+- Add one after changing an entity: `dotnet ef migrations add <Name> --project backend/TakaLeaf.App --output-dir Data/Migrations`
+- Or let CI add it: on a feature branch, commit a file `backend/.migration-request` containing the name and push.
