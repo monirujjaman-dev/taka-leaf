@@ -28,7 +28,8 @@ jobs:
           ConnectionStrings__Database: Host=localhost;Port=5432;Database=takaleaf;Username=takaleaf;Password=takaleaf_dev
         run: |
           name="$(tr -d '[:space:]' < backend/.migration-request)"
-          dotnet ef migrations add "$name" --project backend/TakaLeaf.App --output-dir Data/Migrations
+          dotnet build backend/TakaLeaf.App
+          dotnet ef migrations add "$name" --project backend/TakaLeaf.App --output-dir Data/Migrations --no-build
           git rm -q backend/.migration-request
           git add backend/TakaLeaf.App/Data/Migrations
           git config user.name "github-actions[bot]"
