@@ -15,4 +15,5 @@ public sealed class Category : SyncedEntity
     public string? Icon { get; set; }
     public string? Color { get; set; }
     public bool Archived { get; set; }
+    public int SortOrder { get; set; }
 }

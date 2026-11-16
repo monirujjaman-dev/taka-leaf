@@ -59,6 +59,7 @@ public static class Register
                 return Accepted();
             }
 
+            await StarterCategories.EnsureAsync(db, user.Id, cancellationToken);
             await emails.SendVerificationAsync(user, user.PasswordHash, cancellationToken);
         }
         else if (user.EmailVerifiedAt is null)
