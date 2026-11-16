@@ -24,6 +24,7 @@ public sealed class TestApp : WebApplicationFactory<Program>
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["RateLimits:AuthPerMinute"] = "100000",
+            ["Recurring:Enabled"] = "false",
         }));
 
         builder.ConfigureTestServices(services =>
