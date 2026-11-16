@@ -18,6 +18,7 @@ pnpm install && pnpm dev                                # web on http://localhos
 pnpm typecheck && pnpm test && pnpm build               # web + shared checks (same as CI)
 docker build -t takaleaf .                              # production image (web + API on :8080)
 pnpm --filter @takaleaf/e2e e2e                         # browser + accessibility tests (E2E_BASE_URL, E2E_MAILPIT_URL)
+pnpm --filter @takaleaf/mobile test                     # Android app unit tests (SQLite in Node); see apps/mobile/CLAUDE.md
 ```
 
 ## Rules that must not break

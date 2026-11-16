@@ -2,3 +2,7 @@ packages:
   - "apps/*"
   - "packages/*"
   - "e2e"
+
+# One React for the web and Android apps, so Metro never bundles two copies.
+overrides:
+  react: 19.3.1

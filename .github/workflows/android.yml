@@ -1,0 +1,46 @@
+name: Android
+
+# Builds an installable APK of the Android app, so it can be tried on a phone without Android
+# Studio. Runs when the app or the shared package changes, and on demand.
+on:
+  push:
+    branches: [main]
+    paths: ["apps/mobile/**", "packages/shared/**", "pnpm-lock.yaml", ".github/workflows/android.yml"]
+  pull_request:
+    paths: ["apps/mobile/**", "packages/shared/**", "pnpm-lock.yaml", ".github/workflows/android.yml"]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    name: Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      EXPO_NO_TELEMETRY: 1
+      EXPO_OFFLINE: 1
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck and unit tests
+        run: pnpm --filter @takaleaf/mobile typecheck && pnpm --filter @takaleaf/mobile test
+      - name: Generate the native project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install
+      - name: Build the release APK (signed with the debug key until A4)
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a
+      - uses: actions/upload-artifact@v7
+        with:
+          name: takaleaf-android-${{ github.sha }}
+          path: apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
