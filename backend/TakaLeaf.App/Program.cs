@@ -15,6 +15,7 @@ using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Auth;
 using TakaLeaf.App.Features.Categories;
 using TakaLeaf.App.Features.Dashboard;
+using TakaLeaf.App.Features.People;
 using TakaLeaf.App.Features.Health;
 using TakaLeaf.App.Features.Transactions;
 using TakaLeaf.App.Features.Wallets;
@@ -112,6 +113,7 @@ api.MapWallets();
 api.MapCategories();
 api.MapTransactions();
 api.MapDashboard();
+api.MapPeople();
 
 app.Run();
 
