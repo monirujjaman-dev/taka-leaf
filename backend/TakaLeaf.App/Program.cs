@@ -14,7 +14,9 @@ using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Auth;
 using TakaLeaf.App.Features.Categories;
+using TakaLeaf.App.Features.Dashboard;
 using TakaLeaf.App.Features.Health;
+using TakaLeaf.App.Features.Transactions;
 using TakaLeaf.App.Features.Wallets;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +28,7 @@ builder.Services.AddProblemDetails();
 // Enums travel as their names ("CreditCard", "Expense"), not numbers.
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<LocalCalendar>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
@@ -107,6 +110,8 @@ api.MapGetHealth();
 api.MapAuth();
 api.MapWallets();
 api.MapCategories();
+api.MapTransactions();
+api.MapDashboard();
 
 app.Run();
 
