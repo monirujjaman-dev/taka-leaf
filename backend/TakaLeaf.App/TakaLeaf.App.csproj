@@ -20,10 +20,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
-    <PackageReference Include="Serilog.AspNetCore" Version="*" />
-    <PackageReference Include="Serilog.Formatting.Compact" Version="*" />
-    <PackageReference Include="Serilog.Sinks.File" Version="*" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="*" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.*" />
+    <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.*" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.*" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="9.*" />
   </ItemGroup>
 
 </Project>
