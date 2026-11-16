@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Options;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Common.Email;
 using TakaLeaf.App.Data;
@@ -10,13 +9,11 @@ namespace TakaLeaf.App.Features.Auth;
 public sealed class VerificationEmails(
     AppDbContext db,
     IEmailSender sender,
-    IOptions<AppOptions> app,
+    EmailTemplates templates,
     TimeProvider clock,
     ILogger<VerificationEmails> logger)
 {
     public static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
-
-    private string WebBaseUrl => app.Value.WebBaseUrl.TrimEnd('/');
 
     /// <summary>Saves a new single-use link (with the password and name it will set) and emails it.</summary>
     public async Task SendVerificationAsync(User user, string passwordHash, string name, CancellationToken cancellationToken)
@@ -35,28 +32,34 @@ public sealed class VerificationEmails(
         });
         await db.SaveChangesAsync(cancellationToken);
 
-        var body = string.Join('\n',
-            $"Welcome to TakaLeaf, {name}.",
-            "",
-            "Open this link to verify your email and finish creating your account:",
-            $"{WebBaseUrl}/verify-email?token={token}",
-            "",
-            "The link works once and expires in 24 hours.",
-            "If you did not create a TakaLeaf account, you can ignore this email.");
-        await SendAsync(new EmailMessage(user.Email, "Verify your TakaLeaf email", body), cancellationToken);
+        var message = templates.Render(
+            "verify-email",
+            user.Email,
+            "Verify your TakaLeaf email",
+            "Finish creating your account. The link works for 24 hours.",
+            new Dictionary<string, string>
+            {
+                ["greeting"] = EmailTemplates.Greeting(name),
+                ["actionUrl"] = templates.Link($"/verify-email?token={token}"),
+            });
+        await SendAsync(message, cancellationToken);
     }
 
     /// <summary>Someone tried to register an email that already has a verified account.</summary>
     public async Task SendAlreadyRegisteredAsync(User user, CancellationToken cancellationToken)
     {
-        var body = string.Join('\n',
-            "Someone tried to create a TakaLeaf account with this email, but you already have one.",
-            "",
-            $"Sign in here: {WebBaseUrl}/sign-in",
-            "If you forgot your password, choose \"Forgot password?\" on that page.",
-            "",
-            "If this was not you, you can ignore this email. Your account has not changed.");
-        await SendAsync(new EmailMessage(user.Email, "You already have a TakaLeaf account", body), cancellationToken);
+        var message = templates.Render(
+            "already-registered",
+            user.Email,
+            "You already have a TakaLeaf account",
+            "Someone tried to sign up with your email. Your account has not changed.",
+            new Dictionary<string, string>
+            {
+                ["greeting"] = EmailTemplates.Greeting(user.Name),
+                ["actionUrl"] = templates.Link("/sign-in"),
+                ["resetUrl"] = templates.Link("/forgot-password"),
+            });
+        await SendAsync(message, cancellationToken);
     }
 
     private async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)

@@ -1,0 +1,12 @@
+{{greeting}}
+
+Someone tried to create a TakaLeaf account with {{email}}, but this address already has one.
+
+Sign in here: {{actionUrl}}
+Forgot your password? Reset it here: {{resetUrl}}
+
+If this was not you, you can ignore this email. Your account has not changed.
+
+--
+TakaLeaf · Your Money. Your Control.
+{{webUrl}}

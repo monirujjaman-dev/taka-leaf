@@ -20,7 +20,10 @@ public class NameTests(DatabaseFixture fixture)
         var email = AuthClient.NewEmail();
 
         (await Register(client, new { name = "  Monir   Hossain ", email, password = AuthClient.Password })).EnsureSuccessStatusCode();
-        Assert.Contains("Welcome to TakaLeaf, Monir Hossain.", fixture.Factory.Emails.SentTo(email).Last().TextBody);
+        var sent = fixture.Factory.Emails.SentTo(email).Last();
+        Assert.Contains("Hi Monir Hossain,", sent.TextBody);
+        Assert.Contains("Hi Monir Hossain,", sent.HtmlBody);
+        Assert.Contains($"verify-email?token={fixture.Factory.Emails.LatestToken(email)}", sent.HtmlBody);
         (await client.PostAsJsonAsync("/api/auth/verify-email", new { token = fixture.Factory.Emails.LatestToken(email) })).EnsureSuccessStatusCode();
 
         var session = await AuthClient.SignIn(client, email);

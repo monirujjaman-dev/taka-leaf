@@ -162,6 +162,12 @@ has ready-made requests.
 - **Email links** are single-use and stored hashed. Verify links expire after 24 hours, reset links after 30 minutes. A password chosen at
   registration takes effect only if that particular link is opened, so nobody can take over an
   unverified account.
+- **Emails** (verify email, already registered, reset password, password changed) are sent as
+  multipart text + HTML. `Common/Email/EmailTemplates` fills the files in
+  `Common/Email/Templates/` (`_layout.html` frame plus `<name>.html` and `<name>.txt`, embedded in
+  the assembly): `{{tokens}}` are HTML-encoded in the HTML, and a token without a value throws.
+  Links use `App:WebBaseUrl`; the logo is `/email/takaleaf-mark.png` from the web app's `public/`.
+  Designs: the "Emails" row of the UI design canvas.
 - **Registration** can be closed with `Auth:RegistrationOpen=false` (403 `registration_closed`).
 - **Rate limit:** the auth endpoints are limited per IP (`RateLimits:AuthPerMinute`). The real IP is
   trusted only from `ReverseProxy:TrustedProxies` / `TrustedNetworks`.

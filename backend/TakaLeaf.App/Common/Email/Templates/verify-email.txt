@@ -1,0 +1,12 @@
+{{greeting}}
+
+Welcome to TakaLeaf. Open this link to verify {{email}} and finish creating your account:
+{{actionUrl}}
+
+The link works once and expires in 24 hours.
+
+Did not create a TakaLeaf account? You can ignore this email.
+
+--
+TakaLeaf · Your Money. Your Control.
+{{webUrl}}

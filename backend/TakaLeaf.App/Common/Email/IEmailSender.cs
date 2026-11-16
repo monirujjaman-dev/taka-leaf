@@ -1,6 +1,7 @@
 namespace TakaLeaf.App.Common.Email;
 
-public sealed record EmailMessage(string To, string Subject, string TextBody);
+/// <summary>An email to send. Every email has a plain-text body; branded ones also have HTML.</summary>
+public sealed record EmailMessage(string To, string Subject, string TextBody, string? HtmlBody = null);
 
 public interface IEmailSender
 {
