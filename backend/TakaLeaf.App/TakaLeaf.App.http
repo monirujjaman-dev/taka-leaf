@@ -88,3 +88,25 @@ Authorization: Bearer {{login.response.body.accessToken}}
 Content-Type: application/json
 
 { "kind": "Expense", "name": "Pets", "icon": "paw" }
+
+### Add an expense (amounts in poisha; 125000 = ৳1,250.00)
+POST {{api}}/transactions
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "type": "Expense", "amount": 125000, "fromWalletId": "PASTE-WALLET-ID", "categoryId": "PASTE-CATEGORY-ID", "note": "Weekly bazaar" }
+
+### Transfer with an MFS cash-out fee
+POST {{api}}/transactions
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "type": "Transfer", "amount": 500000, "fromWalletId": "PASTE-BKASH-ID", "toWalletId": "PASTE-CASH-ID", "fee": 9250 }
+
+### History for November with totals
+GET {{api}}/transactions?from=2026-11-01&to=2026-11-30
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Dashboard
+GET {{api}}/dashboard?month=2026-11
+Authorization: Bearer {{login.response.body.accessToken}}
