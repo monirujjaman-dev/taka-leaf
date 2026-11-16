@@ -138,6 +138,83 @@ namespace TakaLeaf.App.Data.Migrations
                     b.ToTable("people");
                 });
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_refresh_tokens");
+
+                    b.HasIndex("SessionId")
+                        .HasDatabaseName("ix_refresh_tokens_session_id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_refresh_tokens_token_hash");
+
+                    b.ToTable("refresh_tokens");
+                });
+
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.Session", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("user_agent");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sessions");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_sessions_user_id");
+
+                    b.ToTable("sessions");
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -277,6 +354,58 @@ namespace TakaLeaf.App.Data.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.UserToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("purpose");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_tokens");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_tokens_token_hash");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_tokens_user_id");
+
+                    b.ToTable("user_tokens");
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Wallet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -387,6 +516,26 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasConstraintName("fk_people_users_user_id");
                 });
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("TakaLeaf.App.Data.Entities.Session", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_refresh_tokens_sessions_session_id");
+                });
+
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.Session", b =>
+                {
+                    b.HasOne("TakaLeaf.App.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sessions_users_user_id");
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Transaction", b =>
                 {
                     b.HasOne("TakaLeaf.App.Data.Entities.Category", null)
@@ -425,6 +574,16 @@ namespace TakaLeaf.App.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_transactions_users_user_id");
+                });
+
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.UserToken", b =>
+                {
+                    b.HasOne("TakaLeaf.App.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Wallet", b =>
