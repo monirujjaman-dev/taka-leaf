@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router";
+import type { Transaction } from "../api/types";
 import { TransactionForm } from "../pages/transactions/TransactionForm";
 
 interface SheetValue {
@@ -23,3 +25,13 @@ export function TransactionSheetProvider({ children }: { children: ReactNode }) 
 }
 
 export const useTransactionSheet = () => useContext(SheetContext);
+
+/** Opens a history row where it can be changed: a loan on its person's page, anything else in the form. */
+export function useOpenTransaction() {
+  const sheet = useTransactionSheet();
+  const navigate = useNavigate();
+  return useCallback(
+    (transaction: Transaction) => (transaction.personId ? navigate(`/people/${transaction.personId}`) : sheet.open(transaction.id)),
+    [sheet, navigate],
+  );
+}

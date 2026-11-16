@@ -108,3 +108,44 @@ export interface Dashboard {
   spendingByCategory: CategorySpending[];
   recent: Transaction[];
 }
+
+export type LoanKind = "Lend" | "GotBack" | "Borrow" | "PaidBack";
+
+export interface Person {
+  id: string;
+  name: string;
+  note: string | null;
+  owesMe: number;
+  iOwe: number;
+  net: number;
+  lastLoanAt: string | null;
+}
+
+export interface Loan {
+  id: string;
+  kind: LoanKind;
+  amount: number;
+  walletId: string;
+  walletName: string | null;
+  occurredAt: string;
+  note: string | null;
+}
+
+export interface PeopleList {
+  people: Person[];
+  owedToMe: number;
+  iOwe: number;
+}
+
+export interface PersonDetail {
+  person: Person;
+  loans: Loan[];
+}
+
+export interface LoanInput {
+  kind: LoanKind;
+  amount: number;
+  walletId: string;
+  occurredAt?: string;
+  note?: string | null;
+}

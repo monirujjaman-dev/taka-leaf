@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useDashboard, useWallets } from "../../api/queries";
 import { PageHeader } from "../../layout/AppShell";
-import { useTransactionSheet } from "../../layout/TransactionSheet";
+import { useOpenTransaction, useTransactionSheet } from "../../layout/TransactionSheet";
 import { Button, buttonClass, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
@@ -54,6 +54,7 @@ export function DashboardPage() {
   const dashboard = useDashboard(month);
   const wallets = useWallets();
   const sheet = useTransactionSheet();
+  const openRow = useOpenTransaction();
 
   const hasWallets = (wallets.data?.wallets.length ?? 0) > 0;
 
@@ -119,7 +120,7 @@ export function DashboardPage() {
               ) : (
                 <ul className="m-0 flex list-none flex-col p-0">
                   {dashboard.data.recent.map((t) => (
-                    <TransactionRow key={t.id} transaction={t} onOpen={sheet.open} />
+                    <TransactionRow key={t.id} transaction={t} onOpen={openRow} />
                   ))}
                 </ul>
               )}

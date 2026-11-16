@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router";
 import { useCategories, useTransactions, useWallets } from "../../api/queries";
 import type { Transaction } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
-import { useTransactionSheet } from "../../layout/TransactionSheet";
+import { useOpenTransaction, useTransactionSheet } from "../../layout/TransactionSheet";
 import { Button } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { SelectField, TextField } from "../../ui/Field";
@@ -27,6 +27,7 @@ function groupByDay(items: Transaction[]): [string, Transaction[]][] {
 export function TransactionsPage() {
   const [params, setParams] = useSearchParams();
   const sheet = useTransactionSheet();
+  const openRow = useOpenTransaction();
   const wallets = useWallets();
   const categories = useCategories(undefined, true);
 
@@ -138,7 +139,7 @@ export function TransactionsPage() {
                 </h2>
                 <ul className="m-0 flex list-none flex-col p-0">
                   {items.map((t) => (
-                    <TransactionRow key={t.id} transaction={t} onOpen={sheet.open} />
+                    <TransactionRow key={t.id} transaction={t} onOpen={openRow} />
                   ))}
                 </ul>
               </div>

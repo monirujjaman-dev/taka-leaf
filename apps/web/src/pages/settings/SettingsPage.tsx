@@ -3,6 +3,7 @@ import { api, ApiError } from "../../api/client";
 import type { MessageResponse } from "../../api/types";
 import { useAuth } from "../../auth/AuthContext";
 import { PASSWORD_HINT, PasswordField } from "../../auth/PasswordField";
+import { Link } from "react-router";
 import { PageHeader } from "../../layout/AppShell";
 import { Button } from "../../ui/Button";
 import { ErrorNote, SuccessNote } from "../../ui/Feedback";
@@ -76,6 +77,13 @@ export function SettingsPage() {
               Sign out
             </Button>
           </div>
+        </section>
+        <section className="glass rounded-[22px] p-5 lg:hidden">
+          <h2 className="m-0 text-base font-extrabold">Categories</h2>
+          <p className="mb-3 mt-1 text-sm text-[var(--tl-muted)]">Add, rename or archive the categories you pick from.</p>
+          <Link to="/categories" className="text-sm font-bold text-[var(--tl-primary)]">
+            Manage categories
+          </Link>
         </section>
         <section className="glass rounded-[22px] p-5">
           <h2 className="m-0 mb-4 text-base font-extrabold">Change password</h2>
