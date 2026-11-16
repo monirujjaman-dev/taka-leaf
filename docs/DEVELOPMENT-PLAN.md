@@ -14,7 +14,7 @@ current.
 | M0 Foundations | Repo, backend skeleton, web skeleton, shared money formatter, CI, mail catcher | 4 days | ✅ | (direct to `main`) |
 | M1 Backend core | Auth, wallets, categories, transactions, dashboard | 8 days | ✅ | #1–#5 |
 | M2 Web core | Auth screens, app shell, dashboard, transactions, wallets, categories, settings | 8 days | ✅ | #6 |
-| M3 Full features | People and loans, budgets, recurring ✅; **reports** ⬜ | 8 days | 🟡 | #7–#8 |
+| M3 Full features | People and loans, budgets, recurring, reports, category merge and delete | 8 days | ✅ | #7, #8, #12 |
 | M4 Hardening | Deploy setup, security headers ✅; CSV export, devices, performance, accessibility, dependency scan ⬜ | 5 days | 🟡 | #9 |
 | M5 Release v1 | Running on the VPS with Dokploy, backups proven, a week of real use | 4 days | ⬜ | |
 | A1–A4 | Android setup, offline, sync, finish and ship (version 2) | 32 days | ⬜ | |
@@ -54,14 +54,14 @@ and 32 for version 2.
 - [x] Component tests with a fake API (sign-in flows, transaction form, API client refresh)
 - [ ] End-to-end tests in a real browser (Playwright) → moved to M4
 
-### M3 — Full features 🟡
+### M3 — Full features ✅
 
 - [x] People and loans: lend, got back, borrow, paid back, per-person history, dashboard totals (L-1 to L-6)
 - [x] Budgets: overall and per category, progress, near/over warnings (B-1 to B-4)
 - [x] Recurring: rules, due list with record/skip, automatic recording worker (R-1 to R-7, F-8)
 - [x] Credit card limit and credit left
-- [ ] **Reports**: monthly by category, income against expense, drill-down (P-2, P-4); then yearly and six-month trend
-- [ ] Categories screen: merge and delete (the API exists)
+- [x] Reports: month and year; income against expense and savings; by category with sub-categories; drill-down to transactions; six- or twelve-month trend (P-2 to P-4)
+- [x] Categories screen: merge and delete; merge moves recurring rules and the budget too (C-1)
 - [ ] Credit card billing and due dates (could)
 
 ### M4 — Hardening 🟡

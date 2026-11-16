@@ -15,6 +15,7 @@ const NAV: { to: string; label: string; short: string; icon: IconName; phone: bo
   { to: "/transactions", label: "Transactions", short: "History", icon: "list", phone: true },
   { to: "/wallets", label: "Wallets", short: "Wallets", icon: "wallet", phone: true },
   { to: "/people", label: "People", short: "People", icon: "people", phone: true },
+  { to: "/reports", label: "Reports", short: "Reports", icon: "chart", phone: false },
   { to: "/budgets", label: "Budgets", short: "Budgets", icon: "target", phone: false },
   { to: "/recurring", label: "Recurring", short: "Recurring", icon: "repeat", phone: false },
   { to: "/categories", label: "Categories", short: "Categories", icon: "tag", phone: false },

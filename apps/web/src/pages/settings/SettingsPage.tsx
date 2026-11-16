@@ -80,6 +80,7 @@ export function SettingsPage() {
         </section>
         <nav aria-label="More" className="glass rounded-[22px] p-2 lg:hidden">
           {[
+            ["/reports", "Reports", "Month and year totals, by category, and the trend"],
             ["/budgets", "Budgets", "Monthly limits and how this month is going"],
             ["/recurring", "Recurring", "Rent, salary and subscriptions"],
             ["/categories", "Categories", "Add, rename or archive categories"],

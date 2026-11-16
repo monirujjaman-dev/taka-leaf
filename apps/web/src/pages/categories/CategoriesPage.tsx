@@ -1,16 +1,83 @@
 import { useState, type FormEvent } from "react";
 import { ApiError } from "../../api/client";
-import { useArchiveCategory, useCategories, useSaveCategory } from "../../api/queries";
+import { useArchiveCategory, useCategories, useDeleteCategory, useMergeCategory, useSaveCategory } from "../../api/queries";
 import type { Category, CategoryKind } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
 import { ErrorNote, Loading, messageOf } from "../../ui/Feedback";
-import { TextField } from "../../ui/Field";
+import { SelectField, TextField } from "../../ui/Field";
 import { Modal } from "../../ui/Modal";
 
 type Editing = { category: Category | null; kind: CategoryKind; parentId: string | null };
 
-function CategoryForm({ editing, onClose }: { editing: Editing; onClose: () => void }) {
+/**
+ * Merge moves every transaction (and recurring rule) into another category of the same kind, then
+ * removes this one; delete works only for a category nothing uses. Both need no sub-categories.
+ */
+function MergeOrDelete({ category, all, onDone }: { category: Category; all: Category[]; onDone: () => void }) {
+  const merge = useMergeCategory();
+  const remove = useDeleteCategory();
+  const [into, setInto] = useState("");
+  const [confirm, setConfirm] = useState<"merge" | "delete" | null>(null);
+
+  if (category.children.length > 0) {
+    return (
+      <p className="m-0 text-[13px] text-[var(--tl-muted)]">
+        To merge or delete {category.name}, first merge or delete its sub-categories.
+      </p>
+    );
+  }
+
+  const targets = all.flatMap((parent) => [
+    { id: parent.id, label: parent.name },
+    ...parent.children.map((child) => ({ id: child.id, label: `${parent.name} › ${child.name}` })),
+  ]).filter((option) => option.id !== category.id);
+  const error = messageOf(merge.error ?? remove.error);
+
+  return (
+    <section aria-label="Merge or delete" className="flex flex-col gap-3 border-t border-[var(--tl-glass-border)] pt-4">
+      <SelectField
+        label={`Merge ${category.name} into`}
+        value={into}
+        onChange={(e) => {
+          setInto(e.target.value);
+          setConfirm(null);
+        }}
+        hint="Its transactions move there, so totals stay the same. Then this category is removed."
+      >
+        <option value="">Choose a category</option>
+        {targets.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </SelectField>
+      <ErrorNote>{error}</ErrorNote>
+      <div className="flex flex-wrap gap-2">
+        {confirm === "merge" ? (
+          <Button disabled={merge.isPending} onClick={() => merge.mutateAsync({ id: category.id, intoCategoryId: into }).then(onDone, () => {})}>
+            Yes, merge
+          </Button>
+        ) : (
+          <Button variant="secondary" disabled={!into} onClick={() => setConfirm("merge")}>
+            Merge
+          </Button>
+        )}
+        {confirm === "delete" ? (
+          <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutateAsync(category.id).then(onDone, () => {})}>
+            Yes, delete
+          </Button>
+        ) : (
+          <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => setConfirm("delete")}>
+            Delete
+          </Button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CategoryForm({ editing, all, onClose }: { editing: Editing; all: Category[]; onClose: () => void }) {
   const save = useSaveCategory();
   const archive = useArchiveCategory();
   const [name, setName] = useState(editing.category?.name ?? "");
@@ -56,6 +123,11 @@ function CategoryForm({ editing, onClose }: { editing: Editing; onClose: () => v
           <p className="m-0 text-[13px] text-[var(--tl-muted)]">Archiving hides it from new entries; past transactions keep it.</p>
         ) : null}
       </form>
+      {category ? (
+        <div className="mt-4">
+          <MergeOrDelete category={category} all={all} onDone={onClose} />
+        </div>
+      ) : null}
     </Modal>
   );
 }
@@ -134,7 +206,7 @@ export function CategoriesPage() {
         ))}
       </ul>
 
-      {editing ? <CategoryForm editing={editing} onClose={() => setEditing(null)} /> : null}
+      {editing ? <CategoryForm editing={editing} all={categories.data ?? []} onClose={() => setEditing(null)} /> : null}
     </>
   );
 }

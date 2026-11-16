@@ -78,8 +78,8 @@ Goals:
 | FR-C1 | Income and expense categories, two levels (e.g. Housing → House rent) | Must | ✅ |
 | FR-C2 | Starter set covering the owner's expense types: house rent, bus fare, groceries, self-development, learning tools (cloud server, AI subscriptions), parents, younger sister, wife's pocket money, fees and charges… | Must | ✅ |
 | FR-C3 | Add, rename, archive | Must | ✅ |
-| FR-C4 | Merge one category into another (transactions move) | Should | 🟡 (API only) |
-| FR-C5 | Delete an unused category | Should | 🟡 (API only) |
+| FR-C4 | Merge one category into another (transactions, recurring rules and budget move) | Should | ✅ |
+| FR-C5 | Delete an unused category | Should | ✅ |
 
 ### 3.5 People, lending and borrowing
 
@@ -109,8 +109,8 @@ Goals:
 | FR-D1 | Net balance, assets, amounts owed | Must | ✅ |
 | FR-D2 | This month's income and expense, spending by category, recent transactions | Must | ✅ |
 | FR-D3 | Due recurring items and budgets at a glance | Should | ✅ |
-| FR-P1 | Monthly report: category totals, income against expense, drill-down to transactions | Must | ⬜ |
-| FR-P2 | Yearly report and six-month trend | Should | ⬜ |
+| FR-P1 | Monthly report: category totals, income against expense, drill-down to transactions | Must | ✅ |
+| FR-P2 | Yearly report and six-month trend | Should | ✅ |
 | FR-P3 | CSV export of filtered transactions | Should | ⬜ |
 | FR-P4 | PDF export | Could | ⬜ (after v2) |
 
