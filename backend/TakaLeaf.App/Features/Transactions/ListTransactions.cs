@@ -29,13 +29,7 @@ public static class ListTransactions
     }
 
     private static async Task<IResult> Handle(
-        DateOnly? from,
-        DateOnly? to,
-        Guid? walletId,
-        Guid? categoryId,
-        bool? uncategorised,
-        TransactionType? type,
-        string? search,
+        [AsParameters] TransactionFilter filter,
         int? page,
         int? pageSize,
         ClaimsPrincipal principal,
@@ -44,49 +38,7 @@ public static class ListTransactions
         CancellationToken cancellationToken)
     {
         var userId = principal.UserId();
-        var query = db.Transactions.Where(t => t.UserId == userId);
-
-        if (from is { } firstDay)
-        {
-            var start = calendar.StartOf(firstDay);
-            query = query.Where(t => t.OccurredAt >= start);
-        }
-
-        if (to is { } lastDay)
-        {
-            var end = calendar.StartOf(lastDay.AddDays(1));
-            query = query.Where(t => t.OccurredAt < end);
-        }
-
-        if (walletId is { } wallet)
-        {
-            query = query.Where(t => t.FromWalletId == wallet || t.ToWalletId == wallet);
-        }
-
-        if (categoryId is { } category)
-        {
-            var ids = await db.Categories
-                .Where(c => c.UserId == userId && (c.Id == category || c.ParentId == category))
-                .Select(c => c.Id)
-                .ToListAsync(cancellationToken);
-            query = query.Where(t => t.CategoryId != null && ids.Contains(t.CategoryId.Value));
-        }
-
-        if (uncategorised == true)
-        {
-            query = query.Where(t => t.CategoryId == null);
-        }
-
-        if (type is { } onlyType)
-        {
-            query = query.Where(t => t.Type == onlyType);
-        }
-
-        if (Text.Clean(search) is { } words)
-        {
-            var pattern = $"%{EscapeLike(words)}%";
-            query = query.Where(t => t.Note != null && EF.Functions.ILike(t.Note, pattern, "\\"));
-        }
+        var query = await filter.ApplyAsync(db, userId, calendar, cancellationToken);
 
         var totalCount = await query.CountAsync(cancellationToken);
         var income = await query.Where(t => t.Type == TransactionType.Income).SumAsync(t => (long?)t.Amount, cancellationToken) ?? 0;
@@ -104,9 +56,4 @@ public static class ListTransactions
         var items = await TransactionRules.ToDtosAsync(db, userId, rows, cancellationToken);
         return Results.Ok(new TransactionPage(items, totalCount, number, size, new TransactionTotals(income, expense)));
     }
-
-    private static string EscapeLike(string text) =>
-        text.Replace("\\", "\\\\", StringComparison.Ordinal)
-            .Replace("%", "\\%", StringComparison.Ordinal)
-            .Replace("_", "\\_", StringComparison.Ordinal);
 }

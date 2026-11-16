@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
@@ -29,8 +30,17 @@ public static class Register
         IPasswordHasher<User> hasher,
         VerificationEmails emails,
         TimeProvider clock,
+        IOptions<AuthOptions> auth,
         CancellationToken cancellationToken)
     {
+        if (!auth.Value.RegistrationOpen)
+        {
+            return Results.Problem(
+                title: "New accounts are closed on this TakaLeaf.",
+                statusCode: StatusCodes.Status403Forbidden,
+                extensions: new Dictionary<string, object?> { ["code"] = "registration_closed" });
+        }
+
         if (!EmailRules.TryNormalize(request.Email, out var email))
         {
             return ValidationErrors.For("email", "Enter a valid email address.");
