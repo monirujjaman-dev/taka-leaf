@@ -14,6 +14,9 @@ public static class AuthEndpoints
         group.MapRefresh();
         group.MapLogout();
         group.MapGetMe();
+        group.MapForgotPassword();
+        group.MapResetPassword();
+        group.MapChangePassword();
         return api;
     }
 }

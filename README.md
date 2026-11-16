@@ -22,7 +22,7 @@ Version 1 is the backend and the web app. The Android app (offline, with sync) i
 Needs: .NET 10 SDK, Node.js 22+, pnpm, Docker.
 
 ```bash
-# 1. Database and mail catcher
+# 1. Database, mail catcher and Seq
 docker compose -f deploy/docker-compose.dev.yml up -d
 
 # 2. Backend on http://localhost:5080
@@ -36,6 +36,21 @@ pnpm dev
 Emails sent in development (verification links) arrive in Mailpit at http://localhost:8025.
 `backend/TakaLeaf.App/TakaLeaf.App.http` has ready-made requests for trying the API by hand.
 
+## Logs
+
+The backend writes structured logs with Serilog to three places:
+
+| Where | What |
+| --- | --- |
+| Console | One readable line per event |
+| `logs/takaleaf-<date>.json` | Compact JSON, one file a day, kept 14 days |
+| Seq, http://localhost:5341 | Search and filter every property, for example `UserName = 'you@example.com'` |
+
+Every request writes one line such as
+`HTTP POST /api/auth/login responded 200 in 84.2 ms for anonymous from 172.18.0.1`,
+and every log line written during a request carries `ClientIp`, `UserName` (the signed-in
+user's email, or `anonymous`) and `UserId`. Passwords, tokens, amounts and notes are never logged.
+
 ## Configuration
 
 Development settings live in `appsettings.Development.json`. In production, set these as
@@ -48,6 +63,8 @@ environment variables (never in Git):
 | Web address | `App__WebBaseUrl` | Used in links inside emails |
 | Email server | `Email__Host`, `Email__Port`, `Email__Security`, `Email__Username`, `Email__Password`, `Email__From` | SMTP provider |
 | Migrations on start | `Database__MigrateOnStartup` | `true` to apply migrations when the API starts |
+| Seq address | `Serilog__WriteTo__2__Args__serverUrl` | Where structured logs go; add `Serilog__WriteTo__2__Args__apiKey` if Seq needs a key |
+| Reverse proxy | `ReverseProxy__TrustedProxies__0` | IP address of the proxy in front of the API, so the real client IP is logged and rate-limited |
 
 ## Tests
 
