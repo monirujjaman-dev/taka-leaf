@@ -6,6 +6,7 @@ public static class TransactionEndpoints
     {
         var group = api.MapGroup("/transactions").WithTags("Transactions").RequireAuthorization();
         group.MapListTransactions();
+        group.MapExportTransactions();
         group.MapGetTransaction();
         group.MapAddTransaction();
         group.MapEditTransaction();

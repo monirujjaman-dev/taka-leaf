@@ -51,7 +51,7 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Verify email | Verifies once on open | Verifying, success, expired/used link |
 | Forgot / reset password | Email → same answer for any email; new password from the link | Link used or expired → "Get a new link" |
 | Dashboard | Month switcher; forest **Net balance** card (assets, owed); income and spent this month; people owe you / you owe (when non-zero); **Due to record** (Record/Skip); **Budgets** (up to four bars); **Recent** (five rows); **Where the money went** (category bars) | No wallets → "Start by adding your wallets"; empty month → zeros and "No spending this month" |
-| Transactions | Search, From/To dates, (More filters on phones) wallet, type, category; Income / Expense / Entries totals; rows grouped by day (Today, Yesterday, Sat 14 Nov 2026); Newer/Older paging | "Nothing matches these filters" |
+| Transactions | **Export CSV** (the current filters, every matching row); search, From/To dates, (More filters on phones) wallet, type, category; Income / Expense / Entries totals; rows grouped by day (Today, Yesterday, Sat 14 Nov 2026); Newer/Older paging | "Nothing matches these filters" |
 | Add / edit transaction | Expense · Income · Transfer switch; amount; wallet(s); category (grouped, parent as "general"); fee on transfers; date and time; note; Delete with confirm | Checks before sending; server messages beside the field; "Add a wallet first" |
 | Wallets | Net / Assets / Owed tiles; cards grouped Cash, Mobile banking, Bank, Credit card; balance, credit left; "See transactions"; show archived | "No wallets yet" |
 | Add / edit wallet | Type (new only), name with MFS shortcuts, starting balance or "amount owed now" for cards, credit limit, leave out of net balance, archive, delete | Delete refused if used → archive instead |
@@ -62,10 +62,9 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |
 | Add / edit recurring | Type switch, amount, wallets, category, note, repeat every N unit, first and last date, record automatically, pause/resume, delete | |
 | Categories | Expense / Income tabs; parent cards with sub-category chips; add, add sub-category, rename, archive; in the edit sheet, merge into another category or delete (confirm in place) | Archived shown dimmed / struck through; a parent with sub-categories asks to sort those first |
-| Settings | Account email, theme, sign out; change password; (phones) links to Budgets, Recurring, Categories | Success message after password change |
+| Settings | Account email, theme, sign out; change password; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices); (phones) links to Reports, Budgets, Recurring, Categories | Success message after password change |
 
-Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): CSV export,
-signed-in devices, and the Android screens (number-pad entry, sync status, app lock).
+Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the Android screens (number-pad entry, sync status, app lock).
 
 ## 4. Key flows
 

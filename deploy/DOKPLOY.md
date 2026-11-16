@@ -45,6 +45,7 @@ Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ takaleaf app :8080 ─�
 
 - `https://takaleaf.example.com/api/health` shows `{"status":"ok","database":"up"}`.
 - Open the site, create your account, open the link from the verification email, sign in.
+- Optional: set `Auth__RegistrationOpen=false` in the app's Environment and redeploy, so nobody else can register.
 - In the app's **Logs** tab, request lines show your real IP address. If they show a `10.x.x.x`
   address instead, the proxy network is different on your server: put that network (for example
   `172.16.0.0/12`) in `ReverseProxy__TrustedNetworks__0`.

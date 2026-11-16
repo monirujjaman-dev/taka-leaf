@@ -78,6 +78,7 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
     {
         jwt.MapInboundClaims = false;
         jwt.TokenValidationParameters = TokenIssuer.ValidationParameters(auth.Value);
+        jwt.Events = new JwtBearerEvents { OnTokenValidated = SessionCheck.ValidateAsync };
     });
 builder.Services.AddAuthorization();
 

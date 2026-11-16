@@ -107,7 +107,8 @@ export interface RequestOptions {
   signal?: AbortSignal;
 }
 
-export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
+/** Sends a request with the access token, renewing the session once on 401. Throws ApiError on failure. */
+async function authorised(path: string, options: RequestOptions): Promise<Response> {
   const send = () => {
     const headers: Record<string, string> = {};
     if (options.body !== undefined) headers["Content-Type"] = "application/json";
@@ -131,7 +132,27 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
   }
 
   if (!response.ok) throw await toError(response);
+  return response;
+}
+
+export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const response = await authorised(path, options);
   if (response.status === 204) return undefined as T;
   const text = await response.text();
   return (text ? JSON.parse(text) : undefined) as T;
+}
+
+/** Downloads a file from the API (for example the CSV export) and hands it to the browser to save. */
+export async function download(path: string, fallbackName: string): Promise<void> {
+  const response = await authorised(path, {});
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const name = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1] ?? /filename="?([^";]+)"?/i.exec(disposition)?.[1] ?? fallbackName;
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = decodeURIComponent(name);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

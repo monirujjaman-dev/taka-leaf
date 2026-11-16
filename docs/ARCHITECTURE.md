@@ -135,10 +135,10 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Area | Endpoints |
 | --- | --- |
 | Health | `GET /health`: API up, database up/down |
-| Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me` |
+| Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me`; `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `POST /auth/sessions/sign-out-others` |
 | Wallets | `GET/POST /wallets`, `GET/PUT/DELETE /wallets/{id}`, `POST /wallets/{id}/archive`, `/unarchive` |
 | Categories | `GET/POST /categories`, `PUT/DELETE /categories/{id}`, `POST /{id}/archive`, `/unarchive`, `/merge` |
-| Transactions | `GET /transactions` (from, to, walletId, categoryId, uncategorised, type, search, page, pageSize; totals over all matches), `GET/PUT/DELETE /transactions/{id}`, `POST /transactions` |
+| Transactions | `GET /transactions` (from, to, walletId, categoryId, uncategorised, type, search, page, pageSize; totals over all matches), `GET /transactions/export.csv` (same filters; UTF-8 CSV, amounts in taka, formula-like text neutralised), `GET/PUT/DELETE /transactions/{id}`, `POST /transactions` |
 | Dashboard | `GET /dashboard?month=yyyy-MM` |
 | Reports | `GET /reports?period=Month&month=yyyy-MM` or `?period=Year&year=yyyy`: income, expense, saved, by category (with sub-categories), trend (6 or 12 months). Only income and expense count |
 | People | `GET/POST /people`, `GET/PUT/DELETE /people/{id}`, `POST /people/{id}/loans`, `PUT/DELETE /people/{id}/loans/{loanId}` (Lend, GotBack, Borrow, PaidBack) |
@@ -156,11 +156,13 @@ has ready-made requests.
   not the email exists.
 - **Tokens:** a JWT access token lives for 15 minutes and is kept only in memory on the web. Refresh
   tokens rotate on every use and are stored as SHA-256 hashes. Reusing an old one after 30 seconds
-  ends the whole session. The web gets the refresh token as an `HttpOnly; Secure; SameSite=Strict`
+  ends the whole session. Every request also checks that the token's session is still active, so
+  sign-out, a password change or signing out a device takes effect at once. The web gets the refresh token as an `HttpOnly; Secure; SameSite=Strict`
   cookie on `/api/auth`; Android (`client: "mobile"`) gets it in the response body.
 - **Email links** are single-use and stored hashed. Verify links expire after 24 hours, reset links after 30 minutes. A password chosen at
   registration takes effect only if that particular link is opened, so nobody can take over an
   unverified account.
+- **Registration** can be closed with `Auth:RegistrationOpen=false` (403 `registration_closed`).
 - **Rate limit:** the auth endpoints are limited per IP (`RateLimits:AuthPerMinute`). The real IP is
   trusted only from `ReverseProxy:TrustedProxies` / `TrustedNetworks`.
 - **Headers:** CSP (self plus Google Fonts), `X-Frame-Options: DENY`, `nosniff`, Referrer and

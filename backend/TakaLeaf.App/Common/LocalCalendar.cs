@@ -17,6 +17,9 @@ public sealed class LocalCalendar(IOptions<AppOptions> options, TimeProvider clo
         return new DateTimeOffset(utc, TimeSpan.Zero);
     }
 
+    /// <summary>The local date and time of a moment.</summary>
+    public DateTime ToLocal(DateTimeOffset moment) => TimeZoneInfo.ConvertTime(moment, zone).DateTime;
+
     /// <summary>The local day a moment falls on.</summary>
     public DateOnly DateOf(DateTimeOffset moment) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(moment, zone).DateTime);
 
