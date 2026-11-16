@@ -72,6 +72,10 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("server_seq");
 
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
