@@ -12,3 +12,6 @@ brand
 *.md
 .env
 .env.*
+docs
+.impeccable
+.claude

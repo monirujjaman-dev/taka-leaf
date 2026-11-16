@@ -1,5 +1,8 @@
 # Web notes
 
+- Visual rules: `DESIGN.md` (tokens, components, do's and don'ts) and `PRODUCT.md` (principles).
+  Screen and interaction rules: `docs/UI-UX.md`. Change those docs when the UI changes.
+
 - Pages: `src/pages/<area>/<Area>Page.tsx`; forms are modals (`ui/Modal.tsx`) with local state,
   client-side checks first, then the server's field errors via `ApiError.field(name)`.
 - Data: add hooks in `src/api/queries.ts`, types in `src/api/types.ts`. Anything that changes money

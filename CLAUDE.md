@@ -2,8 +2,11 @@
 
 Personal income/expense tracker in BDT. Version 1 = .NET 10 backend + React web app; version 2 adds
 an offline-first Android app (React Native) that syncs with the same API.
-**Read [DESIGN.md](DESIGN.md) before changing behaviour**: it has the architecture, the data model
-and the rules below in full.
+**Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before changing behaviour**: it has the
+architecture, the data model and the rules below in full. For any UI work also read
+[PRODUCT.md](PRODUCT.md) (who it is for, principles) and [DESIGN.md](DESIGN.md) (the visual system;
+machine-readable sidecar in `.impeccable/design.json`). Requirements, UI/UX, plan and testing plan
+are in [docs/](docs/).
 
 ## Commands
 
@@ -59,4 +62,6 @@ docker build -t takaleaf .                              # production image (web 
   (web, backend, Docker image), squash-merge. The repo owner has allowed Claude to push, open PRs
   and merge them.
 - UI copy is short, plain English; amounts like `৳1,25,000.00`.
-- Update DESIGN.md when a rule, table or endpoint changes.
+- Keep docs current: `docs/ARCHITECTURE.md` when a rule, table or endpoint changes; `DESIGN.md`
+  (and `.impeccable/design.json`) when a colour, type style or component changes;
+  `docs/REQUIREMENTS.md` and `docs/DEVELOPMENT-PLAN.md` status when a feature ships.

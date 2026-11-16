@@ -3,7 +3,18 @@
 **Your Money. Your Control.** A personal income and expense tracker in BDT (৳): many wallets,
 loans per person, budgets and reports.
 
-How it is built and why: [DESIGN.md](DESIGN.md). Notes for Claude Code: [CLAUDE.md](CLAUDE.md).
+## Documents
+
+| Document | What it covers |
+| --- | --- |
+| [PRODUCT.md](PRODUCT.md) | Who it is for, purpose, brand personality, design principles |
+| [DESIGN.md](DESIGN.md) | Visual design system: colours, type, elevation, components (Google Stitch format; sidecar in `.impeccable/`) |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | Functional and non-functional requirements, with status |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture, rules, data model, API, security, Android sync plan |
+| [docs/UI-UX.md](docs/UI-UX.md) | Navigation, screens, flows, interaction and copy rules |
+| [docs/DEVELOPMENT-PLAN.md](docs/DEVELOPMENT-PLAN.md) | Milestones, status, risks |
+| [docs/TESTING-PLAN.md](docs/TESTING-PLAN.md) | Test levels, fixtures, case ids, release checklist |
+| [CLAUDE.md](CLAUDE.md) | Notes for Claude Code |
 
 Version 1 is the backend and the web app. The Android app (offline, with sync) is version 2.
 

@@ -1,5 +1,7 @@
 # Backend notes
 
+- Architecture, rules and API list: `docs/ARCHITECTURE.md`.
+
 - New feature: `Features/<Feature>/` with `<Feature>Models.cs` (DTOs, `internal static <Feature>Rules`),
   one file per action, `<Feature>Endpoints.cs` with `MapGroup("/<feature>").WithTags(...).RequireAuthorization()`,
   then `api.Map<Feature>()` in `Program.cs`. Use `/new-slice` for the checklist.

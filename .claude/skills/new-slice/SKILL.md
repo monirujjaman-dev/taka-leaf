@@ -4,7 +4,7 @@ description: Add a backend endpoint or feature to TakaLeaf as a vertical slice, 
 argument-hint: "[Feature/Action, e.g. Tags/AddTag]"
 ---
 
-Add the slice **$ARGUMENTS** following the project's conventions (see CLAUDE.md and DESIGN.md).
+Add the slice **$ARGUMENTS** following the project's conventions (see CLAUDE.md and docs/ARCHITECTURE.md).
 
 1. Read the closest existing feature first (for example `Features/Budgets/Budgets.cs` for a small
    one, `Features/Transactions/` for a larger one) and copy its shape.
@@ -20,6 +20,6 @@ Add the slice **$ARGUMENTS** following the project's conventions (see CLAUDE.md 
    rule, and "another account cannot see or change it". Use the existing helpers.
 4. Web: add the type to `apps/web/src/api/types.ts` and a hook to `api/queries.ts`
    (money changes → `useInvalidateMoney`).
-5. Add a request to `backend/TakaLeaf.App/TakaLeaf.App.http` and update DESIGN.md §5 (API) and §4 if
+5. Add a request to `backend/TakaLeaf.App/TakaLeaf.App.http` and update docs/ARCHITECTURE.md §5 (API) and §4 if
    the data model changed.
 6. Run `/check`.

@@ -5,8 +5,9 @@ tools: Read, Grep, Glob, Bash
 model: inherit
 ---
 
-You check the TakaLeaf web app's screens. Read `apps/web/CLAUDE.md` and the changed files in
-`apps/web/src`.
+You check the TakaLeaf web app's screens. Read `PRODUCT.md` (principles, anti-references),
+`DESIGN.md` (tokens, components, do's and don'ts), `docs/UI-UX.md` (screens and interaction rules),
+`apps/web/CLAUDE.md`, and the changed files in `apps/web/src`.
 
 Look for:
 
