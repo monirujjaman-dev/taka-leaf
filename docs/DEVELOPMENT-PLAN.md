@@ -118,7 +118,8 @@ use of version 1 can still shape the later Android screens. The app lives in `ap
 
 - [ ] Phone schema mirroring the server: wallets, categories, transactions, people, budgets, recurring rules (Guid v7 ids made on the phone, `updated_at`, `deleted_at`); `outbox` and `sync_state`
 - [ ] Money rules shared with the server through `contract/fixtures/` (balances calculated, never stored; poisha integers)
-- [ ] Sign in, register, forgot password against the user's server address; refresh token in expo-secure-store (`client: "mobile"`)
+- [ ] Sign in, register (name, email, password; name checked with `checkName` from `@takaleaf/shared`), forgot password against the user's server address; refresh token in expo-secure-store (`client: "mobile"`)
+- [ ] Settings account card with the name and email; change the name with `PUT /api/auth/me`
 - [ ] First full download of the account into SQLite (uses the current read endpoints until A3)
 - [ ] Bottom tabs as on the web design: Home, History, centre Add, Reports, More
 - [ ] Dashboard, history, wallets and categories reading live from SQLite

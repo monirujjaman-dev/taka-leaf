@@ -16,7 +16,7 @@ public static class Register
 {
     public const string Message = "Check your email for a link to finish creating your account.";
 
-    public sealed record RegisterRequest(string? Email, string? Password);
+    public sealed record RegisterRequest(string? Name, string? Email, string? Password);
 
     public static RouteGroupBuilder MapRegister(this RouteGroupBuilder group)
     {
@@ -41,6 +41,11 @@ public static class Register
                 extensions: new Dictionary<string, object?> { ["code"] = "registration_closed" });
         }
 
+        if (NameRules.Check(request.Name, out var name) is { } nameProblem)
+        {
+            return ValidationErrors.For("name", nameProblem);
+        }
+
         if (!EmailRules.TryNormalize(request.Email, out var email))
         {
             return ValidationErrors.For("email", "Enter a valid email address.");
@@ -56,7 +61,7 @@ public static class Register
 
         if (user is null)
         {
-            user = new User { Email = email, CreatedAt = clock.GetUtcNow() };
+            user = new User { Email = email, Name = name, CreatedAt = clock.GetUtcNow() };
             user.PasswordHash = hasher.HashPassword(user, password);
             db.Users.Add(user);
             try
@@ -70,15 +75,15 @@ public static class Register
             }
 
             await StarterCategories.EnsureAsync(db, user.Id, cancellationToken);
-            await emails.SendVerificationAsync(user, user.PasswordHash, cancellationToken);
+            await emails.SendVerificationAsync(user, user.PasswordHash, name, cancellationToken);
         }
         else if (user.EmailVerifiedAt is null)
         {
-            // Not verified yet: send a new link. The password chosen now is applied only
-            // if this particular link is the one that gets opened.
+            // Not verified yet: send a new link. The password and name chosen now are applied
+            // only if this particular link is the one that gets opened.
             var passwordHash = hasher.HashPassword(user, password);
             user.PasswordHash = passwordHash;
-            await emails.SendVerificationAsync(user, passwordHash, cancellationToken);
+            await emails.SendVerificationAsync(user, passwordHash, name, cancellationToken);
         }
         else
         {

@@ -1,13 +1,16 @@
+import { checkName, NAME_MAX_LENGTH } from "@takaleaf/shared";
+import markOnDark from "../../assets/takaleaf-mark-on-dark.svg";
 import { useState, type FormEvent } from "react";
 import { api, ApiError } from "../../api/client";
 import { useSessions, useSignOutSession } from "../../api/queries";
-import type { MessageResponse } from "../../api/types";
+import type { AuthUser, MessageResponse } from "../../api/types";
 import { useAuth } from "../../auth/AuthContext";
 import { PASSWORD_HINT, PasswordField } from "../../auth/PasswordField";
 import { Link } from "react-router";
 import { PageHeader } from "../../layout/AppShell";
 import { Button } from "../../ui/Button";
 import { ErrorNote, Loading, SuccessNote, messageOf } from "../../ui/Feedback";
+import { TextField } from "../../ui/Field";
 import { dayLabel, localDate, timeLabel } from "../../ui/format";
 import { useTheme } from "../../app/theme";
 import { download } from "../../api/client";
@@ -136,6 +139,79 @@ function RowText({ icon, label, value, danger = false }: { icon: IconName; label
   );
 }
 
+/** The design's profile card: the leaf avatar, the name and email, and a way to change the name. */
+function AccountCard() {
+  const { state, updateUser } = useAuth();
+  const user = state.status === "signedIn" ? state.user : null;
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  if (!user) return null;
+
+  function start() {
+    setName(user?.name ?? "");
+    setError(null);
+    setEditing(true);
+  }
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    const checked = checkName(name);
+    if (checked.error) return setError(checked.error);
+    setBusy(true);
+    try {
+      updateUser(await api<AuthUser>("/auth/me", { method: "PUT", body: { name: checked.name } }));
+      setEditing(false);
+    } catch (caught) {
+      setError(caught instanceof ApiError ? (caught.field("name") ?? caught.message) : "Something went wrong. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section aria-label="Account" className="glass flex flex-col gap-3 rounded-[20px] p-3.5">
+      <div className="flex items-center gap-3">
+        <span aria-hidden="true" className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-forest">
+          <img src={markOnDark} width={30} height={30} alt="" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className={`block truncate text-base font-extrabold ${user.name ? "" : "text-[var(--tl-muted)]"}`}>
+            {user.name || "Add your name"}
+          </span>
+          <span className="block truncate text-[13px] text-[var(--tl-muted)]">{user.email}</span>
+        </span>
+        {editing ? null : (
+          <Button variant="secondary" onClick={start} aria-label={user.name ? "Change your name" : "Add your name"}>
+            {user.name ? "Edit" : "Add"}
+          </Button>
+        )}
+      </div>
+      {editing ? (
+        <form onSubmit={save} className="flex flex-col gap-3" noValidate>
+          <TextField
+            label="Your name"
+            autoComplete="name"
+            maxLength={NAME_MAX_LENGTH}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            error={error ?? undefined}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditing(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={busy}>
+              {busy ? "Saving…" : "Save name"}
+            </Button>
+          </div>
+        </form>
+      ) : null}
+    </section>
+  );
+}
+
 /** Settings, and on phones the More tab: the screens without their own tab come first. */
 export function SettingsPage() {
   const { state, signOut } = useAuth();
@@ -158,15 +234,7 @@ export function SettingsPage() {
     <>
       <PageHeader title="Settings" />
       <div className="flex flex-col gap-3 lg:max-w-3xl">
-        <section aria-label="Account" className="glass flex items-center gap-3 rounded-[20px] p-3.5">
-          <span aria-hidden="true" className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-forest text-white">
-            <Icon name="people" size={24} />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-base font-extrabold">Your account</span>
-            <span className="block truncate text-[13px] text-[var(--tl-muted)]">{email}</span>
-          </span>
-        </section>
+        <AccountCard />
 
         <nav aria-label="More" className="lg:hidden">
           <ListCard>

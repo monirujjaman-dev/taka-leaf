@@ -34,6 +34,29 @@ describe("settings and account", () => {
     await vi.waitFor(() => expect(calls.some((c) => c.method === "DELETE" && c.path === "/auth/sessions/s2")).toBe(true));
   });
 
+  it("shows the name and changes it", async () => {
+    const { calls } = fakeApi({
+      "POST /auth/refresh": { body: session() },
+      "GET /auth/sessions": { body: [] },
+      "PUT /auth/me": { body: { id: "u1", email: "me@example.com", name: "Rafi Ahmed" } },
+    });
+    renderApp("/settings");
+
+    const account = await screen.findByRole("region", { name: "Account" });
+    expect(within(account).getByText("Monir Hossain")).toBeInTheDocument();
+    await userEvent.click(within(account).getByRole("button", { name: "Change your name" }));
+    const field = within(account).getByLabelText("Your name");
+    await userEvent.clear(field);
+    await userEvent.click(within(account).getByRole("button", { name: "Save name" }));
+    expect(within(account).getByText("Enter your name.")).toBeInTheDocument();
+
+    await userEvent.type(field, " Rafi   Ahmed ");
+    await userEvent.click(within(account).getByRole("button", { name: "Save name" }));
+
+    expect(await within(account).findByText("Rafi Ahmed")).toBeInTheDocument();
+    expect(calls.find((c) => c.method === "PUT" && c.path === "/auth/me")?.body).toEqual({ name: "Rafi Ahmed" });
+  });
+
   it("explains when registration is closed", async () => {
     fakeApi({
       "POST /auth/refresh": signedOut,
@@ -41,7 +64,8 @@ describe("settings and account", () => {
     });
     renderApp("/register");
 
-    await userEvent.type(await screen.findByLabelText("Email"), "new@example.com");
+    await userEvent.type(await screen.findByLabelText("Your name"), "Rafi Ahmed");
+    await userEvent.type(screen.getByLabelText("Email"), "new@example.com");
     await userEvent.type(screen.getByLabelText("Password"), "green-leaf-2026");
     await userEvent.click(screen.getByRole("button", { name: "Create account" }));
 

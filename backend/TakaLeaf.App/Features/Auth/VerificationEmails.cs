@@ -18,8 +18,8 @@ public sealed class VerificationEmails(
 
     private string WebBaseUrl => app.Value.WebBaseUrl.TrimEnd('/');
 
-    /// <summary>Saves a new single-use link (with the password it will set) and emails it.</summary>
-    public async Task SendVerificationAsync(User user, string passwordHash, CancellationToken cancellationToken)
+    /// <summary>Saves a new single-use link (with the password and name it will set) and emails it.</summary>
+    public async Task SendVerificationAsync(User user, string passwordHash, string name, CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
         var token = SecureToken.Create();
@@ -29,13 +29,14 @@ public sealed class VerificationEmails(
             Purpose = UserTokenPurpose.VerifyEmail,
             TokenHash = SecureToken.Hash(token),
             PasswordHash = passwordHash,
+            Name = name,
             CreatedAt = now,
             ExpiresAt = now + LinkLifetime,
         });
         await db.SaveChangesAsync(cancellationToken);
 
         var body = string.Join('\n',
-            "Welcome to TakaLeaf.",
+            $"Welcome to TakaLeaf, {name}.",
             "",
             "Open this link to verify your email and finish creating your account:",
             $"{WebBaseUrl}/verify-email?token={token}",

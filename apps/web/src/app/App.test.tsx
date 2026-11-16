@@ -74,12 +74,37 @@ describe("signing in", () => {
     });
     renderApp("/register");
 
-    await userEvent.type(await screen.findByLabelText("Email"), "new@example.com");
+    await userEvent.type(await screen.findByLabelText("Your name"), "Rafi Ahmed");
+    await userEvent.type(screen.getByLabelText("Email"), "new@example.com");
     await userEvent.type(screen.getByLabelText("Password"), "short");
     await userEvent.click(screen.getByRole("button", { name: "Create account" }));
 
     expect(await screen.findByText("Use at least 10 characters.")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("sends the cleaned name with the registration and checks it first", async () => {
+    const { calls } = fakeApi({
+      "POST /auth/refresh": signedOut,
+      "POST /auth/register": { status: 202, body: { message: "Check your email for a link to finish creating your account." } },
+    });
+    renderApp("/register");
+
+    await userEvent.type(await screen.findByLabelText("Your name"), "   ");
+    await userEvent.type(screen.getByLabelText("Email"), "new@example.com");
+    await userEvent.type(screen.getByLabelText("Password"), "green-leaf-2026");
+    expect(screen.getByRole("button", { name: "Create account" })).toBeDisabled();
+
+    await userEvent.clear(screen.getByLabelText("Your name"));
+    await userEvent.type(screen.getByLabelText("Your name"), "  Monir   Hossain ");
+    await userEvent.click(screen.getByRole("button", { name: "Create account" }));
+
+    expect(await screen.findByRole("heading", { name: "Check your email" })).toBeInTheDocument();
+    expect(calls.find((c) => c.path === "/auth/register")?.body).toEqual({
+      name: "Monir Hossain",
+      email: "new@example.com",
+      password: "green-leaf-2026",
+    });
   });
 
   it("verifies the email once from the link", async () => {

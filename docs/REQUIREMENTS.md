@@ -36,13 +36,14 @@ Goals:
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| FR-A1 | Register with email and password; the email must be verified before first sign-in | Must | ✅ |
+| FR-A1 | Register with name, email and password; the email must be verified before first sign-in | Must | ✅ |
 | FR-A2 | Sign in and sign out; stay signed in across browser restarts | Must | ✅ |
 | FR-A3 | Forgot password → emailed single-use link → set a new password | Must | ✅ |
 | FR-A4 | Change password while signed in (other devices are signed out) | Must | ✅ |
 | FR-A5 | Lock sign-in after repeated wrong passwords; rate-limit auth requests | Must | ✅ |
 | FR-A6 | See and sign out signed-in devices (takes effect at once) | Should | ✅ |
 | FR-A7 | Switch off new registrations by a server setting once the owner's account exists | Should | ✅ |
+| FR-A8 | See and change your name in Settings (web and Android) | Should | ✅ web |
 
 ### 3.2 Wallets
 

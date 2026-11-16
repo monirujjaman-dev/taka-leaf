@@ -18,9 +18,11 @@ public class AuthTests(DatabaseFixture fixture)
 {
     private const string Password = "green-leaf-2026";
 
+    private const string TestName = "Test Person";
+
     private sealed record AuthResult(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string? RefreshToken, UserResult User);
 
-    private sealed record UserResult(Guid Id, string Email);
+    private sealed record UserResult(Guid Id, string Email, string Name);
 
     private sealed record MessageResult(string Message);
 
@@ -33,7 +35,7 @@ public class AuthTests(DatabaseFixture fixture)
     private static string NewEmail() => $"{Guid.NewGuid():N}@example.test";
 
     private static Task<HttpResponseMessage> Register(HttpClient client, string email, string password = Password) =>
-        client.PostAsJsonAsync("/api/auth/register", new { email, password });
+        client.PostAsJsonAsync("/api/auth/register", new { name = TestName, email, password });
 
     private static Task<HttpResponseMessage> Verify(HttpClient client, string token) =>
         client.PostAsJsonAsync("/api/auth/verify-email", new { token });

@@ -47,7 +47,7 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Screen | Contents | States |
 | --- | --- | --- |
 | Sign in | "Welcome back"; forest brand panel ("Your Money. Your Control.") beside the card on desktop, a short band above it on phones; email, password (show/hide), "Forgot password?" and "Create account" | Wrong password, locked (minutes left), email not verified with "Send the link again" |
-| Create account | Email, password with the rule as a hint | Field errors beside fields; "Check your email" confirmation |
+| Create account | Your name (autocomplete "name", how TakaLeaf greets you), email, password with the rule as a hint | Field errors beside fields (name checked before sending); "Check your email" confirmation |
 | Verify email | Verifies once on open | Verifying, success, expired/used link |
 | Forgot / reset password | Email → same answer for any email; new password from the link | Link used or expired → "Get a new link" |
 | Dashboard | Phone header: logo, "Nov 2026 ▾", refresh. Forest **Net balance** card (assets, liabilities); 2 × 2 tiles: Income, Expense, Owed to me, I owe; **Due to record** (Record/Skip); **Wallets** (sideways strip on phones, list on desktop); **Recent** (five rows, "History" link); **Budgets** (up to four bars); **Spending by category** | No wallets → "Start by adding your wallets"; empty month → zeros and "No spending this month" |
@@ -62,7 +62,7 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |
 | Add / edit recurring | Type switch, amount, wallets, category, note, repeat every N unit, first and last date, record automatically, pause/resume, delete | |
 | Categories | Expense · Income switch; one row per parent with its sub-categories listed underneath, opening to sub-category chips, "+ Sub-category" and "Edit"; rename, archive; in the edit sheet, merge into another category or delete (confirm in place) | Archived shown dimmed / struck through; a parent with sub-categories asks to sort those first |
-| Settings | Account card; (phones) links to Wallets, People and loans, Budgets, Recurring, Categories; rows for Theme, Change password, Export to CSV, Signed-in devices, Sign out; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices) | Success message after password change |
+| Settings | Account card (leaf avatar, name or "Add your name", email, Edit to change the name); (phones) links to Wallets, People and loans, Budgets, Recurring, Categories; rows for Theme, Change password, Export to CSV, Signed-in devices, Sign out; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices) | Success message after password change |
 
 Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the Android screens (number-pad entry, sync status, app lock).
 

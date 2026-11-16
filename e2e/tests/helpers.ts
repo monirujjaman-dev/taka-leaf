@@ -23,6 +23,7 @@ async function linkFromEmail(email: string, path: string): Promise<string> {
 export async function newAccount(page: Page): Promise<string> {
   const email = `e2e-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.test`;
   await page.goto("/register");
+  await page.getByLabel("Your name").fill("E2E Tester");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: "Create account" }).click();

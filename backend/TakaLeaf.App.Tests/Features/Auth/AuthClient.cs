@@ -10,9 +10,11 @@ public sealed class AuthClient(DatabaseFixture fixture)
 {
     public const string Password = "green-leaf-2026";
 
+    public const string TestName = "Test Person";
+
     public sealed record AuthResult(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string? RefreshToken, UserResult User);
 
-    public sealed record UserResult(Guid Id, string Email);
+    public sealed record UserResult(Guid Id, string Email, string Name);
 
     public sealed record MessageResult(string Message);
 
@@ -23,7 +25,7 @@ public sealed class AuthClient(DatabaseFixture fixture)
     public static string NewEmail() => $"{Guid.NewGuid():N}@example.test";
 
     public static Task<HttpResponseMessage> Register(HttpClient client, string email, string password = Password) =>
-        client.PostAsJsonAsync("/api/auth/register", new { email, password });
+        client.PostAsJsonAsync("/api/auth/register", new { name = TestName, email, password });
 
     public static Task<HttpResponseMessage> Login(HttpClient client, string email, string password = Password) =>
         client.PostAsJsonAsync("/api/auth/login", new { email, password, client = "mobile" });
