@@ -36,12 +36,25 @@ Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ takaleaf app :8080 ─�
    Make the signing key with `openssl rand -base64 48`.
 5. **Advanced → Volumes/Mounts**: add a volume mount, name `takaleaf-logs`, mount path `/app/logs`
    (keeps the daily log files across deploys). Add a second one, name `takaleaf-keys`, mount path
-   `/app/keys` (keeps the data protection keys). Then put your `dataprotection.pfx` at
-   `/app/certs/dataprotection.pfx` (a file or bind mount; the `DataProtection__*` lines in the
-   environment example show how to make it).
-6. **Domains → Add Domain**: host `takaleaf.example.com`, path `/`, **container port `8080`**,
+   `/app/keys` (keeps the data protection keys).
+6. **Data protection certificate.** The app will not start without it. A `.pfx` is a binary file,
+   so it cannot go in Dokploy's File Mount (that one takes pasted text). Copy it to the server and
+   bind-mount it instead:
+   1. Make the certificate once, on your own computer (the `DataProtection__*` lines in the
+      environment example have the `openssl` commands). Keep the `.pfx` and its password in your
+      password manager: without them the saved keys cannot be read.
+   2. Copy it to the VPS and let the container's app user read it:
+      ```bash
+      ssh root@<your-vps> "mkdir -p /etc/takaleaf"
+      scp dataprotection.pfx root@<your-vps>:/etc/takaleaf/dataprotection.pfx
+      ssh root@<your-vps> "chmod 644 /etc/takaleaf/dataprotection.pfx"
+      ```
+   3. **Advanced → Volumes/Mounts → Bind Mount**: host path `/etc/takaleaf/dataprotection.pfx`,
+      mount path `/app/certs/dataprotection.pfx`.
+   4. **Environment**: set `DataProtection__CertificatePassword` to the certificate's password.
+7. **Domains → Add Domain**: host `takaleaf.example.com`, path `/`, **container port `8080`**,
    HTTPS on, certificate **Let's Encrypt**.
-7. **Deploy**. The first build takes a few minutes. On start the app creates or updates the
+8. **Deploy**. The first build takes a few minutes. On start the app creates or updates the
    database tables by itself (`Database__MigrateOnStartup=true` is set in the image).
 
 ## 3. Check it
@@ -75,6 +88,7 @@ the database, take a manual backup first (Backups → Run).
 | --- | --- |
 | Build stops or the server freezes during the build | The VPS needs about 2 GB of free memory while building. Add swap or a bigger plan. |
 | The app restarts straight after starting | Its Logs tab. Usually a missing `ConnectionStrings__Database` or a `Auth__SigningKey` shorter than 32 characters. |
+| Logs say `DataProtection certificate not found` or `could not be opened` | The bind mount (host `/etc/takaleaf/dataprotection.pfx` → `/app/certs/dataprotection.pfx`), that the file is readable (`chmod 644`), and `DataProtection__CertificatePassword`. |
 | `/api/health` says `"database":"down"` | The Internal Host and password in `ConnectionStrings__Database`, and that the database service is running. |
 | No verification email arrives | The app logs show the SMTP error. Check `Email__*`, and that the sender address is allowed by the provider. |
 | Certificate does not issue | The DNS A record must point to the VPS, and ports 80 and 443 must be open. |
