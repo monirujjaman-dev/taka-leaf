@@ -1,0 +1,110 @@
+/** Shapes the backend returns. Every amount is a whole number of poisha. */
+
+export interface AuthUser {
+  id: string;
+  email: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  refreshToken: string | null;
+  user: AuthUser;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+export type WalletType = "Cash" | "Bank" | "CreditCard" | "Mfs" | "Lent" | "Borrowed";
+
+export interface Wallet {
+  id: string;
+  type: WalletType;
+  name: string;
+  openingBalance: number;
+  balance: number;
+  creditLimit: number | null;
+  availableCredit: number | null;
+  personId: string | null;
+  icon: string | null;
+  color: string | null;
+  archived: boolean;
+  excludedFromTotal: boolean;
+  sortOrder: number;
+}
+
+export interface WalletList {
+  wallets: Wallet[];
+  totals: { assets: number; liabilities: number; net: number };
+}
+
+export type CategoryKind = "Income" | "Expense";
+
+export interface Category {
+  id: string;
+  kind: CategoryKind;
+  name: string;
+  parentId: string | null;
+  icon: string | null;
+  color: string | null;
+  archived: boolean;
+  children: Category[];
+}
+
+export type TransactionType = "Income" | "Expense" | "Transfer";
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  fromWalletId: string | null;
+  fromWalletName: string | null;
+  toWalletId: string | null;
+  toWalletName: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  personId: string | null;
+  feeOfId: string | null;
+  fee: number | null;
+  occurredAt: string;
+  note: string | null;
+}
+
+export interface TransactionInput {
+  type: TransactionType;
+  amount: number;
+  fromWalletId?: string | null;
+  toWalletId?: string | null;
+  categoryId?: string | null;
+  occurredAt?: string;
+  note?: string | null;
+  fee?: number | null;
+}
+
+export interface TransactionPage {
+  items: Transaction[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totals: { income: number; expense: number };
+}
+
+export interface CategorySpending {
+  categoryId: string | null;
+  name: string;
+  amount: number;
+}
+
+export interface Dashboard {
+  month: string;
+  netBalance: number;
+  assets: number;
+  liabilities: number;
+  income: number;
+  expense: number;
+  owedToMe: number;
+  iOwe: number;
+  spendingByCategory: CategorySpending[];
+  recent: Transaction[];
+}

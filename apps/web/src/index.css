@@ -17,6 +17,7 @@
   --color-night: #0a1f15;
   --color-expense: #a8412a;
   --color-expense-dark: #f0997f;
+  --color-income-dark: #83cfa2;
 }
 
 :root {
@@ -25,6 +26,7 @@
   --tl-muted: #55637a;
   --tl-primary: #0f7a44;
   --tl-glass: rgb(255 255 255 / 0.66);
+  --tl-surface: #ffffff;
   --tl-glass-border: #d1dfd8;
   --tl-chip: #e7f5ec;
   --tl-shadow: 0 8px 24px rgb(11 59 36 / 0.07);
@@ -38,6 +40,7 @@
   --tl-muted: #a9bdb3;
   --tl-primary: #83cfa2;
   --tl-glass: rgb(255 255 255 / 0.08);
+  --tl-surface: #11301f;
   --tl-glass-border: rgb(255 255 255 / 0.14);
   --tl-chip: rgb(131 207 162 / 0.14);
   --tl-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
