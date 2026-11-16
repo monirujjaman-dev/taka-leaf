@@ -3,6 +3,8 @@
 **Your Money. Your Control.** A personal income and expense tracker in BDT (৳): many wallets,
 loans per person, budgets and reports.
 
+How it is built and why: [DESIGN.md](DESIGN.md). Notes for Claude Code: [CLAUDE.md](CLAUDE.md).
+
 Version 1 is the backend and the web app. The Android app (offline, with sync) is version 2.
 
 ## Layout
