@@ -43,6 +43,7 @@ test.describe("everyday money, in a real browser", () => {
     await dialog.getByRole("button", { name: "Save" }).click();
     await expect(dialog).toBeHidden();
 
+    await page.getByRole("link", { name: "Dashboard" }).first().click();
     await expect(page.getByRole("region", { name: "Net balance" })).toContainText("৳13,731.50");
 
     await page.getByRole("link", { name: "Wallets" }).first().click();
