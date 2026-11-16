@@ -1,0 +1,16 @@
+{
+  "name": "taka-leaf",
+  "private": true,
+  "version": "0.1.0",
+  "description": "TakaLeaf - Your Money. Your Control.",
+  "scripts": {
+    "dev": "pnpm --filter @takaleaf/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.28.0"
+}

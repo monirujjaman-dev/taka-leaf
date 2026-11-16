@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* Dark theme is switched by data-theme on <html>, not only by the system setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Brand palette from the TakaLeaf brand identity board. */
+@theme {
+  --font-sans: "Inter", "Noto Sans Bengali", system-ui, sans-serif;
+
+  --color-forest: #0f7a44;
+  --color-leaf: #22a06b;
+  --color-sage: #83cfa2;
+  --color-mint: #e7f5ec;
+  --color-ink: #0b3b24;
+  --color-slate: #55637a;
+  --color-line: #d1dfd8;
+  --color-night: #0a1f15;
+  --color-expense: #a8412a;
+  --color-expense-dark: #f0997f;
+}
+
+:root {
+  --tl-bg: #e7f5ec;
+  --tl-text: #0b3b24;
+  --tl-muted: #55637a;
+  --tl-primary: #0f7a44;
+  --tl-glass: rgb(255 255 255 / 0.66);
+  --tl-glass-border: #d1dfd8;
+  --tl-chip: #e7f5ec;
+  --tl-shadow: 0 8px 24px rgb(11 59 36 / 0.07);
+  --tl-blob-a: rgb(34 160 107 / 0.3);
+  --tl-blob-b: rgb(131 207 162 / 0.55);
+}
+
+[data-theme="dark"] {
+  --tl-bg: #0a1f15;
+  --tl-text: #e7f5ec;
+  --tl-muted: #a9bdb3;
+  --tl-primary: #83cfa2;
+  --tl-glass: rgb(255 255 255 / 0.08);
+  --tl-glass-border: rgb(255 255 255 / 0.14);
+  --tl-chip: rgb(131 207 162 / 0.14);
+  --tl-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  --tl-blob-a: rgb(34 160 107 / 0.28);
+  --tl-blob-b: rgb(15 122 68 / 0.55);
+}
+
+html {
+  background: var(--tl-bg);
+  color: var(--tl-text);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+  /* The one glass surface used across the app: cards, navigation, sheets. */
+  .glass {
+    background: var(--tl-glass);
+    border: 1px solid var(--tl-glass-border);
+    box-shadow: var(--tl-shadow);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+  }
+}

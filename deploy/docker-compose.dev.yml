@@ -1,0 +1,29 @@
+# Local development services: PostgreSQL and a mail catcher.
+#   docker compose -f deploy/docker-compose.dev.yml up -d
+# The password below is for local development only; production secrets never live in Git.
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: takaleaf
+      POSTGRES_USER: takaleaf
+      POSTGRES_PASSWORD: takaleaf_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - takaleaf-pg:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U takaleaf -d takaleaf"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Catches every email the backend sends in development. Inbox: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  takaleaf-pg:

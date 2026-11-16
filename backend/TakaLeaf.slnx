@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TakaLeaf.App/TakaLeaf.App.csproj" />
+  <Project Path="TakaLeaf.App.Tests/TakaLeaf.App.Tests.csproj" />
+</Solution>
