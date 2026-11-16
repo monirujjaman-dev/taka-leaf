@@ -192,6 +192,6 @@ public class PeopleTests(DatabaseFixture fixture)
         var mine = await AddPerson(stranger, "Rafi");
         Assert.Equal(HttpStatusCode.BadRequest, (await stranger.PostAsJsonAsync($"/api/people/{mine.Id}/loans",
             new { kind = "Lend", amount = 1, walletId = cash.Id })).StatusCode);
-        Assert.Empty((await stranger.GetFromJsonAsync<ListResult>("/api/people"))!.People.Where(p => p.OwesMe > 0));
+        Assert.DoesNotContain((await stranger.GetFromJsonAsync<ListResult>("/api/people"))!.People, p => p.OwesMe > 0);
     }
 }

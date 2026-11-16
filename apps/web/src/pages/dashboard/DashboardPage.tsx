@@ -1,7 +1,9 @@
 import { formatBdt } from "@takaleaf/shared";
 import { useState } from "react";
 import { Link } from "react-router";
-import { useDashboard, useWallets } from "../../api/queries";
+import { useBudgets, useDashboard, useRecurringDue, useWallets } from "../../api/queries";
+import { BudgetBar } from "../budgets/BudgetsPage";
+import { DueList } from "../recurring/DueList";
 import { PageHeader } from "../../layout/AppShell";
 import { useOpenTransaction, useTransactionSheet } from "../../layout/TransactionSheet";
 import { Button, buttonClass, focusRing } from "../../ui/Button";
@@ -52,6 +54,8 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: "in
 export function DashboardPage() {
   const [month, setMonth] = useState(localMonth);
   const dashboard = useDashboard(month);
+  const due = useRecurringDue();
+  const budgets = useBudgets(month);
   const wallets = useWallets();
   const sheet = useTransactionSheet();
   const openRow = useOpenTransaction();
@@ -106,6 +110,20 @@ export function DashboardPage() {
               {dashboard.data.iOwe > 0 ? <Stat label="You owe people" value={dashboard.data.iOwe} /> : null}
             </div>
 
+            {due.data && due.data.length > 0 ? (
+              <section className="glass rounded-[22px] p-4" aria-labelledby="due-title">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 id="due-title" className="m-0 text-base font-extrabold">
+                    Due to record
+                  </h2>
+                  <Link to="/recurring" className="text-sm font-bold text-[var(--tl-primary)]">
+                    Recurring
+                  </Link>
+                </div>
+                <DueList rules={due.data} />
+              </section>
+            ) : null}
+
             <section className="glass rounded-[22px] p-5">
               <div className="mb-2 flex items-center justify-between">
                 <h2 className="m-0 text-base font-extrabold">Recent</h2>
@@ -127,6 +145,27 @@ export function DashboardPage() {
             </section>
           </div>
 
+          <div className="flex min-w-0 flex-col gap-4">
+          {budgets.data && budgets.data.budgets.length > 0 ? (
+            <section className="glass rounded-[22px] p-5" aria-labelledby="budgets-title">
+              <div className="mb-1 flex items-center justify-between">
+                <h2 id="budgets-title" className="m-0 text-base font-extrabold">
+                  Budgets
+                </h2>
+                <Link to="/budgets" className="text-sm font-bold text-[var(--tl-primary)]">
+                  All
+                </Link>
+              </div>
+              <ul className="m-0 flex list-none flex-col gap-3 p-0">
+                {budgets.data.budgets.slice(0, 4).map((budget) => (
+                  <li key={budget.id}>
+                    <span className="text-sm font-semibold">{budget.name}</span>
+                    <BudgetBar budget={budget} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <section className="glass h-fit rounded-[22px] p-5" aria-labelledby="spending-title">
             <h2 id="spending-title" className="m-0 text-base font-extrabold">
               Where the money went
@@ -154,6 +193,7 @@ export function DashboardPage() {
               </ul>
             )}
           </section>
+          </div>
         </div>
       ) : null}
     </>

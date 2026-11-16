@@ -78,13 +78,18 @@ export function SettingsPage() {
             </Button>
           </div>
         </section>
-        <section className="glass rounded-[22px] p-5 lg:hidden">
-          <h2 className="m-0 text-base font-extrabold">Categories</h2>
-          <p className="mb-3 mt-1 text-sm text-[var(--tl-muted)]">Add, rename or archive the categories you pick from.</p>
-          <Link to="/categories" className="text-sm font-bold text-[var(--tl-primary)]">
-            Manage categories
-          </Link>
-        </section>
+        <nav aria-label="More" className="glass rounded-[22px] p-2 lg:hidden">
+          {[
+            ["/budgets", "Budgets", "Monthly limits and how this month is going"],
+            ["/recurring", "Recurring", "Rent, salary and subscriptions"],
+            ["/categories", "Categories", "Add, rename or archive categories"],
+          ].map(([to, label, hint]) => (
+            <Link key={to} to={to!} className="block rounded-[16px] px-3 py-3 hover:bg-[var(--tl-chip)]">
+              <span className="block text-[15px] font-bold">{label}</span>
+              <span className="block text-[13px] text-[var(--tl-muted)]">{hint}</span>
+            </Link>
+          ))}
+        </nav>
         <section className="glass rounded-[22px] p-5">
           <h2 className="m-0 mb-4 text-base font-extrabold">Change password</h2>
           <ChangePassword />
