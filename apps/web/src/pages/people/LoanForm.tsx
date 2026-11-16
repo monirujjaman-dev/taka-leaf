@@ -76,7 +76,7 @@ export function LoanForm({ person, kind: startKind, loan, onClose }: { person: P
           <button
             type="button"
             onClick={() => setAmount(toAmountText(outstanding))}
-            className="-mt-2 h-8 cursor-pointer self-start rounded-full bg-[var(--tl-chip)] px-3 text-[13px] font-bold text-[var(--tl-primary)]"
+            className="-mt-2 h-11 cursor-pointer self-start rounded-full bg-[var(--tl-chip)] px-3 text-[13px] font-bold text-[var(--tl-primary)]"
           >
             All of it: {formatBdt(outstanding)}
           </button>

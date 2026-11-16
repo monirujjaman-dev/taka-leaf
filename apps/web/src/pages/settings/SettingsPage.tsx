@@ -100,7 +100,7 @@ function Devices() {
               </span>
             </span>
             {session.current ? null : (
-              <Button variant="ghost" className="h-9 px-3" disabled={signOut.isPending} onClick={() => signOut.mutate(session.id)}>
+              <Button variant="ghost" className="px-3" disabled={signOut.isPending} onClick={() => signOut.mutate(session.id)}>
                 Sign out
               </Button>
             )}

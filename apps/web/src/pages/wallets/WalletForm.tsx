@@ -84,7 +84,7 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
                 key={suggestion}
                 type="button"
                 onClick={() => setName(suggestion)}
-                className={`h-8 cursor-pointer rounded-full bg-[var(--tl-chip)] px-3 text-[13px] font-bold text-[var(--tl-primary)] ${focusRing}`}
+                className={`h-11 cursor-pointer rounded-full bg-[var(--tl-chip)] px-4 text-[13px] font-bold text-[var(--tl-primary)] ${focusRing}`}
               >
                 {suggestion}
               </button>

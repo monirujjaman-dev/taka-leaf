@@ -20,7 +20,7 @@ export function MonthSwitcher({ month, onChange }: { month: string; onChange: (m
         type="button"
         aria-label="Previous month"
         onClick={() => onChange(shiftMonth(month, -1))}
-        className={`grid h-9 w-9 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] ${focusRing}`}
+        className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] ${focusRing}`}
       >
         <Icon name="left" size={18} />
       </button>
@@ -32,7 +32,7 @@ export function MonthSwitcher({ month, onChange }: { month: string; onChange: (m
         aria-label="Next month"
         disabled={month >= current}
         onClick={() => onChange(shiftMonth(month, 1))}
-        className={`grid h-9 w-9 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
+        className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
       >
         <Icon name="right" size={18} />
       </button>
@@ -91,9 +91,9 @@ export function DashboardPage() {
               aria-label="Net balance"
               className="rounded-[26px] bg-forest p-5 text-white shadow-[0_12px_28px_rgb(11_59_36/0.22)]"
             >
-              <p className="m-0 text-[13px] font-semibold text-[#D5EBDD]">Net balance</p>
+              <p className="m-0 text-[13px] font-semibold text-mint">Net balance</p>
               <p className="m-0 mt-1 text-[30px] font-extrabold tracking-tight sm:text-[34px]">{formatBdt(dashboard.data.netBalance)}</p>
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-[#D5EBDD]">
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-mint">
                 <span>
                   Assets <b className="text-white">{formatBdt(dashboard.data.assets)}</b>
                 </span>

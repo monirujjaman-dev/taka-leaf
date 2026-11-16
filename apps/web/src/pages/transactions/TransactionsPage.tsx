@@ -115,7 +115,7 @@ export function TransactionsPage() {
           type="button"
           aria-expanded={moreFilters}
           onClick={() => setMoreFilters((value) => !value)}
-          className="h-9 cursor-pointer justify-self-start text-sm font-bold text-[var(--tl-primary)] sm:hidden"
+          className="h-11 cursor-pointer justify-self-start text-sm font-bold text-[var(--tl-primary)] sm:hidden"
         >
           {moreFilters ? "Fewer filters" : `More filters${activeExtra > 0 ? ` (${activeExtra})` : ""}`}
         </button>

@@ -37,7 +37,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
             data-close
             onClick={onClose}
             aria-label="Close"
-            className={`grid h-10 w-10 cursor-pointer place-items-center rounded-full text-xl hover:bg-[var(--tl-chip)] ${focusRing}`}
+            className={`grid h-11 w-11 cursor-pointer place-items-center rounded-full text-xl hover:bg-[var(--tl-chip)] ${focusRing}`}
           >
             ×
           </button>

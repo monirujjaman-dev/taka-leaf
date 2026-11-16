@@ -132,7 +132,7 @@ function CategoryForm({ editing, all, onClose }: { editing: Editing; all: Catego
   );
 }
 
-const chip = `inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-[13px] font-bold ${focusRing}`;
+const chip = `inline-flex h-11 cursor-pointer items-center rounded-full px-3.5 text-[13px] font-bold ${focusRing}`;
 
 export function CategoriesPage() {
   const [kind, setKind] = useState<CategoryKind>("Expense");

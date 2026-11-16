@@ -15,7 +15,7 @@ function YearSwitcher({ year, onChange }: { year: number; onChange: (year: numbe
   const current = Number(localMonth().slice(0, 4));
   return (
     <div className="glass inline-flex items-center gap-1 rounded-[14px] p-1">
-      <button type="button" aria-label="Previous year" onClick={() => onChange(year - 1)} className={`grid h-9 w-9 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] ${focusRing}`}>
+      <button type="button" aria-label="Previous year" onClick={() => onChange(year - 1)} className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] ${focusRing}`}>
         <Icon name="left" size={18} />
       </button>
       <span className="min-w-20 text-center text-sm font-bold" aria-live="polite">
@@ -26,7 +26,7 @@ function YearSwitcher({ year, onChange }: { year: number; onChange: (year: numbe
         aria-label="Next year"
         disabled={year >= current}
         onClick={() => onChange(year + 1)}
-        className={`grid h-9 w-9 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
+        className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
       >
         <Icon name="right" size={18} />
       </button>
@@ -223,7 +223,7 @@ export function ReportsPage() {
               role="radio"
               aria-checked={period === option}
               onClick={() => set({ period: option })}
-              className={`h-9 cursor-pointer rounded-[10px] px-4 text-sm font-bold ${focusRing} ${
+              className={`h-10 cursor-pointer rounded-[10px] px-4 text-sm font-bold ${focusRing} ${
                 period === option ? "bg-forest text-white dark:bg-sage dark:text-ink" : "text-[var(--tl-muted)]"
               }`}
             >

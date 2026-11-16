@@ -61,7 +61,7 @@ export function AppShell() {
                 end={item.to === "/"}
                 className={({ isActive }) =>
                   `flex h-11 items-center gap-3 rounded-[14px] px-3 text-[15px] font-semibold ${focusRing} ${
-                    isActive ? "bg-[var(--tl-chip)] text-[var(--tl-primary)]" : "hover:bg-[var(--tl-chip)]"
+                    isActive ? "bg-[var(--tl-chip)] text-[var(--tl-nav-active)]" : "hover:bg-[var(--tl-chip)]"
                   }`
                 }
               >
@@ -109,7 +109,7 @@ export function AppShell() {
               end={item.to === "/"}
               className={({ isActive }) =>
                 `flex flex-col items-center gap-0.5 rounded-[16px] py-2 text-[11px] font-bold ${focusRing} ${
-                  isActive ? "bg-[var(--tl-chip)] text-[var(--tl-primary)]" : "text-[var(--tl-muted)]"
+                  isActive ? "bg-[var(--tl-chip)] text-[var(--tl-nav-active)]" : "text-[var(--tl-muted)]"
                 }`
               }
             >

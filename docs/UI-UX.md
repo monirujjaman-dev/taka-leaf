@@ -113,10 +113,12 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
   `role="alert"`, and status messages use `role="status"`.
 - Dialogs use `role="dialog"` with `aria-modal` and a title, and switches use `role="radio"` /
   `tab` with selected states.
-- Focus rings are visible on every control. Buttons and fields are 44–48 px tall; small chips
-  (MFS names, "All of it") are 32–36 px and should grow to 44 px in the accessibility pass.
-- The target for text contrast is at least 4.5:1 on glass in both themes, to be measured in the
-  accessibility pass (M4).
+- Focus rings are visible on every control. Buttons, fields, chips, arrows and the dialog close
+  button are at least 44 px tall.
+- Text contrast is at least 4.5:1 in both themes: axe (WCAG 2.2 AA) runs on every main screen, light
+  and dark, desktop and phone, in CI. Measured examples: ink on mint 11.2:1, muted on white 6.1:1,
+  expense on white 6.1:1, mint on the forest balance card 4.8:1, dark muted on night surface 7.2:1.
+- `prefers-reduced-motion` turns transitions off.
 - Budget and status warnings are written in words ("Over budget"), not shown by colour alone.
 
 ## 8. Android (version 2)

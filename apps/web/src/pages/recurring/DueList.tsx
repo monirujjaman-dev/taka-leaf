@@ -67,10 +67,10 @@ export function DueList({ rules }: { rules: RecurringRule[] }) {
               </span>
             </span>
             <span className="flex gap-1.5">
-              <Button variant="ghost" className="h-9 px-3" disabled={action.isPending} onClick={() => action.mutate({ id: rule.id, action: "skip" })}>
+              <Button variant="ghost" className="px-3" disabled={action.isPending} onClick={() => action.mutate({ id: rule.id, action: "skip" })}>
                 Skip
               </Button>
-              <Button className="h-9 px-3" onClick={() => setRecording(rule)}>
+              <Button className="px-3" onClick={() => setRecording(rule)}>
                 Record
               </Button>
             </span>

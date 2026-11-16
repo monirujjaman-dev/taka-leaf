@@ -14,8 +14,11 @@ version 2 (Android).
 | Unit | One rule gives the right answer | xUnit | Vitest | Jest |
 | Integration | A feature works against a real database | xUnit + `WebApplicationFactory` + real PostgreSQL: every endpoint | Testing Library with `fakeApi` | Jest with a real SQLite file |
 | Contract | Both sides agree | Shared fixtures in `contract/fixtures/` | Same fixtures | Same fixtures |
-| End to end | A person can finish a task | Through the clients | Playwright (planned, M4) | Maestro |
+| End to end | A person can finish a task | Through the clients | Playwright in `e2e/`, against the Docker image with PostgreSQL and Mailpit, desktop and phone | Maestro |
 | Image | The production image runs | CI starts the Docker image with PostgreSQL and checks it | — | — |
+| Accessibility | WCAG 2.2 AA | — | axe in the Playwright tests, every main screen, light and dark | — |
+| Performance | Section 6 targets | `Performance/LargeAccountTests`: 50,000 transactions, p95 per endpoint printed in CI | — | — |
+| Dependencies | No known high-severity issue | `dotnet list package --vulnerable`, `pnpm audit --audit-level high` in CI | same | — |
 | Manual | What automation judges badly | — | Look and feel, glass, dark theme | Offline on a real phone, background sync, app lock |
 
 Rules for every test:
@@ -182,8 +185,8 @@ S-13, S-14, S-16 and S-17 are manual on a real phone.
 
 | When | Runs | Gate |
 | --- | --- | --- |
-| Every PR push | Backend tests, web and shared tests, typecheck, build, image smoke test | Required to merge |
-| Before each release | End-to-end tests, manual list (§8), dependency scan | Required to release |
+| Every PR push | Backend tests (incl. performance), web and shared tests, typecheck, build, image smoke test, browser and accessibility tests, dependency scan | Required to merge |
+| Before each release | Manual list (§8), 200% zoom and screen reader walk-through | Required to release |
 | Monthly | Backup restore (X-12) | Recorded |
 
 ## 8. Release checklist and acceptance

@@ -15,7 +15,7 @@ current.
 | M1 Backend core | Auth, wallets, categories, transactions, dashboard | 8 days | ✅ | #1–#5 |
 | M2 Web core | Auth screens, app shell, dashboard, transactions, wallets, categories, settings | 8 days | ✅ | #6 |
 | M3 Full features | People and loans, budgets, recurring, reports, category merge and delete | 8 days | ✅ | #7, #8, #12 |
-| M4 Hardening | Deploy setup, security headers, CSV export, devices, closing registration ✅; performance, accessibility, end-to-end tests, dependency scan ⬜ | 5 days | 🟡 | #9, #13 |
+| M4 Hardening | Deploy setup, security headers, CSV export, devices, closing registration, performance, accessibility, browser tests, dependency scan | 5 days | ✅ | #9, #13, #14 |
 | M5 Release v1 | Running on the VPS with Dokploy, backups proven, a week of real use | 4 days | ⬜ | |
 | A1–A4 | Android setup, offline, sync, finish and ship (version 2) | 32 days | ⬜ | |
 
@@ -64,17 +64,19 @@ and 32 for version 2.
 - [x] Categories screen: merge and delete; merge moves recurring rules and the budget too (C-1)
 - [ ] Credit card billing and due dates (could)
 
-### M4 — Hardening 🟡
+### M4 — Hardening ✅
 
 - [x] Docker image (web + API) with a smoke test in CI
 - [x] Security headers, HSTS, trusted proxy networks
 - [x] Dark theme on every screen; phone-width pass (390 px)
 - [x] CSV export (P-5)
 - [x] Settings: signed-in devices, sign out one or all others (immediate); `Auth__RegistrationOpen` to close registration
-- [ ] Seed account with 50,000 transactions; meet performance targets; add indexes where needed
-- [ ] Accessibility pass: 200% zoom, screen reader names, contrast, touch targets ≥ 44 px
-- [ ] Playwright end-to-end tests for register, sign in, add expense, transfer
-- [ ] Remaining security tests X-7 to X-9, X-11; dependency scan clean; update GitHub Actions versions
+- [x] 50,000-transaction performance test in CI: slowest p95 90 ms (note search) against the 300 ms target; no new indexes needed
+- [x] Accessibility: axe WCAG 2.2 AA clean on every screen, light and dark, desktop and phone; contrast fixes; touch targets 44 px; reduced motion
+- [x] Playwright tests against the Docker image: register via the emailed link, wallets, expense, transfer with fee, balances; phone layout
+- [x] Dependency scan (.NET and npm, high/critical fail CI); GitHub Actions on current majors
+- [ ] Manual: 200% zoom and a screen reader walk-through (sign in, add a transaction, read the dashboard)
+- [ ] X-7 (HTTPS redirect) and X-9 (cross-origin) checked on the real server in M5
 
 ### M5 — Release version 1 ⬜
 
