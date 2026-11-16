@@ -1,231 +1,292 @@
-# TakaLeaf — Design
+---
+name: TakaLeaf
+description: Your Money. Your Control. A calm, natural-green personal finance app for Bangladeshi taka.
+colors:
+  forest: "#0F7A44"
+  leaf: "#22A06B"
+  sage: "#83CFA2"
+  mint: "#E7F5EC"
+  ink: "#0B3B24"
+  slate: "#55637A"
+  line: "#D1DFD8"
+  surface: "#FFFFFF"
+  glass: "#FFFFFFA8"
+  night: "#0A1F15"
+  night-surface: "#11301F"
+  night-glass: "#FFFFFF14"
+  night-line: "#FFFFFF24"
+  night-text: "#E7F5EC"
+  night-muted: "#A9BDB3"
+  income: "#0F7A44"
+  income-dark: "#83CFA2"
+  expense: "#A8412A"
+  expense-dark: "#F0997F"
+  warning: "#9A6A10"
+  warning-dark: "#E8B766"
+  budget-near: "#C98A1B"
+typography:
+  display:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "34px"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.025em"
+    fontFeature: "tnum"
+  headline:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "26px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.025em"
+  title:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 800
+    lineHeight: 1.4
+  amount:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 800
+    lineHeight: 1.4
+    fontFeature: "tnum"
+  body:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 400
+    lineHeight: 1.6
+  label:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 700
+    lineHeight: 1.4
+  caption:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 600
+    lineHeight: 1.4
+rounded:
+  sm: "10px"
+  md: "14px"
+  lg: "20px"
+  xl: "22px"
+  2xl: "26px"
+  pill: "999px"
+spacing:
+  xs: "4px"
+  sm: "8px"
+  md: "12px"
+  lg: "16px"
+  xl: "20px"
+  2xl: "32px"
+components:
+  button-primary:
+    backgroundColor: "{colors.forest}"
+    textColor: "{colors.surface}"
+    typography: "{typography.label}"
+    rounded: "{rounded.md}"
+    padding: "0 16px"
+    height: "44px"
+  button-primary-dark:
+    backgroundColor: "{colors.sage}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.md}"
+    padding: "0 16px"
+    height: "44px"
+  button-secondary:
+    backgroundColor: "{colors.glass}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.md}"
+    padding: "0 16px"
+    height: "44px"
+  button-danger:
+    backgroundColor: "{colors.expense}"
+    textColor: "{colors.surface}"
+    typography: "{typography.label}"
+    rounded: "{rounded.md}"
+    padding: "0 16px"
+    height: "44px"
+  input:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.md}"
+    padding: "0 14px"
+    height: "48px"
+  card-glass:
+    backgroundColor: "{colors.glass}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    padding: "20px"
+  card-balance:
+    backgroundColor: "{colors.forest}"
+    textColor: "{colors.surface}"
+    typography: "{typography.display}"
+    rounded: "{rounded.2xl}"
+    padding: "20px"
+  chip:
+    backgroundColor: "{colors.mint}"
+    textColor: "{colors.forest}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0 12px"
+    height: "32px"
+  nav-item-active:
+    backgroundColor: "{colors.mint}"
+    textColor: "{colors.forest}"
+    rounded: "{rounded.md}"
+    padding: "0 12px"
+    height: "44px"
+  dialog:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.2xl}"
+    padding: "20px"
+  fab:
+    backgroundColor: "{colors.forest}"
+    textColor: "{colors.surface}"
+    rounded: "{rounded.pill}"
+    size: "56px"
+---
 
-> Your Money. Your Control.
+# Design System: TakaLeaf
 
-TakaLeaf is a personal income and expense tracker in Bangladeshi taka (BDT). It keeps money in
-wallets (cash, bank accounts, credit cards, mobile banking such as bKash, Nagad, Upay and Rocket),
-tracks money lent to and borrowed from people, and adds monthly budgets and recurring transactions.
+## Overview
 
-This document explains how it is built and why. [README.md](README.md) covers running it, and
-[deploy/DOKPLOY.md](deploy/DOKPLOY.md) covers production.
+**Creative North Star: "A tidy wallet in a green garden."** TakaLeaf should feel calm and exact:
+light mint ground, two soft green glows behind frosted-glass cards, and one confident forest green
+for the things that matter (the net balance and the main action). It is a product register: the
+design serves daily, fast, accurate money entry and a clear monthly picture.
 
-## 1. Scope
+Key characteristics:
 
-| Version | What ships |
-| --- | --- |
-| **1 (now)** | .NET 10 backend + React web app, online only, deployed with Dokploy. |
-| **2 (next)** | Android app in React Native + TypeScript. It works offline on SQLite and syncs with the backend automatically when the network returns, or on demand. |
+- **Numbers are the heroes.** The biggest, heaviest type on any screen is an amount, set in tabular
+  figures with Bangladeshi grouping (`৳1,25,000.00`).
+- **Restrained glass.** Cards, the sidebar, the top bar and the tab bar are frosted glass
+  (`backdrop-filter: blur(20px) saturate(140%)`) over the background glows. Dialogs and inputs are
+  solid so text stays crisp. Glass never stacks on glass.
+- **One primary colour, used sparingly.** Forest green marks the balance card, primary buttons,
+  active navigation and links. Most of the screen is white or mint glass with ink text.
+- **Two themes from one set of tokens.** Light is mint and white; dark is a deep night green with
+  sage as the primary.
+- **Layout.** Phones (< 1024 px) get a sticky glass top bar, a floating glass tab bar inset 12 px
+  from the edges, and a 56 px round add button above it. Desktop gets a fixed 256 px glass sidebar
+  inset 16 px, with content at most 1024 px wide. Content padding is 16 px on phones and 32 px on
+  desktop. Grids collapse to one column on phones. Nothing scrolls sideways at 390 px.
+- **Motion** is minimal: colour and brightness transitions on hover and press (≈150 ms), with no
+  entrance animations. It respects reduced motion.
 
-Fixed decisions:
+## Colors
 
-- One currency (BDT) and one language (English).
-- Each account is private to its owner. There is no sharing between users.
-- Sign-in is by email and password. There are no social logins, and Google Drive is not used.
-- The brand is a natural-green palette, minimal with glassmorphism, with light and dark themes. Logo: "T Leaf". See [brand/](brand/).
+The palette comes from the brand board: natural greens with one warm counterweight for spending.
 
-## 2. Architecture
+| Token | Light | Dark | Role |
+| --- | --- | --- | --- |
+| background | `mint` #E7F5EC | `night` #0A1F15 | Page ground under the glows |
+| surface | `surface` #FFFFFF | `night-surface` #11301F | Dialogs, inputs, selected segment |
+| glass | #FFFFFF at 66% | #FFFFFF at 8% | Cards, bars, sidebar |
+| glass border | `line` #D1DFD8 | #FFFFFF at 14% | 1 px border on glass and inputs |
+| text | `ink` #0B3B24 | `night-text` #E7F5EC | Headings, amounts, body |
+| muted | `slate` #55637A | `night-muted` #A9BDB3 | Secondary lines, captions, hints |
+| primary | `forest` #0F7A44 | `sage` #83CFA2 | Primary buttons, links, active nav, balance card (forest in both) |
+| chip | `mint` #E7F5EC | sage at 14% | Icon tiles, chips, hover, segmented control |
+| income | #0F7A44 | #83CFA2 | Income amounts, "owes you" |
+| expense | #A8412A | #F0997F | Expense amounts, "you owe", over budget, errors, delete |
+| budget near | #C98A1B (bar) | same | Budget at 80% or more |
+| glow A / B | leaf 30% / sage 55% | leaf 28% / forest 55% | The two blurred background circles |
 
-```
-Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ TakaLeaf.App container :8080 ──▶ PostgreSQL 18
-                                          ├─ /api/*   minimal API endpoints
-                                          ├─ /*       built React app (wwwroot) with SPA fallback
-                                          └─ RecurringWorker (background)
-Android app (v2) ──HTTPS──▶ same /api (refresh token in body instead of a cookie)
-```
+Rules:
 
-| Part | Technology |
-| --- | --- |
-| Backend | .NET 10, ASP.NET Core minimal APIs, EF Core 10 + Npgsql, Serilog, MailKit |
-| Database | PostgreSQL 18, snake_case names |
-| Web | React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query |
-| Shared TS | `packages/shared`: money formatting and parsing, brand constants |
-| Tests | xUnit + WebApplicationFactory against real PostgreSQL; Vitest + Testing Library |
-| CI | GitHub Actions: web, backend, Docker image smoke test; EF migration generator |
-| Hosting | Linux VPS, Dokploy (Traefik, Let's Encrypt, PostgreSQL service, S3 backups) |
+- Income and expense are always shown with a sign (`+৳85,000.00`, `−৳1,250.00`) **and** a colour.
+  Transfers stay neutral.
+- `leaf` #22A06B is for progress fills only (category and budget bars), not for text.
+- Error text uses `expense`, on a 10% `expense` tint for alert boxes. Success uses the primary
+  colour on the chip tint.
 
-### Repository layout
+## Typography
 
-```
-apps/web/                 React web app
-packages/shared/          TypeScript shared with the Android app later
-backend/TakaLeaf.App/     The one backend project
-backend/TakaLeaf.App.Tests/
-contract/fixtures/        Cases both C# and TS tests must agree on (money formatting)
-brand/                    Logo files and design tokens
-deploy/                   Dev docker-compose, Dokploy guide, production env template
-Dockerfile                Production image (web + API)
-```
+**Inter** for everything (Noto Sans Bengali as a fallback), with tabular figures on by default
+(`font-variant-numeric: tabular-nums` on the body), so columns of amounts line up.
 
-### Backend: one project, vertical slices
-
-The backend is deliberately simple: a single project, `TakaLeaf.App`, organised by feature, with no
-repository or service layers.
-
-```
-Features/<Feature>/<Action>.cs    endpoint + request/response records + handler, in one file
-Features/<Feature>/<Feature>Models.cs   DTOs and the feature's shared rules (static class)
-Features/<Feature>/<Feature>Endpoints.cs  MapGroup("/<feature>").RequireAuthorization()
-Common/                           cross-cutting helpers (money, calendar, validation, email, logging, web)
-Data/                             AppDbContext, entities, configuration, migrations
-```
-
-Handlers take `AppDbContext` directly. Rules that several slices share live in an `internal static`
-`<Feature>Rules` class next to them (for example `TransactionRules.CheckAsync`).
-
-## 3. Core rules
-
-These hold everywhere. Code that breaks one of them is a bug.
-
-1. **Money is a whole number of poisha** (`long` in C#, a safe integer in TS); 1 taka = 100 poisha.
-   It is never stored or added up as a decimal or double. Display is `৳1,25,000.00` with
-   Bangladeshi digit grouping. The C# and TS formatters share fixtures in `contract/fixtures/`.
-2. **Balances are calculated, never stored.** A wallet's balance is its opening balance, plus money
-   that arrived, minus money that left (`Common/Balances.cs`). Totals: positive balances are assets
-   and negative ones are liabilities, while wallets marked "excluded from total" are left out.
-3. **Days and months are local time** (`App:TimeZone`, Asia/Dhaka). Filters, dashboard months,
-   budgets and recurring dates all use `LocalCalendar`. Timestamps are stored in UTC.
-4. **Rows are never hard-deleted.** Every user table derives from `SyncedEntity`: a Guid v7 `Id`
-   that a client can create, `UserId`, `CreatedAt`, `UpdatedAt`, `DeletedAt` (soft delete, with a
-   global query filter), and `ServerSeq`, taken from a PostgreSQL sequence on every save. This makes
-   "what changed since N" answerable for the Android sync. `SaveChanges()` throws, so code must use
-   `SaveChangesAsync`.
-5. **Another user's data looks like it doesn't exist.** A row that belongs to someone else returns
-   **404** (`NotFound.Problem`), never 403. Using another user's wallet or category in a request
-   returns 400 "does not exist".
-6. **Errors are RFC 7807 problem responses.** Field errors use `ValidationErrors.For(field, message)`.
-   The web shows them next to that field. Messages are plain sentences meant for the person using the app.
-7. **Enums travel as strings** (`"Expense"`, `"Monthly"`).
-
-## 4. Data model
-
-| Table | Key fields | Notes |
+| Role | Size / weight | Used for |
 | --- | --- | --- |
-| `users` | email (unique), password_hash, email_verified_at, failed_sign_in_count, locked_until | Not synced. |
-| `sessions`, `refresh_tokens` | token hashes, used_at, revoked_at | One session per signed-in device. |
-| `user_tokens` | purpose (VerifyEmail / ResetPassword), token_hash, expires_at, used_at | Single-use email links. |
-| `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person. |
-| `people` | name (unique per user, ignoring case), note | Each has one Lent and one Borrowed wallet. |
-| `categories` | kind (Income/Expense), name, parent_id, archived, sort_order | Two levels. Starter set created at registration. |
-| `transactions` | type (Income/Expense/Transfer), amount > 0, from/to wallet, category, person_id, fee_of_id, recurring_rule_id, recurring_date, occurred_at, note | Unique (recurring_rule_id, recurring_date). |
-| `budgets` | category_id (null = all spending), amount > 0 | One per category per user (nulls not distinct). |
-| `recurring_rules` | transaction fields, frequency, interval, start/end date, occurrences, next_date, auto_record, paused | |
+| display | 34px (30px on phones) / 800, −0.025em | Net balance on the balance card |
+| headline | 26px / 800, −0.025em | Page titles ("Dashboard", "Wallets") |
+| title | 16px / 800 | Card titles, wallet and person names |
+| amount | 15–24px / 800, tabular | Amounts in rows, tiles and cards (24px on wallet cards) |
+| body | 15px / 400, line-height 1.6 | Paragraphs, inputs, row titles (row titles 700) |
+| label | 13px / 700 | Field labels, buttons, chips |
+| caption | 12–13px / 400–600 | Secondary lines, hints, tab-bar labels (11px) |
+| section | 12–13px / 800 uppercase, wide tracking | Day headings in history, wallet group headings |
 
-### How features map onto transactions
+Headings are tight (−0.025em) and heavy, and body text is relaxed. There is no italic, and amounts
+are never shown in a light weight.
 
-| Feature | Stored as |
-| --- | --- |
-| Income | `Income` into `to_wallet` |
-| Expense | `Expense` out of `from_wallet` |
-| Transfer | `Transfer` from → to |
-| Transfer fee (e.g. bKash cash-out) | A separate `Expense` row with `fee_of_id` = the transfer, under "Fees and charges" by default. It is edited and deleted together with its transfer. |
-| Lend / got paid back | `Transfer` wallet → person's Lent wallet / Lent → wallet, with `person_id` |
-| Borrow / paid back | `Transfer` person's Borrowed wallet → wallet / wallet → Borrowed, with `person_id` |
-| Recorded recurring date | Normal transaction with `recurring_rule_id` and `recurring_date` |
+## Elevation
 
-Fee rows and loan rows are refused by the general transaction endpoints. They are changed through
-their owner (the transfer, or the person).
+Depth comes from glass and soft green shadows, not from stacking layers.
 
-## 5. API
+| Level | Treatment | Used for |
+| --- | --- | --- |
+| 0 Ground | Mint (night) background + two 80–90 px blurred glows | Page |
+| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, top bar, tab bar, stat tiles |
+| 2 Hero | Solid forest, shadow `0 12px 28px rgb(11 59 36 / 0.22)` | Net balance card |
+| 3 Floating | Solid forest/sage, shadow `0 10px 24px rgb(11 59 36 / 0.3)` | Add button |
+| 4 Overlay | Night at 45% + 2 px blur backdrop; solid surface panel, large shadow | Dialogs and sheets |
 
-Everything is under `/api`. Every endpoint except health and the sign-in flows needs a bearer token.
+Focus is a 2 px primary outline offset by 2 px on every interactive element.
 
-| Area | Endpoints |
-| --- | --- |
-| Health | `GET /health`: API up, database up/down |
-| Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me` |
-| Wallets | `GET/POST /wallets`, `GET/PUT/DELETE /wallets/{id}`, `POST /wallets/{id}/archive`, `/unarchive` |
-| Categories | `GET/POST /categories`, `PUT/DELETE /categories/{id}`, `POST /{id}/archive`, `/unarchive`, `/merge` |
-| Transactions | `GET /transactions` (from, to, walletId, categoryId, type, search, page, pageSize; totals over all matches), `GET/PUT/DELETE /transactions/{id}`, `POST /transactions` |
-| Dashboard | `GET /dashboard?month=yyyy-MM` |
-| People | `GET/POST /people`, `GET/PUT/DELETE /people/{id}`, `POST /people/{id}/loans`, `PUT/DELETE /people/{id}/loans/{loanId}` (Lend, GotBack, Borrow, PaidBack) |
-| Budgets | `GET /budgets?month=`, `POST /budgets`, `PUT/DELETE /budgets/{id}` (status OnTrack / Near ≥ 80% / Over) |
-| Recurring | `GET /recurring`, `GET /recurring/due`, `GET/PUT/DELETE /recurring/{id}`, `POST /recurring`, `POST /{id}/record`, `/skip`, `/pause`, `/resume` |
+## Components
 
-Unknown `/api/...` paths return a 404 problem. [backend/TakaLeaf.App/TakaLeaf.App.http](backend/TakaLeaf.App/TakaLeaf.App.http)
-has ready-made requests.
+- **Buttons**: 44 px tall, radius 14 px, 13px/700 label. Primary is forest (sage in dark).
+  Secondary is glass. Ghost uses the chip tint on hover. Danger is expense. A disabled button is at
+  50% opacity with a not-allowed cursor.
+- **Fields**: label above (13px/700), then a 48 px solid input with radius 14 px, a 1 px line border,
+  and a primary border plus 25% ring on focus. Errors turn the border expense and show a message
+  below, linked with `aria-describedby`. Amount fields use `inputmode="decimal"` and the placeholder
+  `0.00`.
+- **Segmented control** (Expense · Income · Transfer, Expense · Income tabs): a chip-tinted track
+  with radius 16 px. The selected segment is a solid surface with primary text and a light shadow.
+- **Glass card**: radius 20–22 px, padding 16–20 px, holding a title row with a primary text link on
+  the right ("See all").
+- **Balance card**: the solid forest hero with the display amount and a row of light-green
+  sub-figures (assets, owed).
+- **Stat tile**: a small glass card with a caption label and an 18–20px/800 amount.
+- **Transaction row**: a 40 px chip-tinted icon tile (arrow up for expense, arrow down for income,
+  swap for transfer), a bold title and a muted "time · note · wallet" line, and a right-aligned
+  signed amount. The whole row is a button, with the chip tint on hover.
+- **Progress bar**: an 8–10 px track in the chip tint, filled with leaf (budget near: amber; over:
+  expense), with the amount spent and left or over written underneath.
+- **Navigation**: a sidebar of 44 px items with the active item on the chip tint in primary text. The
+  phone tab bar shows five icon-over-label items, with the active one on the chip tint.
+- **Dialog / sheet**: a bottom sheet on phones (top corners 26 px) and a centred 512 px dialog on
+  desktop. It has a solid surface, a title with a round 40 px close button, and actions on the right
+  (Cancel secondary, Save primary), with any destructive action on the left.
+- **Chip**: 32–36 px, pill, chip tint, primary 13px/700 text. Used for MFS name shortcuts, "All of
+  it", sub-categories and "+ Sub-category".
+- **Empty state**: centred bold title, one muted sentence, and at most one primary action.
+- **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house
+  (`ui/Icon.tsx`).
 
-## 6. Security
+## Do's and Don'ts
 
-- **Passwords:** ASP.NET Core `PasswordHasher` (PBKDF2), at least 10 characters. Five wrong passwords
-  lock sign-in for 15 minutes. An unknown email costs the same time as a wrong password.
-- **No account discovery:** register, resend and forgot-password give the same answer whether or
-  not the email exists.
-- **Tokens:** a JWT access token lives for 15 minutes and is kept only in memory on the web. Refresh
-  tokens rotate on every use and are stored as SHA-256 hashes. Reusing an old one after 30 seconds
-  ends the whole session. The web gets the refresh token as an `HttpOnly; Secure; SameSite=Strict`
-  cookie on `/api/auth`; Android (`client: "mobile"`) gets it in the response body.
-- **Email links** are single-use and stored hashed. Verify links expire after 24 hours, reset links after 30 minutes. A password chosen at
-  registration takes effect only if that particular link is opened, so nobody can take over an
-  unverified account.
-- **Rate limit:** the auth endpoints are limited per IP (`RateLimits:AuthPerMinute`). The real IP is
-  trusted only from `ReverseProxy:TrustedProxies` / `TrustedNetworks`.
-- **Headers:** CSP (self plus Google Fonts), `X-Frame-Options: DENY`, `nosniff`, Referrer and
-  Permissions policies, and HSTS outside development.
+**Do**
 
-## 7. Web app
+- Lead each screen with the amount that answers its question.
+- Show money with `formatBdt` (`৳1,25,000.00`, minus sign `−`), and type it as taka text parsed by `parseTaka`.
+- Use glass only for surfaces that sit directly on the background: cards, bars and the sidebar.
+- Keep one primary button per view, and put the destructive action on the opposite side.
+- Pair every colour signal with words or a sign: "Over budget", `+`/`−`, "Owes you".
+- Check every screen at 390 px and 1440 px, in light and dark.
+- Use `min-w-0`, `truncate` and single-column grids so long names never push the layout sideways.
 
-```
-src/api/        client.ts (fetch + silent refresh), queries.ts (TanStack Query hooks), types.ts
-src/auth/       AuthContext, sign-in / register / verify / forgot / reset pages
-src/layout/     AppShell (sidebar on desktop; top bar, bottom tabs, add button on phones),
-                TransactionSheet (one transaction form for the whole app)
-src/pages/      dashboard, transactions, wallets, people, budgets, recurring, categories, settings
-src/ui/         Button, Field, Modal, Feedback, Icon, format.ts (dates in Asia/Dhaka, amounts)
-src/test/       fakeApi (fetch stand-in), renderApp
-```
+**Don't**
 
-- **Server data** lives only in TanStack Query. After a change, every money query (dashboard,
-  wallets, transactions, people, budgets, recurring) is invalidated together.
-- **Silent refresh:** a 401 triggers one shared refresh request and a single retry. If that fails,
-  the app signs out.
-- **Amounts** are typed as taka text ("1,250.50") and turned into poisha with `parseTaka`. Credit
-  card debt is typed as a positive "amount owed".
-- **Layout:** works from 390 px phones to desktop with no sideways scrolling. On phones the five tabs
-  are Home, History, Wallets, People and More (Budgets, Recurring, Categories, Settings).
-- **Accessibility:** every input has a label, errors are linked with `aria-describedby`, dialogs are
-  `role="dialog"`, and focus is visible.
-
-## 8. Background work
-
-`RecurringWorker` runs every `Recurring:PollMinutes` (30 by default) and records automatic recurring
-dates that are due, at 9 AM local time. A unique index means a date can never be recorded twice. If
-a rule can't be recorded (for example its wallet was deleted), it stays in the user's due list.
-
-## 9. Logging and operations
-
-- **Logging:** Serilog writes to the console and to daily JSON files in `logs/`, kept for 14 days.
-  Seq is added in development and is optional in production. Every request line has the user's
-  email (or "anonymous"), client IP, user id, status and time taken.
-- **Production:** a single Docker image (see `Dockerfile`). Migrations run on start. The health
-  endpoint is `/api/health`. Backups are daily `pg_dump` to S3 through Dokploy.
-
-## 10. Testing
-
-| Layer | How |
-| --- | --- |
-| Backend | `dotnet test`. Every slice is exercised through HTTP with `WebApplicationFactory` against a real PostgreSQL. Each test creates its own users, so tests don't affect each other. Test names follow the testing plan's case ids (T-, F-, L-, B-, R-, P-, X-). |
-| Web | `pnpm test` (Vitest + Testing Library). `fakeApi` stands in for the backend and records calls, so tests check what was sent (for example amounts in poisha). |
-| Shared | Money formatting is checked against `contract/fixtures/money-format.json` on both sides. |
-| Image | CI builds the Dockerfile, runs it next to PostgreSQL, and checks health, the web app, SPA fallback, API 404 and time zone data. |
-
-## 11. Version 2: Android sync (planned)
-
-- The same API. Android signs in with `client: "mobile"` and keeps its refresh token in secure storage.
-- Offline-first: SQLite stores the same entities with client-made Guid v7 ids.
-- **Pull:** "changes since ServerSeq N", including soft-deleted rows, so deletions sync too.
-- **Push:** client changes, accepted if the row's `UpdatedAt` is still what the client saw;
-  otherwise the server version wins and the client is told about the conflict.
-- `packages/shared` money code is reused as-is.
-
-## 12. Decision log
-
-| Decision | Why |
-| --- | --- |
-| One backend project with vertical slices | Personal app, one developer: features are easy to find and change; no ceremony. |
-| Money in poisha (`long`) | No rounding errors; the same type works in C#, TS and SQLite. |
-| Balances calculated, not stored | They cannot drift out of date. Personal data volumes are small. |
-| Loans as transfers through per-person wallets | Wallet balances, history and net balance stay correct with no special cases. |
-| Transfer fees as separate expense rows | Fees appear in spending and budgets, while the transfer amount stays the amount moved. |
-| Soft delete + ServerSeq from day one | Version 2 sync needs no schema rebuild. |
-| Web and API in one container on one origin | No CORS; a strict same-site cookie; one thing to deploy. |
-| Migrations generated in CI (`ef-migration.yml`) | Migrations always come from the real model, even without a local .NET SDK. |
+- Don't put glass on glass, blur inputs or dialogs, or set low-contrast text on a busy glow.
+- Don't use gradients on text, neon accents, or glowing charts.
+- Don't use red and green as the only difference between income and expense.
+- Don't round amounts, drop the decimals, or use Western 1,250,000 grouping.
+- Don't add confetti, streaks, mascots or scolding alarm states.
+- Don't add a second accent colour; leaf and amber are for progress only.
+- Don't use browser `alert`/`confirm`; confirm in place ("Yes, delete" / "Keep").
