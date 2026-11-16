@@ -33,7 +33,8 @@ pnpm install
 pnpm dev
 ```
 
-Emails sent in development (verification links) arrive in Mailpit at http://localhost:8025.
+Open http://localhost:5173, create an account, then open the verification link from Mailpit at
+http://localhost:8025 (every email sent in development lands there) and sign in.
 `backend/TakaLeaf.App/TakaLeaf.App.http` has ready-made requests for trying the API by hand.
 
 ## Logs

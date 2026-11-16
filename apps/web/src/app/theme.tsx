@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type Theme = "light" | "dark";
 const KEY = "takaleaf.theme";
@@ -13,20 +13,20 @@ function readStored(): Theme | null {
 }
 
 function systemTheme(): Theme {
-  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-/** Theme follows the system until the user picks one; the choice is remembered on this device. */
-export function useTheme(): [Theme, () => void] {
+const ThemeContext = createContext<[Theme, () => void]>(["light", () => {}]);
+
+/** Theme follows the system until the person picks one; the choice is remembered on this device. */
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => readStored() ?? systemTheme());
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
-  const toggle = () => {
+  const toggle = useCallback(() => {
     setTheme((current) => {
       const next: Theme = current === "light" ? "dark" : "light";
       try {
@@ -36,7 +36,9 @@ export function useTheme(): [Theme, () => void] {
       }
       return next;
     });
-  };
+  }, []);
 
-  return [theme, toggle];
+  return <ThemeContext.Provider value={[theme, toggle]}>{children}</ThemeContext.Provider>;
 }
+
+export const useTheme = () => useContext(ThemeContext);
