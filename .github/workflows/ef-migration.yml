@@ -16,7 +16,6 @@ jobs:
   add-migration:
     name: Add migration
     runs-on: ubuntu-latest
-    if: hashFiles('backend/.migration-request') != ''
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
