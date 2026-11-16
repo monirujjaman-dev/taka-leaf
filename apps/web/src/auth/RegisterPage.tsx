@@ -63,7 +63,7 @@ export function RegisterPage() {
           error={error?.field("password")}
         />
         {error && !error.field("email") && !error.field("password") ? <ErrorNote>{error.message}</ErrorNote> : null}
-        <Button type="submit" disabled={busy || !email || !password}>
+        <Button type="submit" disabled={busy || !email || !password} className="mt-1 h-[54px] rounded-[18px] text-base font-extrabold">
           {busy ? "Creating…" : "Create account"}
         </Button>
       </form>

@@ -55,7 +55,7 @@ export function ResetPasswordPage() {
               </Link>
             </ErrorNote>
           ) : null}
-          <Button type="submit" disabled={busy || !password || !token}>
+          <Button type="submit" disabled={busy || !password || !token} className="mt-1 h-[54px] rounded-[18px] text-base font-extrabold">
             {busy ? "Saving…" : "Save new password"}
           </Button>
         </form>

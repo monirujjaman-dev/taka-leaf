@@ -7,29 +7,34 @@ import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { AmountField, SelectField } from "../../ui/Field";
-import { localMonth, monthLabel, toAmountText } from "../../ui/format";
+import { lastDayOf, localDate, localMonth, monthLabel, toAmountText } from "../../ui/format";
+import { Icon } from "../../ui/Icon";
+import { IconTile, iconButtonClass, LeafWatermark, ListCard } from "../../ui/Parts";
 import { Modal } from "../../ui/Modal";
-import { MonthSwitcher } from "../dashboard/DashboardPage";
+import { MonthPicker } from "../../ui/MonthPicker";
 import { CategoryOptions } from "../transactions/pickers";
 
 const BAR = { OnTrack: "bg-leaf", Near: "bg-[#c98a1b]", Over: "bg-expense dark:bg-expense-dark" } as const;
-const NOTE = { OnTrack: "", Near: "Close to the limit", Over: "Over budget" } as const;
+
+/** "৳2,160 left · 82%", "Fully used · 100%" or "Over by ৳200 · 104%". */
+function budgetLine(budget: Budget): string {
+  if (budget.remaining < 0) return `Over by ${formatBdt(-budget.remaining)} · ${budget.percent}%`;
+  if (budget.remaining === 0) return `Fully used · ${budget.percent}%`;
+  return `${formatBdt(budget.remaining)} left · ${budget.percent}%${budget.status === "Near" ? " · close to the limit" : ""}`;
+}
 
 export function BudgetBar({ budget }: { budget: Budget }) {
   return (
-    <>
-      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-[var(--tl-chip)]" aria-hidden="true">
-        <div className={`h-full rounded-full ${BAR[budget.status]}`} style={{ width: `${Math.min(Math.max(budget.percent, 2), 100)}%` }} />
-      </div>
-      <div className="mt-1.5 flex justify-between gap-2 text-[13px]">
-        <span className="text-[var(--tl-muted)]">
-          {formatBdt(budget.spent)} of {formatBdt(budget.amount)}
-        </span>
-        <span className={budget.status === "Over" ? "font-bold text-expense dark:text-expense-dark" : "font-semibold"}>
-          {budget.remaining >= 0 ? `${formatBdt(budget.remaining)} left` : `${formatBdt(-budget.remaining)} over`}
-        </span>
-      </div>
-    </>
+    <span className="mt-1.5 flex flex-col gap-1.5">
+      <span className="block h-2 overflow-hidden rounded-[4px] bg-[var(--tl-track)]" aria-hidden="true">
+        <span className={`block h-full rounded-[4px] ${BAR[budget.status]}`} style={{ width: `${Math.min(Math.max(budget.percent, 2), 100)}%` }} />
+      </span>
+      <span
+        className={`block text-[12px] ${budget.status === "Over" ? "font-bold text-expense dark:text-expense-dark" : "font-medium text-[var(--tl-muted)]"}`}
+      >
+        {budgetLine(budget)}
+      </span>
+    </span>
   );
 }
 
@@ -92,54 +97,107 @@ function BudgetForm({ budget, taken, onClose }: { budget: Budget | null; taken: 
   );
 }
 
+function daysToGo(month: string): number | null {
+  if (month !== localMonth()) return null;
+  const today = Number(localDate().slice(8, 10));
+  return Number(lastDayOf(month).slice(8, 10)) - today + 1;
+}
+
 export function BudgetsPage() {
   const [month, setMonth] = useState(localMonth);
   const budgets = useBudgets(month);
   const [editing, setEditing] = useState<Budget | "new" | null>(null);
   const list = budgets.data?.budgets ?? [];
+  // An "All spending" budget is the month's total; otherwise the category budgets add up to it.
+  const overall = list.find((b) => b.categoryId === null);
+  const total = overall
+    ? { spent: overall.spent, amount: overall.amount }
+    : { spent: list.reduce((s, b) => s + b.spent, 0), amount: list.reduce((s, b) => s + b.amount, 0) };
+  const left = total.amount - total.spent;
+  const days = daysToGo(month);
 
   return (
     <>
-      <PageHeader title="Budgets">
-        <MonthSwitcher month={month} onChange={setMonth} />
-        <Button onClick={() => setEditing("new")}>Add a budget</Button>
+      <PageHeader
+        title="Budgets"
+        back="/settings"
+        phoneAction={
+          <button type="button" aria-label="Add a budget" onClick={() => setEditing("new")} className={iconButtonClass}>
+            <Icon name="plus" size={20} />
+          </button>
+        }
+      >
+        <MonthPicker month={month} onChange={setMonth} />
+        <Button onClick={() => setEditing("new")}>
+          <Icon name="plus" size={18} /> Add a budget
+        </Button>
       </PageHeader>
 
-      {budgets.isPending ? <Loading /> : null}
-      {budgets.error ? <ErrorNote>{messageOf(budgets.error)}</ErrorNote> : null}
-      {budgets.isSuccess && list.length === 0 ? (
-        <section className="glass rounded-[22px]">
-          <EmptyState title="No budgets yet">
-            <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">
-              Set a monthly limit for all spending, or for a category like Food and dining, and see how {monthLabel(month).split(" ")[0]} is going.
-            </p>
-          </EmptyState>
-        </section>
-      ) : null}
+      <div className="flex flex-col gap-3 lg:max-w-3xl">
+        <div className="lg:hidden">
+          <MonthPicker month={month} onChange={setMonth} />
+        </div>
 
-      <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
-        {list.map((budget) => (
-          <li key={budget.id}>
-            <button
-              type="button"
-              onClick={() => setEditing(budget)}
-              className={`glass block w-full cursor-pointer rounded-[20px] p-4 text-left ${focusRing}`}
-              aria-label={`${budget.name}: ${budget.percent}% used. Edit`}
-            >
-              <span className="flex items-baseline justify-between gap-2">
-                <span className="truncate text-base font-extrabold">{budget.name}</span>
-                <span className="shrink-0 text-sm font-bold">{budget.percent}%</span>
-              </span>
-              {NOTE[budget.status] ? (
-                <span className={`text-[12px] font-bold ${budget.status === "Over" ? "text-expense dark:text-expense-dark" : "text-[#9a6a10] dark:text-[#e8b766]"}`}>
-                  {NOTE[budget.status]}
-                </span>
-              ) : null}
-              <BudgetBar budget={budget} />
-            </button>
-          </li>
-        ))}
-      </ul>
+        {budgets.isPending ? <Loading /> : null}
+        {budgets.error ? <ErrorNote>{messageOf(budgets.error)}</ErrorNote> : null}
+        {budgets.isSuccess && list.length === 0 ? (
+          <section className="glass rounded-[22px]">
+            <EmptyState title="No budgets yet">
+              <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">
+                Set a monthly limit for all spending, or for a category like Food and dining, and see how {monthLabel(month).split(" ")[0]} is going.
+              </p>
+            </EmptyState>
+          </section>
+        ) : null}
+
+        {list.length > 0 ? (
+          <section
+            aria-label="Monthly budget"
+            className="relative overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-[0_12px_28px_rgb(11_59_36/0.22)]"
+          >
+            <LeafWatermark />
+            <p className="relative m-0 text-[13px] font-semibold text-mint">{monthLabel(month).split(" ")[0]} budget</p>
+            <p className="relative m-0 mt-1 text-[28px] font-extrabold tracking-[-0.5px]">
+              {formatBdt(total.spent)} <span className="text-[15px] font-semibold text-mint">of {formatBdt(total.amount)}</span>
+            </p>
+            <div className="relative mt-3.5 h-2 overflow-hidden rounded-[4px] bg-white/25" aria-hidden="true">
+              <div className="h-full rounded-[4px] bg-white" style={{ width: `${total.amount > 0 ? Math.min(100, (total.spent / total.amount) * 100) : 0}%` }} />
+            </div>
+            <p className="relative m-0 mt-2.5 text-[13px] font-semibold text-mint">
+              {left >= 0 ? `${formatBdt(left)} left` : `${formatBdt(-left)} over`}
+              {days !== null ? ` · ${days} ${days === 1 ? "day" : "days"} to go` : ""}
+            </p>
+          </section>
+        ) : null}
+
+        {list.length > 0 ? (
+          <ListCard>
+            <ul className="m-0 flex list-none flex-col p-0">
+              {list.map((budget) => (
+                <li key={budget.id}>
+                  <button
+                    type="button"
+                    onClick={() => setEditing(budget)}
+                    className={`-mx-1.5 flex w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+                    aria-label={`${budget.name}: ${budget.percent}% used. Edit`}
+                  >
+                    <IconTile icon={budget.categoryId ? "tag" : "target"} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex justify-between gap-2 text-sm font-bold">
+                        <span className="truncate">{budget.name}</span>
+                        <span className="shrink-0">
+                          {formatBdt(budget.spent)} / {formatBdt(budget.amount)}
+                        </span>
+                      </span>
+                      <BudgetBar budget={budget} />
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </ListCard>
+        ) : null}
+      </div>
 
       {editing ? (
         <BudgetForm budget={editing === "new" ? null : editing} taken={list.map((b) => b.categoryId)} onClose={() => setEditing(null)} />

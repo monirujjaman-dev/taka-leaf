@@ -77,7 +77,9 @@ describe("recurring", () => {
     });
     renderApp("/budgets");
 
-    expect(await screen.findByText("Over budget")).toBeInTheDocument();
-    expect(screen.getByText("৳1,200.00 over")).toBeInTheDocument();
+    expect(await screen.findByText("Over by ৳1,200.00 · 124%")).toBeInTheDocument();
+    const total = screen.getByRole("region", { name: "Monthly budget" });
+    expect(total).toHaveTextContent("৳6,200.00 of ৳5,000.00");
+    expect(total).toHaveTextContent("৳1,200.00 over");
   });
 });

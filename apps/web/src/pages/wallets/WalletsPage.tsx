@@ -6,46 +6,50 @@ import type { Wallet, WalletType } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { Icon } from "../../ui/Icon";
+import { Chevron, IconTile, iconButtonClass, ListCard, SectionHeading, StatTile, walletIcon } from "../../ui/Parts";
 import { WALLET_TYPE_LABEL } from "../../ui/format";
 import { WalletForm } from "./WalletForm";
 
-// Lent and Borrowed wallets belong to people and are shown on the People page.
-const ORDER: WalletType[] = ["Cash", "Mfs", "Bank", "CreditCard"];
+/** The design's groups. Lent and Borrowed wallets belong to people and are summed under Loans. */
+const GROUPS: { title: string; types: WalletType[] }[] = [
+  { title: "Cash and bank", types: ["Cash", "Bank"] },
+  { title: "MFS", types: ["Mfs"] },
+  { title: "Credit card", types: ["CreditCard"] },
+];
 
-function WalletCard({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
-  const negative = wallet.balance < 0;
+function detail(wallet: Wallet): string {
+  if (wallet.type === "CreditCard" && wallet.creditLimit !== null && wallet.availableCredit !== null)
+    return `Limit ${formatBdt(wallet.creditLimit)} · ${formatBdt(wallet.availableCredit)} left`;
+  return [WALLET_TYPE_LABEL[wallet.type], wallet.excludedFromTotal ? "not in net balance" : null, wallet.archived ? "archived" : null]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function WalletRow({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
   return (
-    <li className="contents">
-      <div className="glass flex flex-col gap-3 rounded-[20px] p-4">
-        <button type="button" onClick={onOpen} className={`cursor-pointer rounded-[12px] text-left ${focusRing}`} aria-label={`Edit ${wallet.name}`}>
-          <span className="flex items-start justify-between gap-2">
-            <span className="min-w-0">
-              <span className="block truncate text-base font-extrabold">{wallet.name}</span>
-              <span className="block text-[13px] text-[var(--tl-muted)]">
-                {WALLET_TYPE_LABEL[wallet.type]}
-                {wallet.excludedFromTotal ? " · not in net balance" : ""}
-              </span>
-            </span>
-            {wallet.archived ? (
-              <span className="rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-[11px] font-bold text-[var(--tl-muted)]">Archived</span>
-            ) : null}
-          </span>
-          <span className={`mt-3 block text-2xl font-extrabold tracking-tight ${negative ? "text-expense dark:text-expense-dark" : ""}`}>
-            {formatBdt(wallet.balance)}
-          </span>
-          {wallet.type === "CreditCard" && wallet.availableCredit !== null ? (
-            <span className="block text-[13px] text-[var(--tl-muted)]">
-              {formatBdt(wallet.availableCredit)} available of {formatBdt(wallet.creditLimit ?? 0)}
-            </span>
-          ) : null}
-        </button>
-        <Link to={`/transactions?walletId=${wallet.id}&from=2000-01-01`} className="text-[13px] font-bold text-[var(--tl-primary)]">
-          See transactions
-        </Link>
-      </div>
+    <li>
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Edit ${wallet.name}`}
+        className={`-mx-1.5 flex h-14 w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+      >
+        <IconTile icon={walletIcon(wallet.type)} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[15px] font-bold">{wallet.name}</span>
+          <span className="block truncate text-[12px] text-[var(--tl-muted)]">{detail(wallet)}</span>
+        </span>
+        <span className={`shrink-0 text-[15px] font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
+          {formatBdt(wallet.balance)}
+        </span>
+        <Chevron />
+      </button>
     </li>
   );
 }
+
+const people = (n: number) => `${n} ${n === 1 ? "person" : "people"}`;
 
 export function WalletsPage() {
   const wallets = useWallets();
@@ -54,9 +58,14 @@ export function WalletsPage() {
   const [showArchived, setShowArchived] = useState(false);
   const adding = params.get("add") === "1";
 
-  const all = (wallets.data?.wallets ?? []).filter((w) => w.personId === null);
+  const everything = wallets.data?.wallets ?? [];
+  const all = everything.filter((w) => w.personId === null);
   const visible = all.filter((w) => showArchived || !w.archived);
   const archivedCount = all.filter((w) => w.archived).length;
+  const lent = everything.filter((w) => w.type === "Lent" && w.balance !== 0);
+  const borrowed = everything.filter((w) => w.type === "Borrowed" && w.balance !== 0);
+  const sum = (list: Wallet[]) => list.reduce((total, w) => total + Math.abs(w.balance), 0);
+  const openAdd = () => setParams({ add: "1" }, { replace: true });
   const closeForm = () => {
     setEditing(null);
     if (adding) setParams({}, { replace: true });
@@ -64,26 +73,28 @@ export function WalletsPage() {
 
   return (
     <>
-      <PageHeader title="Wallets">
-        <Button onClick={() => setParams({ add: "1" }, { replace: true })}>Add a wallet</Button>
+      <PageHeader
+        title="Wallets"
+        back="/settings"
+        phoneAction={
+          <button type="button" aria-label="Add a wallet" onClick={openAdd} className={iconButtonClass}>
+            <Icon name="plus" size={20} />
+          </button>
+        }
+      >
+        <Button onClick={openAdd} aria-label="Add a wallet">
+          <Icon name="plus" size={18} /> Add a wallet
+        </Button>
       </PageHeader>
 
       {wallets.isPending ? <Loading /> : null}
       {wallets.error ? <ErrorNote>{messageOf(wallets.error)}</ErrorNote> : null}
 
       {wallets.data ? (
-        <>
-          <section aria-label="Totals" className="mb-5 grid grid-cols-3 gap-3">
-            {[
-              ["Net balance", wallets.data.totals.net],
-              ["Assets", wallets.data.totals.assets],
-              ["Owed", wallets.data.totals.liabilities],
-            ].map(([label, value]) => (
-              <div key={label} className="glass min-w-0 rounded-[18px] p-3">
-                <p className="m-0 text-[12px] font-semibold text-[var(--tl-muted)]">{label}</p>
-                <p className="m-0 truncate text-[15px] font-extrabold sm:text-lg">{formatBdt(value as number)}</p>
-              </div>
-            ))}
+        <div className="flex flex-col gap-3">
+          <section aria-label="Totals" className="grid grid-cols-2 gap-2.5 lg:max-w-xl">
+            <StatTile icon="moneyIn" label="Assets" value={formatBdt(wallets.data.totals.assets)} />
+            <StatTile icon="moneyOut" tone="expense" label="Liabilities" value={formatBdt(wallets.data.totals.liabilities)} />
           </section>
 
           {all.length === 0 ? (
@@ -94,29 +105,65 @@ export function WalletsPage() {
             </section>
           ) : null}
 
-          {ORDER.map((type) => {
-            const group = visible.filter((w) => w.type === type);
-            if (group.length === 0) return null;
-            return (
-              <section key={type} className="mb-5" aria-labelledby={`group-${type}`}>
-                <h2 id={`group-${type}`} className="m-0 mb-2 text-[13px] font-extrabold uppercase tracking-wide text-[var(--tl-muted)]">
-                  {WALLET_TYPE_LABEL[type]}
-                </h2>
-                <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
-                  {group.map((wallet) => (
-                    <WalletCard key={wallet.id} wallet={wallet} onOpen={() => setEditing(wallet)} />
-                  ))}
-                </ul>
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-5">
+            {GROUPS.map((group) => {
+              const list = visible.filter((w) => group.types.includes(w.type));
+              if (list.length === 0) return null;
+              const id = `group-${group.title.replace(/\W/g, "")}`;
+              return (
+                <section key={group.title} aria-labelledby={id} className="flex flex-col gap-2">
+                  <SectionHeading id={id} title={group.title}>
+                    {formatBdt(list.reduce((total, w) => total + w.balance, 0))}
+                  </SectionHeading>
+                  <ListCard>
+                    <ul className="m-0 flex list-none flex-col p-0">
+                      {list.map((wallet) => (
+                        <WalletRow key={wallet.id} wallet={wallet} onOpen={() => setEditing(wallet)} />
+                      ))}
+                    </ul>
+                  </ListCard>
+                </section>
+              );
+            })}
+
+            {lent.length + borrowed.length > 0 ? (
+              <section aria-labelledby="group-loans" className="flex flex-col gap-2">
+                <SectionHeading id="group-loans" title="Loans" />
+                <ListCard>
+                  <ul className="m-0 flex list-none flex-col p-0">
+                    {[
+                      { list: lent, label: "Lent to others", icon: "moneyOut" as const },
+                      { list: borrowed, label: "Borrowed", icon: "moneyIn" as const },
+                    ]
+                      .filter((row) => row.list.length > 0)
+                      .map((row) => (
+                        <li key={row.label}>
+                          <Link
+                            to="/people"
+                            className={`-mx-1.5 flex h-14 items-center gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] ${focusRing}`}
+                          >
+                            <IconTile icon={row.icon} tone={row.label === "Borrowed" ? "expense" : "primary"} />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-[15px] font-bold">{row.label}</span>
+                              <span className="block text-[12px] text-[var(--tl-muted)]">{people(row.list.length)}</span>
+                            </span>
+                            <span className="text-[15px] font-extrabold">{formatBdt(sum(row.list))}</span>
+                            <Chevron />
+                          </Link>
+                        </li>
+                      ))}
+                  </ul>
+                </ListCard>
               </section>
-            );
-          })}
+            ) : null}
+          </div>
 
           {archivedCount > 0 ? (
-            <Button variant="ghost" onClick={() => setShowArchived((value) => !value)}>
+            <Button variant="ghost" className="self-start" onClick={() => setShowArchived((value) => !value)}>
               {showArchived ? "Hide archived" : `Show archived (${archivedCount})`}
             </Button>
           ) : null}
-        </>
+        </div>
       ) : null}
 
       {adding || editing ? <WalletForm wallet={editing} onClose={closeForm} /> : null}

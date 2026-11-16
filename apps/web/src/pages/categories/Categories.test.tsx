@@ -24,7 +24,8 @@ describe("categories", () => {
     });
     renderApp("/categories");
 
-    await userEvent.click(await screen.findByRole("button", { name: "Bus fare" }));
+    await userEvent.click(await screen.findByRole("button", { name: /^Transport/ }));
+    await userEvent.click(screen.getByRole("button", { name: "Bus fare" }));
     const dialog = await screen.findByRole("dialog", { name: "Edit Bus fare" });
     await userEvent.selectOptions(within(dialog).getByLabelText("Merge Bus fare into"), "c-cng");
     await userEvent.click(within(dialog).getByRole("button", { name: "Merge" }));
@@ -38,7 +39,8 @@ describe("categories", () => {
     fakeApi({ "POST /auth/refresh": { body: session() }, "GET /categories": { body: categories } });
     renderApp("/categories");
 
-    await userEvent.click(await screen.findByRole("button", { name: "Transport" }));
+    await userEvent.click(await screen.findByRole("button", { name: /^Transport/ }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit Transport" }));
     expect(await screen.findByText(/first merge or delete its sub-categories/)).toBeInTheDocument();
   });
 });

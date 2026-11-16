@@ -67,7 +67,7 @@
         "role": "budget bar at 80% or more"
       },
       "night-nav-active": {
-        "role": "active nav text in dark theme (4.5:1 on chip tint)",
+        "role": "active phone tab text in dark theme (no tint behind it)",
         "cssVar": "--tl-nav-active"
       }
     },
@@ -130,7 +130,7 @@
       {
         "name": "phone",
         "max": "1023px",
-        "layout": "top bar, bottom tab bar (5 items), floating add button, single-column grids"
+        "layout": "per-screen 56px header (no top bar); floating 68px glass tab bar: Home, History, centre Add, Reports, More; single-column grids"
       },
       {
         "name": "sm",
@@ -140,7 +140,7 @@
       {
         "name": "desktop",
         "min": "1024px",
-        "layout": "fixed 256px glass sidebar inset 16px; content max 1024px"
+        "layout": "flex row, padding and gap 20px: 240px glass sidebar (active item solid forest), content header with title, month button and Add transaction"
       }
     ]
   },
@@ -197,9 +197,9 @@
       "name": "Segmented control",
       "kind": "tabs",
       "refersTo": "nav-item-active",
-      "description": "Expense · Income · Transfer.",
+      "description": "Expense · Income · Transfer and the other switches: glass track, chosen option solid forest.",
       "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button aria-checked=\"true\" role=\"radio\">Expense</button><button aria-checked=\"false\" role=\"radio\">Income</button><button aria-checked=\"false\" role=\"radio\">Transfer</button></div>",
-      "css": ".ds-seg{font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:16px;background:#E7F5EC}.ds-seg button{height:40px;border:0;border-radius:12px;background:none;font-size:13px;font-weight:700;color:#55637A;cursor:pointer}.ds-seg button[aria-checked=true]{background:#fff;color:#0F7A44;box-shadow:0 1px 2px rgb(0 0 0/.08)}"
+      "css": ".ds-seg{font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif;display:flex;gap:4px;height:44px;box-sizing:border-box;padding:3px;border-radius:14px;background:rgba(255,255,255,.66);border:1px solid #D1DFD8;box-shadow:0 8px 24px rgb(11 59 36/.07)}.ds-seg button{flex:1;height:36px;border:0;border-radius:11px;background:none;font-size:14px;font-weight:700;color:#55637A;cursor:pointer}.ds-seg button[aria-checked=true]{background:#0F7A44;color:#fff}"
     },
     {
       "name": "Chip",
@@ -207,7 +207,7 @@
       "refersTo": "chip",
       "description": "Shortcuts and sub-categories.",
       "html": "<button class=\"ds-chip\">bKash</button>",
-      "css": ".ds-chip{font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif;font-variant-numeric:tabular-nums;height:44px;padding:0 14px;border:0;border-radius:999px;background:#E7F5EC;color:#0F7A44;font-size:13px;font-weight:700;cursor:pointer}"
+      "css": ".ds-chip{font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif;font-variant-numeric:tabular-nums;height:44px;padding:0 14px;border:0;border-radius:14px;background:#E7F5EC;color:#0F7A44;font-size:13px;font-weight:700;cursor:pointer}"
     }
   ],
   "narrative": {
@@ -218,7 +218,7 @@
       "Restrained glass on surfaces that sit on the background; dialogs and inputs solid",
       "One primary colour used sparingly; leaf and amber only for progress",
       "Light and dark themes from one token set",
-      "Phone: glass top bar, floating tab bar, round add button; desktop: glass sidebar"
+      "Phone: in-page headers and a floating tab bar with a centre Add; desktop: 240px glass sidebar with a solid forest active item"
     ],
     "rules": [
       "Money shown with formatBdt (৳1,25,000.00, minus −); typed as taka, stored as poisha",

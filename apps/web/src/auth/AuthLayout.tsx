@@ -1,27 +1,49 @@
-import { TAGLINE } from "@takaleaf/shared";
 import type { ReactNode } from "react";
-import { useTheme } from "../app/theme";
-import { Logo } from "../shared/Logo";
+import markOnDark from "../assets/takaleaf-mark-on-dark.svg";
 import { Backdrop } from "../ui/Backdrop";
+import { LeafWatermark } from "../ui/Parts";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
+/**
+ * Signed-out screens: a forest brand panel beside a glass form card on wide screens; on phones the
+ * panel shrinks to a short band above the card.
+ */
 export function AuthLayout({ title, intro, children }: { title: string; intro?: ReactNode; children: ReactNode }) {
-  const [theme] = useTheme();
   return (
     <div className="relative min-h-screen">
       <Backdrop />
-      <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-5 py-10">
-        <div className="flex items-center justify-between">
-          <Logo theme={theme} />
-          <ThemeToggle />
-        </div>
-        <section className="glass rounded-[26px] p-6">
-          <h1 className="m-0 text-2xl font-extrabold tracking-tight">{title}</h1>
-          {intro ? <p className="mb-0 mt-2 text-[15px] leading-relaxed text-[var(--tl-muted)]">{intro}</p> : null}
-          <div className="mt-5">{children}</div>
-        </section>
-        <p className="m-0 text-center text-[13px] text-[var(--tl-muted)]">{TAGLINE}</p>
-      </main>
+      <div className="flex min-h-screen flex-col gap-5 p-5 lg:flex-row">
+        <aside className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-[28px] bg-forest p-7 text-white lg:min-w-0 lg:flex-1 lg:gap-8 lg:p-12">
+          <LeafWatermark size={120} className="lg:hidden" />
+          <LeafWatermark size={380} className="!-bottom-[70px] !-right-[60px] !top-auto hidden !opacity-[0.14] lg:block" />
+          <span className="relative flex items-center gap-2.5">
+            <img src={markOnDark} width={44} height={44} alt="" />
+            <span className="text-[26px] font-extrabold tracking-[-0.5px]">
+              Taka<span className="text-[#b5e2c4]">Leaf</span>
+            </span>
+          </span>
+          <div className="relative">
+            <p className="m-0 text-[26px] font-extrabold leading-[1.15] tracking-[-0.8px] lg:text-[34px]">
+              Your Money.
+              <br />
+              Your Control.
+            </p>
+            <p className="mb-0 mt-3.5 hidden max-w-[360px] text-base leading-normal text-mint lg:block">
+              Every wallet, every loan and every taka in one calm place. Works offline on your phone and stays in sync.
+            </p>
+          </div>
+        </aside>
+        <main className="relative flex flex-col items-center justify-center lg:min-w-0 lg:flex-1 lg:p-6">
+          <div className="mb-3 self-end lg:absolute lg:right-0 lg:top-0 lg:mb-0">
+            <ThemeToggle />
+          </div>
+          <section className="glass w-full max-w-[440px] rounded-[26px] p-6 sm:p-9">
+            <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.6px]">{title}</h1>
+            {intro ? <p className="mb-0 mt-2 text-[15px] leading-[1.45] text-[var(--tl-muted)]">{intro}</p> : null}
+            <div className="mt-6">{children}</div>
+          </section>
+        </main>
+      </div>
     </div>
   );
 }

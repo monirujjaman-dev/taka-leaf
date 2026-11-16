@@ -17,6 +17,25 @@ const PATHS = {
   transfer: "M6 8h12l-3.5-3.5M18 16H6l3.5 3.5",
   arrowDown: "M12 5v14m0 0-5-5m5 5 5-5",
   arrowUp: "M12 19V5m0 0-5 5m5-5 5 5",
+  /** Money in (down-left) and money out (up-right), as on the design's stat tiles and rows. */
+  moneyIn: "M17 7 7 17M7 9v8h8",
+  moneyOut: "M7 17 17 7M9 7h8v8",
+  more: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+  search: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4",
+  filter: "M4 6h16M7 12h10M10 18h4",
+  sync: "M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2M20 4v5h-5M4 20v-5h5",
+  download: "M12 4v11M7 11l5 5 5-5M5 20h14",
+  close: "M6 6l12 12M18 6 6 18",
+  backspace: "M9 6h11v12H9l-5-6zM12 10l4 4M16 10l-4 4",
+  moon: "M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z",
+  sun: "M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
+  lock: "M6 11h12v9H6zM9 11V8a3 3 0 0 1 6 0v3",
+  device: "M8 3h8v18H8zM11 18h2",
+  card: "M3 6h18v12H3zM3 10h18M7 15h3",
+  bank: "M3 10h18L12 4zM5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18",
+  phone: "M8 3h8v18H8zM11 18h2",
+  cash: "M3 7h18v10H3zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 10v.01M18 14v.01",
+  calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
 } as const;
 
 export type IconName = keyof typeof PATHS;

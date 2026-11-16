@@ -30,6 +30,7 @@
   --tl-glass-border: #d1dfd8;
   --tl-chip: #e7f5ec;
   --tl-nav-active: #0f7a44;
+  --tl-track: rgb(11 59 36 / 0.08);
   --tl-shadow: 0 8px 24px rgb(11 59 36 / 0.07);
   --tl-blob-a: rgb(34 160 107 / 0.3);
   --tl-blob-b: rgb(131 207 162 / 0.55);
@@ -44,8 +45,8 @@
   --tl-surface: #11301f;
   --tl-glass-border: rgb(255 255 255 / 0.14);
   --tl-chip: rgb(131 207 162 / 0.14);
-  /* Lighter than the dark primary so the active tab keeps 4.5:1 on its tinted background. */
-  --tl-nav-active: #a8e0be;
+  --tl-nav-active: #83cfa2;
+  --tl-track: rgb(255 255 255 / 0.1);
   --tl-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
   --tl-blob-a: rgb(34 160 107 / 0.28);
   --tl-blob-b: rgb(15 122 68 / 0.55);

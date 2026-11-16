@@ -17,7 +17,7 @@ colors:
   night-line: "#FFFFFF24"
   night-text: "#E7F5EC"
   night-muted: "#A9BDB3"
-  night-nav-active: "#A8E0BE"
+  night-nav-active: "#83CFA2"
   income: "#0F7A44"
   income-dark: "#83CFA2"
   expense: "#A8412A"
@@ -164,17 +164,20 @@ Key characteristics:
 
 - **Numbers are the heroes.** The biggest, heaviest type on any screen is an amount, set in tabular
   figures with Bangladeshi grouping (`৳1,25,000.00`).
-- **Restrained glass.** Cards, the sidebar, the top bar and the tab bar are frosted glass
-  (`backdrop-filter: blur(20px) saturate(140%)`) over the background glows. Dialogs and inputs are
-  solid so text stays crisp. Glass never stacks on glass.
+- **Restrained glass.** Cards, the sidebar, the tab bar, fields and picker rows are frosted glass
+  (`backdrop-filter: blur(20px) saturate(140%)`) over the background glows. Dialog panels are solid
+  so text stays crisp.
 - **One primary colour, used sparingly.** Forest green marks the balance card, primary buttons,
   active navigation and links. Most of the screen is white or mint glass with ink text.
 - **Two themes from one set of tokens.** Light is mint and white; dark is a deep night green with
   sage as the primary.
-- **Layout.** Phones (< 1024 px) get a sticky glass top bar, a floating glass tab bar inset 12 px
-  from the edges, and a 56 px round add button above it. Desktop gets a fixed 256 px glass sidebar
-  inset 16 px, with content at most 1024 px wide. Content padding is 16 px on phones and 32 px on
-  desktop. Grids collapse to one column on phones. Nothing scrolls sideways at 390 px.
+- **Layout.** Phones (< 1024 px) have no top bar: each screen starts with its own 56 px header
+  (the dashboard shows the logo, a short month button and refresh; other screens a 44 px glass back
+  button, a 20 px title and one 44 px icon action). A floating glass tab bar (68 px, radius 24,
+  inset 16 px) holds Home, History, a centre 56 px forest **Add** button, Reports and More. Desktop
+  is a flex row with 20 px padding and gap: a 240 px glass sidebar (radius 26) beside the content,
+  whose header has a 26 px title, a month button and **Add transaction**. Content padding is 20 px
+  on phones. Grids collapse to one column on phones. Nothing scrolls sideways at 390 px.
 - **Motion** is minimal: colour and brightness transitions on hover and press (≈150 ms), with no
   entrance animations. `prefers-reduced-motion` turns transitions off.
 
@@ -185,17 +188,18 @@ The palette comes from the brand board: natural greens with one warm counterweig
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
 | background | `mint` #E7F5EC | `night` #0A1F15 | Page ground under the glows |
-| surface | `surface` #FFFFFF | `night-surface` #11301F | Dialogs, inputs, selected segment |
-| glass | #FFFFFF at 66% | #FFFFFF at 8% | Cards, bars, sidebar |
+| surface | `surface` #FFFFFF | `night-surface` #11301F | Dialog panels |
+| glass | #FFFFFF at 66% | #FFFFFF at 8% | Cards, bars, sidebar, fields, segmented track |
 | glass border | `line` #D1DFD8 | #FFFFFF at 14% | 1 px border on glass and inputs |
 | text | `ink` #0B3B24 | `night-text` #E7F5EC | Headings, amounts, body |
 | muted | `slate` #55637A | `night-muted` #A9BDB3 | Secondary lines, captions, hints |
 | primary | `forest` #0F7A44 | `sage` #83CFA2 | Primary buttons, links, active nav, balance card (forest in both) |
-| chip | `mint` #E7F5EC | sage at 14% | Icon tiles, chips, hover, segmented control |
+| chip | `mint` #E7F5EC | sage at 14% | Icon tiles, chips, hover |
+| track | ink at 8% | white at 10% | Progress bar track |
 | income | #0F7A44 | #83CFA2 | Income amounts, "owes you" |
 | expense | #A8412A | #F0997F | Expense amounts, "you owe", over budget, errors, delete |
 | budget near | #C98A1B (bar) | same | Budget at 80% or more |
-| active nav text | `forest` | `night-nav-active` #A8E0BE | Active sidebar item and tab (4.5:1 on the chip tint) |
+| active tab text | `forest` | `night-nav-active` #83CFA2 | Active phone tab (no tint behind it). The active sidebar item is solid forest with white text in both themes |
 | glow A / B | leaf 30% / sage 55% | leaf 28% / forest 55% | The two blurred background circles |
 
 Rules:
@@ -213,14 +217,14 @@ Rules:
 
 | Role | Size / weight | Used for |
 | --- | --- | --- |
-| display | 34px (30px on phones) / 800, −0.025em | Net balance on the balance card |
-| headline | 26px / 800, −0.025em | Page titles ("Dashboard", "Wallets") |
+| display | 34px / 800, −0.8px; 48px in the add sheet | Net balance; the amount being typed |
+| headline | 26px desktop, 20px phone / 800 | Page titles ("Dashboard", "Wallets") |
 | title | 16px / 800 | Card titles, wallet and person names |
 | amount | 15–24px / 800, tabular | Amounts in rows, tiles and cards (24px on wallet cards) |
 | body | 15px / 400, line-height 1.6 | Paragraphs, inputs, row titles (row titles 700) |
 | label | 13px / 700 | Field labels, buttons, chips |
-| caption | 12–13px / 400–600 | Secondary lines, hints, tab-bar labels (11px) |
-| section | 12–13px / 800 uppercase, wide tracking | Day headings in history, wallet group headings |
+| caption | 12–13px / 400–600 | Secondary lines, hints, tab-bar labels (10px/700) |
+| section | 13px / 800 muted | Day headings ("Today · 15 Nov") with the day total, wallet groups |
 
 Headings are tight (−0.025em) and heavy, and body text is relaxed. There is no italic, and amounts
 are never shown in a light weight.
@@ -232,10 +236,10 @@ Depth comes from glass and soft green shadows, not from stacking layers.
 | Level | Treatment | Used for |
 | --- | --- | --- |
 | 0 Ground | Mint (night) background + two 80–90 px blurred glows | Page |
-| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, top bar, tab bar, stat tiles |
-| 2 Hero | Solid forest, shadow `0 12px 28px rgb(11 59 36 / 0.22)` | Net balance card |
-| 3 Floating | Solid forest/sage, shadow `0 10px 24px rgb(11 59 36 / 0.3)` | Add button |
-| 4 Overlay | Night at 45% + 2 px blur backdrop; solid surface panel, large shadow | Dialogs and sheets |
+| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, tab bar, stat tiles, fields |
+| 2 Hero | Solid forest, shadow `0 12px 28px rgb(11 59 36 / 0.22)`, leaf watermark at 16% top right | Net balance card, month budget card, sign-in brand panel |
+| 3 Floating | Solid forest, radius 20, shadow `0 8px 18px rgb(15 122 68 / 0.4)` | Centre Add button in the tab bar |
+| 4 Overlay | Night at 45% + 2 px blur backdrop; solid surface panel, large shadow | Dialogs; the add sheet is full screen on phones |
 
 Focus is a 2 px primary outline offset by 2 px on every interactive element.
 
@@ -244,29 +248,42 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 - **Buttons**: 44 px tall, radius 14 px, 13px/700 label. Primary is forest (sage in dark).
   Secondary is glass. Ghost uses the chip tint on hover. Danger is expense. A disabled button is at
   50% opacity with a not-allowed cursor.
-- **Fields**: label above (13px/700), then a 48 px solid input with radius 14 px, a 1 px line border,
+- **Fields**: label above (13px/700), then a 50 px glass input with radius 16 px, a 1 px line border,
   and a primary border plus 25% ring on focus. Errors turn the border expense and show a message
   below, linked with `aria-describedby`. Amount fields use `inputmode="decimal"` and the placeholder
   `0.00`.
-- **Segmented control** (Expense · Income · Transfer, Expense · Income tabs): a chip-tinted track
-  with radius 16 px. The selected segment is a solid surface with primary text and a light shadow.
+- **Segmented control** (Expense · Income · Transfer, All · Expense · Income · Transfer, Month ·
+  Year, All · Owed to me · I owe): a 44 px glass track with 3 px padding; 36 px options with radius
+  11 px; the chosen one is solid forest with white text. Options are radios.
 - **Glass card**: radius 20–22 px, padding 16–20 px, holding a title row with a primary text link on
-  the right ("See all").
-- **Balance card**: the solid forest hero with the display amount and a row of mint (#E7F5EC,
-  4.8:1) sub-figures (assets, owed).
-- **Stat tile**: a small glass card with a caption label and an 18–20px/800 amount.
-- **Transaction row**: a 40 px chip-tinted icon tile (arrow up for expense, arrow down for income,
-  swap for transfer), a bold title and a muted "time · note · wallet" line, and a right-aligned
-  signed amount. The whole row is a button, with the chip tint on hover.
-- **Progress bar**: an 8–10 px track in the chip tint, filled with leaf (budget near: amber; over:
-  expense), with the amount spent and left or over written underneath.
-- **Navigation**: a sidebar of 44 px items with the active item on the chip tint in primary text
-  (`night-nav-active` in dark). The
-  phone tab bar shows five icon-over-label items, with the active one on the chip tint.
-- **Dialog / sheet**: a bottom sheet on phones (top corners 26 px) and a centred 512 px dialog on
-  desktop. It has a solid surface, a title with a round 40 px close button, and actions on the right
-  (Cancel secondary, Save primary), with any destructive action on the left.
-- **Chip**: 44 px, pill, chip tint, primary 13px/700 text. Used for MFS name shortcuts, "All of
+  the right ("See all", "History").
+- **List card**: a glass card (radius 20, padding 4/14) of 54–62 px rows: a 36–40 px icon tile or a
+  40 px forest initial avatar, a bold title over a 12px muted line, a right-aligned amount and a
+  chevron. Used for wallets, people, categories, budgets, settings and day groups in history.
+- **Balance card**: the solid forest hero with "Net balance" 13px, the 34px amount, and Assets and
+  Liabilities below (12px mint labels, 15/700 white figures), with the leaf watermark.
+- **Stat tile**: glass, radius 18, padding 12/14, a 36 px icon tile (radius 12; money-in green,
+  money-out rust), a 12px/600 muted label and a 16px/800 value. Two by two on the dashboard.
+- **Transaction row**: a 40 px icon tile (radius 14; money in, money out in rust, swap for
+  transfer), a bold title and a muted "detail · time" line (or "· 5 Nov" outside history), and a
+  right-aligned signed amount. The whole row is a button, with the chip tint on hover. On desktop
+  the history is a table: Date, Description, Category, Wallet, Amount (52 px rows).
+- **Progress bar**: 8 px, radius 4, on the track colour, filled with leaf (budget near: amber; over:
+  expense), with "৳2,160 left · 82%" or "Over by ৳200 · 104%" underneath.
+- **Navigation**: a 240 px sidebar of 44 px items (radius 14, 14px/700, 19 px icons); the active
+  item is solid forest with white text. Its footer holds the theme switch, sign out and "Connected
+  to your server". The phone tab bar has four icon-over-label items (22 px icons, 10px/700 labels,
+  active in primary with no tint) around the centre Add button; More lights up on every screen
+  reached from it.
+- **Add sheet**: full screen on phones, a 512 px dialog on desktop. A 44 px glass close button and
+  a 17px title; the type switch; a centred 48px amount (rust for expense, green for income) over
+  an "Add a note" pill; up to eight quick category chips (selected: forest border on mint); 52 px
+  glass picker rows (radius 16) for wallets, category and time; a 3 × 4 number pad of 48 px glass
+  keys on phones; and a 52 px "Save expense" button (radius 18).
+- **Dialog**: a bottom sheet on phones (top corners 26 px) and a centred 512 px dialog on desktop,
+  with a solid surface, a title and a round 44 px close button, actions on the right (Cancel
+  secondary, Save primary) and any destructive action on the left.
+- **Chip**: 44 px, radius 14, chip tint, 13–14px/700 text. Used for MFS name shortcuts, "All of
   it", sub-categories and "+ Sub-category".
 - **Empty state**: centred bold title, one muted sentence, and at most one primary action.
 - **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house
