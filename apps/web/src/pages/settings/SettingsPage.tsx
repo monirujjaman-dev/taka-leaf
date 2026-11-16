@@ -9,7 +9,11 @@ import { PageHeader } from "../../layout/AppShell";
 import { Button } from "../../ui/Button";
 import { ErrorNote, Loading, SuccessNote, messageOf } from "../../ui/Feedback";
 import { dayLabel, localDate, timeLabel } from "../../ui/format";
-import { ThemeToggle } from "../../ui/ThemeToggle";
+import { useTheme } from "../../app/theme";
+import { download } from "../../api/client";
+import { focusRing } from "../../ui/Button";
+import { Icon, type IconName } from "../../ui/Icon";
+import { Chevron, IconTile, ListCard } from "../../ui/Parts";
 
 function ChangePassword() {
   const [current, setCurrent] = useState("");
@@ -72,7 +76,7 @@ function Devices() {
   const when = (iso: string) => `${dayLabel(localDate(new Date(iso)))}, ${timeLabel(iso)}`;
 
   return (
-    <section className="glass rounded-[22px] p-5 lg:col-span-2" aria-labelledby="devices-title">
+    <section id="devices" className="glass scroll-mt-5 rounded-[20px] p-4" aria-labelledby="devices-title">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 id="devices-title" className="m-0 text-base font-extrabold">
           Signed-in devices
@@ -111,39 +115,112 @@ function Devices() {
   );
 }
 
+const MORE: { to: string; label: string; icon: IconName }[] = [
+  { to: "/wallets", label: "Wallets", icon: "wallet" },
+  { to: "/people", label: "People and loans", icon: "people" },
+  { to: "/budgets", label: "Budgets", icon: "target" },
+  { to: "/recurring", label: "Recurring", icon: "repeat" },
+  { to: "/categories", label: "Categories", icon: "tag" },
+];
+
+const rowClass = `-mx-1.5 flex h-[54px] w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`;
+
+function RowText({ icon, label, value, danger = false }: { icon: IconName; label: string; value?: string; danger?: boolean }) {
+  return (
+    <>
+      <IconTile icon={icon} size={36} tone={danger ? "expense" : "primary"} />
+      <span className={`flex-1 text-[15px] font-bold ${danger ? "text-expense dark:text-expense-dark" : ""}`}>{label}</span>
+      {value ? <span className="text-sm font-semibold text-[var(--tl-muted)]">{value}</span> : null}
+      {danger ? null : <Chevron />}
+    </>
+  );
+}
+
+/** Settings, and on phones the More tab: the screens without their own tab come first. */
 export function SettingsPage() {
   const { state, signOut } = useAuth();
+  const [theme, toggleTheme] = useTheme();
+  const sessions = useSessions();
+  const [changing, setChanging] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const email = state.status === "signedIn" ? state.user.email : "";
+
+  async function exportAll() {
+    setExportError(null);
+    try {
+      await download("/transactions/export.csv?from=2000-01-01", "takaleaf-transactions.csv");
+    } catch (error) {
+      setExportError(messageOf(error));
+    }
+  }
+
   return (
     <>
       <PageHeader title="Settings" />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="glass rounded-[22px] p-5">
-          <h2 className="m-0 text-base font-extrabold">Account</h2>
-          <p className="mb-4 mt-1 text-sm text-[var(--tl-muted)]">{state.status === "signedIn" ? state.user.email : ""}</p>
-          <div className="flex flex-wrap gap-2">
-            <ThemeToggle withLabel />
-            <Button variant="secondary" onClick={() => void signOut()}>
-              Sign out
-            </Button>
-          </div>
+      <div className="flex flex-col gap-3 lg:max-w-3xl">
+        <section aria-label="Account" className="glass flex items-center gap-3 rounded-[20px] p-3.5">
+          <span aria-hidden="true" className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-forest text-white">
+            <Icon name="people" size={24} />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-base font-extrabold">Your account</span>
+            <span className="block truncate text-[13px] text-[var(--tl-muted)]">{email}</span>
+          </span>
         </section>
-        <nav aria-label="More" className="glass rounded-[22px] p-2 lg:hidden">
-          {[
-            ["/reports", "Reports", "Month and year totals, by category, and the trend"],
-            ["/budgets", "Budgets", "Monthly limits and how this month is going"],
-            ["/recurring", "Recurring", "Rent, salary and subscriptions"],
-            ["/categories", "Categories", "Add, rename or archive categories"],
-          ].map(([to, label, hint]) => (
-            <Link key={to} to={to!} className="block rounded-[16px] px-3 py-3 hover:bg-[var(--tl-chip)]">
-              <span className="block text-[15px] font-bold">{label}</span>
-              <span className="block text-[13px] text-[var(--tl-muted)]">{hint}</span>
-            </Link>
-          ))}
+
+        <nav aria-label="More" className="lg:hidden">
+          <ListCard>
+            <ul className="m-0 flex list-none flex-col p-0">
+              {MORE.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className={rowClass}>
+                    <RowText icon={item.icon} label={item.label} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </ListCard>
         </nav>
-        <section className="glass rounded-[22px] p-5">
-          <h2 className="m-0 mb-4 text-base font-extrabold">Change password</h2>
-          <ChangePassword />
-        </section>
+
+        <ListCard label="Preferences">
+          <ul className="m-0 flex list-none flex-col p-0">
+            <li>
+              <button type="button" onClick={toggleTheme} className={rowClass} aria-label={`Theme: ${theme === "light" ? "Light" : "Dark"}. Switch to ${theme === "light" ? "dark" : "light"}`}>
+                <RowText icon={theme === "light" ? "sun" : "moon"} label="Theme" value={theme === "light" ? "Light" : "Dark"} />
+              </button>
+            </li>
+            <li>
+              <button type="button" aria-expanded={changing} onClick={() => setChanging((v) => !v)} className={rowClass}>
+                <RowText icon="lock" label="Change password" />
+              </button>
+            </li>
+            <li>
+              <button type="button" onClick={exportAll} className={rowClass}>
+                <RowText icon="download" label="Export to CSV" />
+              </button>
+            </li>
+            <li>
+              <a href="#devices" className={rowClass}>
+                <RowText icon="device" label="Signed-in devices" value={sessions.data ? String(sessions.data.length) : undefined} />
+              </a>
+            </li>
+            <li>
+              <button type="button" onClick={() => void signOut()} className={rowClass}>
+                <RowText icon="out" label="Sign out" danger />
+              </button>
+            </li>
+          </ul>
+        </ListCard>
+        <ErrorNote>{exportError}</ErrorNote>
+
+        {changing ? (
+          <section className="glass rounded-[20px] p-4" aria-labelledby="password-title">
+            <h2 id="password-title" className="m-0 mb-4 text-base font-extrabold">
+              Change password
+            </h2>
+            <ChangePassword />
+          </section>
+        ) : null}
         <Devices />
       </div>
     </>

@@ -43,7 +43,7 @@ export function SignInPage() {
   }
 
   return (
-    <AuthLayout title="Sign in" intro="Welcome back. Your wallets are waiting.">
+    <AuthLayout title="Welcome back" intro="Sign in to your TakaLeaf account.">
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         <TextField label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <PasswordField
@@ -53,11 +53,6 @@ export function SignInPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <div className="-mt-1 text-right text-sm">
-          <Link to="/forgot-password" className={linkClass}>
-            Forgot password?
-          </Link>
-        </div>
         {error ? (
           <ErrorNote>
             {error.message}
@@ -72,16 +67,18 @@ export function SignInPage() {
           </ErrorNote>
         ) : null}
         {notice ? <SuccessNote>{notice}</SuccessNote> : null}
-        <Button type="submit" disabled={busy || !email || !password}>
+        <Button type="submit" disabled={busy || !email || !password} className="mt-1 h-[54px] rounded-[18px] text-base font-extrabold">
           {busy ? "Signing in…" : "Sign in"}
         </Button>
       </form>
-      <p className="mb-0 mt-5 text-center text-sm text-[var(--tl-muted)]">
-        New to TakaLeaf?{" "}
-        <Link to="/register" className={linkClass}>
-          Create an account
+      <div className="mt-2 flex min-h-11 flex-wrap items-center justify-between gap-3 text-sm">
+        <Link to="/forgot-password" className={linkClass}>
+          Forgot password?
         </Link>
-      </p>
+        <Link to="/register" className={linkClass}>
+          Create account
+        </Link>
+      </div>
     </AuthLayout>
   );
 }

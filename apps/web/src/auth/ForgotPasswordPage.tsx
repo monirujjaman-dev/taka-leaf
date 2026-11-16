@@ -41,7 +41,7 @@ export function ForgotPasswordPage() {
             error={error?.field("email")}
           />
           {error && !error.field("email") ? <ErrorNote>{error.message}</ErrorNote> : null}
-          <Button type="submit" disabled={busy || !email}>
+          <Button type="submit" disabled={busy || !email} className="mt-1 h-[54px] rounded-[18px] text-base font-extrabold">
             {busy ? "Sending…" : "Send reset link"}
           </Button>
         </form>

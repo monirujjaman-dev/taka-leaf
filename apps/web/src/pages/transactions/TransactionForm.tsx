@@ -1,11 +1,14 @@
 import { formatBdt, parseTaka } from "@takaleaf/shared";
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { ApiError } from "../../api/client";
 import { useCategories, useDeleteTransaction, useSaveTransaction, useTransaction, useWallets } from "../../api/queries";
-import type { Transaction, TransactionInput, TransactionType } from "../../api/types";
+import type { Category, Transaction, TransactionInput, TransactionType } from "../../api/types";
 import { Button, focusRing } from "../../ui/Button";
 import { ErrorNote, Loading, messageOf } from "../../ui/Feedback";
-import { AmountField, SelectField, TextField } from "../../ui/Field";
+import { AmountField } from "../../ui/Field";
+import { Icon, type IconName } from "../../ui/Icon";
+import { Segmented } from "../../ui/Parts";
+import { useWide } from "../../ui/useWide";
 import { fromLocalInput, toAmountText, toLocalInput } from "../../ui/format";
 import { Modal } from "../../ui/Modal";
 import { CategoryOptions, pickableWallets, WalletOptions } from "./pickers";
@@ -24,7 +27,7 @@ export function TransactionForm({ id, onClose }: { id: string | null; onClose: (
 
   if (id && (existing.isPending || (parentId && parent.isPending))) {
     return (
-      <Modal title="Edit transaction" onClose={onClose}>
+      <Modal sheet title="Edit transaction" onClose={onClose}>
         <Loading />
       </Modal>
     );
@@ -33,7 +36,7 @@ export function TransactionForm({ id, onClose }: { id: string | null; onClose: (
   const error = existing.error ?? parent.error;
   if (error) {
     return (
-      <Modal title="Edit transaction" onClose={onClose}>
+      <Modal sheet title="Edit transaction" onClose={onClose}>
         <ErrorNote>{messageOf(error)}</ErrorNote>
       </Modal>
     );
@@ -58,6 +61,9 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
   const [fee, setFee] = useState(toAmountText(transaction?.fee));
   const [localError, setLocalError] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const amountId = useId();
+  const noteId = useId();
+  const wide = useWide();
 
   const kind = type === "Income" ? "Income" : "Expense";
   const categories = useCategories(kind, Boolean(transaction?.categoryId));
@@ -101,64 +107,119 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
   const generalError = apiError && Object.keys(apiError.fieldErrors).length === 0 ? apiError.message : null;
   const noWallets = wallets.isSuccess && all.length === 0;
 
+  const tone = type === "Expense" ? "text-expense dark:text-expense-dark" : type === "Income" ? "text-forest dark:text-income-dark" : "";
+  const quick = quickCategories(categories.data ?? []);
+  const press = (key: string) =>
+    setAmount((current) => {
+      if (key === "back") return current.slice(0, -1);
+      if (key === "." && current.includes(".")) return current;
+      const decimals = current.split(".")[1];
+      if (decimals !== undefined && decimals.length >= 2) return current;
+      return current === "0" && key !== "." ? key : `${current}${key}`;
+    });
+
   return (
-    <Modal title={title} onClose={onClose}>
+    <Modal sheet title={title} onClose={onClose}>
       {noWallets ? (
         <ErrorNote>Add a wallet first, like Cash or bKash, then record transactions in it.</ErrorNote>
       ) : (
-        <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-          <div role="radiogroup" aria-label="Type" className="grid grid-cols-3 gap-1 rounded-[16px] bg-[var(--tl-chip)] p-1">
-            {TYPES.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                role="radio"
-                aria-checked={type === option.value}
-                onClick={() => {
-                  setType(option.value);
-                  setCategory("");
-                }}
-                className={`h-10 cursor-pointer rounded-[12px] text-sm font-bold ${focusRing} ${
-                  type === option.value ? "bg-[var(--tl-surface)] text-[var(--tl-primary)] shadow-sm" : "text-[var(--tl-muted)]"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-
-          <AmountField
-            label="Amount (৳)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            error={errorFor("amount")}
-            className="text-lg font-bold"
+        <form onSubmit={submit} className="flex flex-col gap-3" noValidate>
+          <Segmented
+            label="Type"
+            options={TYPES}
+            value={type}
+            onChange={(value) => {
+              setType(value);
+              setCategory("");
+            }}
           />
 
-          <div className={`grid gap-4 ${type === "Transfer" ? "sm:grid-cols-2" : ""}`}>
-            {type !== "Income" ? (
-              <SelectField
-                label={type === "Transfer" ? "From" : "Paid from"}
-                value={fromWalletId}
-                onChange={(e) => setFrom(e.target.value)}
-                error={errorFor("fromWalletId")}
-              >
-                <option value="">Choose a wallet</option>
-                <WalletOptions wallets={all} />
-              </SelectField>
+          <div className="flex flex-col items-center py-1">
+            <label htmlFor={amountId} className="text-[13px] font-semibold text-[var(--tl-muted)]">
+              Amount (৳)
+            </label>
+            <div className={`flex items-baseline justify-center gap-1 ${tone}`}>
+              <span aria-hidden="true" className="text-[32px] font-extrabold">
+                ৳
+              </span>
+              <input
+                id={amountId}
+                data-autofocus
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                inputMode={wide ? "decimal" : "none"}
+                autoComplete="off"
+                placeholder="0"
+                aria-invalid={Boolean(errorFor("amount"))}
+                aria-describedby={errorFor("amount") ? `${amountId}-error` : undefined}
+                style={{ width: `${Math.max(amount.length, 1) * 0.62 + 0.4}em` }}
+                className="max-w-[80vw] bg-transparent text-center text-[48px] font-extrabold leading-tight tracking-[-1px] outline-none placeholder:text-current placeholder:opacity-40"
+              />
+            </div>
+            {errorFor("amount") ? (
+              <p id={`${amountId}-error`} className="m-0 text-center text-[13px] font-semibold text-expense dark:text-expense-dark">
+                {errorFor("amount")}
+              </p>
             ) : null}
-            {type !== "Expense" ? (
-              <SelectField
-                label={type === "Transfer" ? "To" : "Received in"}
-                value={toWalletId}
-                onChange={(e) => setTo(e.target.value)}
-                error={errorFor("toWalletId")}
-              >
-                <option value="">Choose a wallet</option>
-                <WalletOptions wallets={all} />
-              </SelectField>
-            ) : null}
+            <label htmlFor={noteId} className="sr-only">
+              Note (optional)
+            </label>
+            <input
+              id={noteId}
+              value={note}
+              maxLength={500}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note"
+              className={`glass mt-2 h-10 w-full max-w-72 rounded-[12px] px-3 text-center text-sm outline-none placeholder:text-[var(--tl-muted)] ${focusRing}`}
+            />
+            {errorFor("note") ? <p className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">{errorFor("note")}</p> : null}
           </div>
+
+          {type !== "Transfer" && quick.length > 0 ? (
+            <div role="group" aria-label="Quick categories" className="-mx-5 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none]">
+              {quick.map((c) => {
+                const on = c.id === categoryId;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setCategory(on ? "" : c.id)}
+                    className={`h-11 shrink-0 cursor-pointer rounded-[14px] border px-3.5 text-sm font-bold ${focusRing} ${
+                      on ? "border-forest bg-mint text-forest dark:border-sage dark:bg-sage/15 dark:text-sage" : "glass"
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+
+          {type !== "Income" ? (
+            <PickerRow
+              icon="wallet"
+              label={type === "Transfer" ? "From" : "Paid from"}
+              value={fromWalletId}
+              onChange={setFrom}
+              error={errorFor("fromWalletId")}
+            >
+              <option value="">Choose a wallet</option>
+              <WalletOptions wallets={all} />
+            </PickerRow>
+          ) : null}
+          {type !== "Expense" ? (
+            <PickerRow
+              icon="wallet"
+              label={type === "Transfer" ? "To" : "Received in"}
+              value={toWalletId}
+              onChange={setTo}
+              error={errorFor("toWalletId")}
+            >
+              <option value="">Choose a wallet</option>
+              <WalletOptions wallets={all} />
+            </PickerRow>
+          ) : null}
 
           {type === "Transfer" ? (
             <AmountField
@@ -169,53 +230,132 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
               hint="For example a bKash cash-out charge. It is saved as an expense under Fees and charges."
             />
           ) : (
-            <SelectField label="Category" value={categoryId} onChange={(e) => setCategory(e.target.value)} error={errorFor("categoryId")}>
+            <PickerRow icon="tag" label="Category" value={categoryId} onChange={setCategory} error={errorFor("categoryId")}>
               <option value="">No category</option>
               <CategoryOptions categories={categories.data ?? []} keep={transaction?.categoryId} />
-            </SelectField>
+            </PickerRow>
           )}
 
-          <TextField
-            label="When"
-            type="datetime-local"
-            value={occurredAt}
-            onChange={(e) => setOccurredAt(e.target.value)}
-            error={errorFor("occurredAt")}
-          />
-          <TextField label="Note (optional)" value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} error={errorFor("note")} />
+          <TimeRow value={occurredAt} onChange={setOccurredAt} error={errorFor("occurredAt")} />
+
+          <div className="grid grid-cols-3 gap-2 lg:hidden" role="group" aria-label="Number pad">
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "back"].map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => press(key)}
+                aria-label={key === "back" ? "Delete last digit" : key === "." ? "Decimal point" : undefined}
+                className={`glass grid h-12 cursor-pointer place-items-center rounded-[14px] text-xl font-bold ${focusRing}`}
+              >
+                {key === "back" ? <Icon name="backspace" size={22} /> : key}
+              </button>
+            ))}
+          </div>
 
           <ErrorNote>{generalError ?? messageOf(remove.error)}</ErrorNote>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-            {transaction ? (
-              confirmDelete ? (
-                <span className="flex items-center gap-2">
-                  <Button variant="danger" onClick={doDelete} disabled={remove.isPending}>
-                    {transaction.type === "Transfer" && transaction.fee ? `Delete with ${formatBdt(transaction.fee)} fee` : "Yes, delete"}
-                  </Button>
-                  <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
-                    Keep
-                  </Button>
-                </span>
-              ) : (
-                <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => setConfirmDelete(true)}>
-                  Delete
+          <Button type="submit" disabled={save.isPending} className="h-[52px] w-full rounded-[18px] text-base font-extrabold">
+            {save.isPending ? "Saving…" : transaction ? "Save changes" : `Save ${type.toLowerCase()}`}
+          </Button>
+
+          {transaction ? (
+            confirmDelete ? (
+              <span className="flex flex-wrap items-center justify-center gap-2">
+                <Button variant="danger" onClick={doDelete} disabled={remove.isPending}>
+                  {transaction.type === "Transfer" && transaction.fee ? `Delete with ${formatBdt(transaction.fee)} fee` : "Yes, delete"}
                 </Button>
-              )
+                <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+                  Keep
+                </Button>
+              </span>
             ) : (
-              <span />
-            )}
-            <span className="flex gap-2">
-              <Button variant="secondary" onClick={onClose}>
-                Cancel
+              <Button variant="ghost" className="self-center text-expense dark:text-expense-dark" onClick={() => setConfirmDelete(true)}>
+                Delete
               </Button>
-              <Button type="submit" disabled={save.isPending}>
-                {save.isPending ? "Saving…" : "Save"}
-              </Button>
-            </span>
-          </div>
+            )
+          ) : null}
         </form>
       )}
     </Modal>
+  );
+}
+
+/** Up to eight categories to pick with one tap: the subcategories first, then parents without any. */
+function quickCategories(categories: Category[]): { id: string; name: string }[] {
+  const leaves = categories.filter((c) => !c.archived).flatMap((p) => (p.children.length > 0 ? p.children.filter((c) => !c.archived) : [p]));
+  return leaves.slice(0, 8).map((c) => ({ id: c.id, name: c.name }));
+}
+
+/** A 52 px glass row: icon, label on the left, the chosen value on the right (a native select). */
+function PickerRow({
+  icon,
+  label,
+  value,
+  onChange,
+  error,
+  children,
+}: {
+  icon: IconName;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  children: ReactNode;
+}) {
+  const id = useId();
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="glass relative flex h-[52px] items-center gap-3 rounded-[16px] pl-3.5 pr-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--tl-primary)]">
+        <span aria-hidden="true" className="flex text-[var(--tl-primary)]">
+          <Icon name={icon} size={19} />
+        </span>
+        <label htmlFor={id} className="shrink-0 text-sm font-bold">
+          {label}
+        </label>
+        <select
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className="h-full min-w-0 flex-1 cursor-pointer appearance-none truncate bg-transparent pr-6 text-right text-sm font-semibold text-[var(--tl-muted)] outline-none"
+        >
+          {children}
+        </select>
+        <span aria-hidden="true" className="pointer-events-none absolute right-3 flex text-[var(--tl-muted)]">
+          <Icon name="right" size={18} />
+        </span>
+      </div>
+      {error ? (
+        <p id={`${id}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function TimeRow({ value, onChange, error }: { value: string; onChange: (value: string) => void; error?: string }) {
+  const id = useId();
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="glass flex h-[52px] items-center gap-3 rounded-[16px] px-3.5 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--tl-primary)]">
+        <span aria-hidden="true" className="flex text-[var(--tl-primary)]">
+          <Icon name="calendar" size={19} />
+        </span>
+        <label htmlFor={id} className="shrink-0 text-sm font-bold">
+          When
+        </label>
+        <input
+          id={id}
+          type="datetime-local"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-invalid={Boolean(error)}
+          className="h-full min-w-0 flex-1 bg-transparent text-right text-sm font-semibold text-[var(--tl-muted)] outline-none"
+        />
+      </div>
+      {error ? <p className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">{error}</p> : null}
+    </div>
   );
 }

@@ -14,7 +14,7 @@ TakaLeaf UI design canvas in claude.ai; the web app now follows them in code.
   legibility.
 - **Numbers first.** Amounts are the largest text on a card, in tabular figures, with Bangladeshi
   grouping (`৳1,25,000.00`). Income is green, expense is rust, transfers are neutral.
-- **One hand on a phone.** Main actions sit within thumb reach: bottom tabs and a floating add button.
+- **One hand on a phone.** Main actions sit within thumb reach: a bottom tab bar with the Add button in its centre, and a number pad in the add sheet.
 
 ## 2. Information architecture
 
@@ -28,41 +28,41 @@ TakaLeaf UI design canvas in claude.ai; the web app now follows them in code.
 | Budgets | `/budgets` | Monthly limits and progress |
 | Recurring | `/recurring` | Rent, salary, subscriptions; items waiting to be recorded |
 | Categories | `/categories` | Income and expense categories, two levels |
-| Settings | `/settings` | Account, theme, password, sign out (on phones also links to Reports, Budgets, Recurring, Categories) |
+| Settings | `/settings` | The **More** tab on phones: links to Wallets, People and loans, Budgets, Recurring, Categories; then theme, password, export, devices, sign out |
 | Sign-in flow | `/sign-in`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password` | Account access; email links land on the last two |
 
 ### Navigation
 
 | Width | Pattern |
 | --- | --- |
-| ≥ 1024 px | Fixed glass sidebar: logo, **Add transaction** button, nine sections, theme switch, email, sign out |
-| < 1024 px | Glass top bar (logo, theme) · bottom tab bar with five tabs: **Home, History, Wallets, People, More** · floating round **+** above the tab bar |
+| ≥ 1024 px | 240 px glass sidebar: logo, nine sections (active one solid forest), theme switch, sign out, "Connected to your server". Dashboard and Transactions headers carry **Add transaction** |
+| < 1024 px | No top bar; each screen has its own header (back button on screens under More) · floating tab bar: **Home, History, + (Add), Reports, More** |
 
-The **Add transaction** form is one sheet for the whole app, opened from the sidebar, the floating
-button, the dashboard and history. Rows in the history open in the place they can be changed: a
+The **Add transaction** form is one sheet for the whole app, opened from the tab bar, the page
+headers, the dashboard and history. Rows in the history open in the place they can be changed: a
 normal transaction in the form, a transfer fee on its transfer, and a loan on its person's page.
 
 ## 3. Screens
 
 | Screen | Contents | States |
 | --- | --- | --- |
-| Sign in | Email, password (show/hide), "Forgot password?", link to register | Wrong password, locked (minutes left), email not verified with "Send the link again" |
+| Sign in | "Welcome back"; forest brand panel ("Your Money. Your Control.") beside the card on desktop, a short band above it on phones; email, password (show/hide), "Forgot password?" and "Create account" | Wrong password, locked (minutes left), email not verified with "Send the link again" |
 | Create account | Email, password with the rule as a hint | Field errors beside fields; "Check your email" confirmation |
 | Verify email | Verifies once on open | Verifying, success, expired/used link |
 | Forgot / reset password | Email → same answer for any email; new password from the link | Link used or expired → "Get a new link" |
-| Dashboard | Month switcher; forest **Net balance** card (assets, owed); income and spent this month; people owe you / you owe (when non-zero); **Due to record** (Record/Skip); **Budgets** (up to four bars); **Recent** (five rows); **Where the money went** (category bars) | No wallets → "Start by adding your wallets"; empty month → zeros and "No spending this month" |
-| Transactions | **Export CSV** (the current filters, every matching row); search, From/To dates, (More filters on phones) wallet, type, category; Income / Expense / Entries totals; rows grouped by day (Today, Yesterday, Sat 14 Nov 2026); Newer/Older paging | "Nothing matches these filters" |
-| Add / edit transaction | Expense · Income · Transfer switch; amount; wallet(s); category (grouped, parent as "general"); fee on transfers; date and time; note; Delete with confirm | Checks before sending; server messages beside the field; "Add a wallet first" |
-| Wallets | Net / Assets / Owed tiles; cards grouped Cash, Mobile banking, Bank, Credit card; balance, credit left; "See transactions"; show archived | "No wallets yet" |
+| Dashboard | Phone header: logo, "Nov 2026 ▾", refresh. Forest **Net balance** card (assets, liabilities); 2 × 2 tiles: Income, Expense, Owed to me, I owe; **Due to record** (Record/Skip); **Wallets** (sideways strip on phones, list on desktop); **Recent** (five rows, "History" link); **Budgets** (up to four bars); **Spending by category** | No wallets → "Start by adding your wallets"; empty month → zeros and "No spending this month" |
+| Transactions | **Export CSV** (the current filters, every matching row); search with a filter button (From/To dates, and on phones wallet and category); phones: All · Expense · Income · Transfer switch, a "November 2026 · In · Out" card and day groups ("Today · 15 Nov" with the day total); desktop: month, wallet, category and type selects and a table; Newer/Older paging | "Nothing matches these filters" |
+| Add / edit transaction | Full screen on phones. Expense · Income · Transfer switch; big centred amount and "Add a note"; quick category chips; picker rows for wallet(s), category (grouped, parent as "general") and time; fee on transfers; number pad on phones; "Save expense"; Delete with confirm | Checks before sending; server messages beside the field; "Add a wallet first" |
+| Wallets | Assets / Liabilities tiles; list cards "Cash and bank", "MFS", "Credit card" (limit and credit left) with group totals; **Loans** (lent to others, borrowed, linking to People); show archived; "See its transactions" in the edit sheet | "No wallets yet" |
 | Add / edit wallet | Type (new only), name with MFS shortcuts, starting balance or "amount owed now" for cards, credit limit, leave out of net balance, archive, delete | Delete refused if used → archive instead |
-| People | Owe-you / you-owe totals; person cards with initial, note and standing | "Nobody here yet" |
+| People and loans | Owed to me / I owe tiles; All · Owed to me · I owe switch; rows with a forest initial, "Owes you · note", signed amount | "Nobody here yet" |
 | Person | Standing (Owes you / You owe / All settled); Lend · Got paid back · Borrow · Pay back; history | Repay buttons disabled when nothing is owed; "All of it" fills the amount owed |
 | Reports | Month · Year switch with month or year arrows (kept in the address); **Income and expense** bars with "Saved ৳X · Y% of income"; **Expense, last 6 months** (or by month for a year) with the chosen month highlighted; **Spending by category** and **Income by category**, each category opening to its sub-categories with links to the matching transactions; Budgets (month only) | "Nothing recorded in …" |
-| Budgets | Month switcher; cards with percent, bar, spent of limit, left or over; "Close to the limit" / "Over budget" labels | "No budgets yet" |
+| Budgets | Month button; forest month card (spent of total, white bar, left and days to go); rows with spent / limit, bar and "৳x left · 82%" or "Over by ৳x · 104%" | "No budgets yet" |
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |
 | Add / edit recurring | Type switch, amount, wallets, category, note, repeat every N unit, first and last date, record automatically, pause/resume, delete | |
-| Categories | Expense / Income tabs; parent cards with sub-category chips; add, add sub-category, rename, archive; in the edit sheet, merge into another category or delete (confirm in place) | Archived shown dimmed / struck through; a parent with sub-categories asks to sort those first |
-| Settings | Account email, theme, sign out; change password; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices); (phones) links to Reports, Budgets, Recurring, Categories | Success message after password change |
+| Categories | Expense · Income switch; one row per parent with its sub-categories listed underneath, opening to sub-category chips, "+ Sub-category" and "Edit"; rename, archive; in the edit sheet, merge into another category or delete (confirm in place) | Archived shown dimmed / struck through; a parent with sub-categories asks to sort those first |
+| Settings | Account card; (phones) links to Wallets, People and loans, Budgets, Recurring, Categories; rows for Theme, Change password, Export to CSV, Signed-in devices, Sign out; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices) | Success message after password change |
 
 Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the Android screens (number-pad entry, sync status, app lock).
 

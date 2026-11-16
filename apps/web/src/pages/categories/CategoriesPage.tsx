@@ -3,6 +3,8 @@ import { ApiError } from "../../api/client";
 import { useArchiveCategory, useCategories, useDeleteCategory, useMergeCategory, useSaveCategory } from "../../api/queries";
 import type { Category, CategoryKind } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
+import { Icon } from "../../ui/Icon";
+import { IconTile, iconButtonClass, ListCard, Segmented } from "../../ui/Parts";
 import { Button, focusRing } from "../../ui/Button";
 import { ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { SelectField, TextField } from "../../ui/Field";
@@ -132,79 +134,113 @@ function CategoryForm({ editing, all, onClose }: { editing: Editing; all: Catego
   );
 }
 
-const chip = `inline-flex h-11 cursor-pointer items-center rounded-full px-3.5 text-[13px] font-bold ${focusRing}`;
+const chip = `inline-flex h-11 cursor-pointer items-center rounded-[14px] px-3.5 text-[13px] font-bold ${focusRing}`;
 
 export function CategoriesPage() {
   const [kind, setKind] = useState<CategoryKind>("Expense");
   const categories = useCategories(kind, true);
   const [editing, setEditing] = useState<Editing | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const add = () => setEditing({ category: null, kind, parentId: null });
 
   return (
     <>
-      <PageHeader title="Categories">
-        <Button onClick={() => setEditing({ category: null, kind, parentId: null })}>Add a category</Button>
+      <PageHeader
+        title="Categories"
+        back="/settings"
+        phoneAction={
+          <button type="button" aria-label="Add a category" onClick={add} className={iconButtonClass}>
+            <Icon name="plus" size={20} />
+          </button>
+        }
+      >
+        <Button onClick={add}>
+          <Icon name="plus" size={18} /> Add a category
+        </Button>
       </PageHeader>
 
-      <div role="tablist" aria-label="Kind" className="mb-4 inline-flex gap-1 rounded-[16px] bg-[var(--tl-chip)] p-1">
-        {(["Expense", "Income"] as const).map((option) => (
-          <button
-            key={option}
-            role="tab"
-            type="button"
-            aria-selected={kind === option}
-            onClick={() => setKind(option)}
-            className={`h-10 cursor-pointer rounded-[12px] px-5 text-sm font-bold ${focusRing} ${
-              kind === option ? "bg-[var(--tl-surface)] text-[var(--tl-primary)] shadow-sm" : "text-[var(--tl-muted)]"
-            }`}
-          >
-            {option}
-          </button>
-        ))}
+      <div className="flex flex-col gap-3 lg:max-w-3xl">
+        <Segmented
+          label="Kind"
+          options={[
+            { value: "Expense", label: "Expense" },
+            { value: "Income", label: "Income" },
+          ]}
+          value={kind}
+          onChange={(value) => {
+            setKind(value);
+            setOpen(null);
+          }}
+        />
+
+        {categories.isPending ? <Loading /> : null}
+        {categories.error ? <ErrorNote>{messageOf(categories.error)}</ErrorNote> : null}
+
+        {(categories.data ?? []).length > 0 ? (
+          <ListCard>
+            <ul className="m-0 flex list-none flex-col p-0">
+              {(categories.data ?? []).map((parent) => {
+                const expanded = open === parent.id;
+                return (
+                  <li key={parent.id} className={parent.archived ? "opacity-60" : ""}>
+                    <button
+                      type="button"
+                      aria-expanded={expanded}
+                      onClick={() => setOpen(expanded ? null : parent.id)}
+                      className={`-mx-1.5 flex min-h-[62px] w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+                    >
+                      <IconTile icon="tag" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[15px] font-bold">
+                          {parent.name}
+                          {parent.archived ? <span className="ml-2 text-[12px] font-bold text-[var(--tl-muted)]">Archived</span> : null}
+                        </span>
+                        <span className="block truncate text-[12px] text-[var(--tl-muted)]">
+                          {parent.children.length > 0 ? parent.children.map((c) => c.name).join(", ") : "No sub-categories"}
+                        </span>
+                      </span>
+                      <span aria-hidden="true" className={`flex shrink-0 text-[var(--tl-muted)] transition ${expanded ? "rotate-90" : ""}`}>
+                        <Icon name="right" size={18} />
+                      </span>
+                    </button>
+                    {expanded ? (
+                      <div className="flex flex-wrap gap-2 pb-3 pl-[52px]">
+                        {parent.children.map((child) => (
+                          <button
+                            key={child.id}
+                            type="button"
+                            onClick={() => setEditing({ category: child, kind, parentId: parent.id })}
+                            className={`${chip} bg-[var(--tl-chip)] ${child.archived ? "line-through opacity-60" : ""}`}
+                          >
+                            {child.name}
+                          </button>
+                        ))}
+                        {!parent.archived ? (
+                          <button
+                            type="button"
+                            aria-label={`Add a sub-category to ${parent.name}`}
+                            onClick={() => setEditing({ category: null, kind, parentId: parent.id })}
+                            className={`${chip} glass text-[var(--tl-primary)]`}
+                          >
+                            + Sub-category
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ category: parent, kind, parentId: null })}
+                          className={`${chip} text-[var(--tl-primary)] hover:bg-[var(--tl-chip)]`}
+                        >
+                          Edit {parent.name}
+                        </button>
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </ListCard>
+        ) : null}
       </div>
-
-      {categories.isPending ? <Loading /> : null}
-      {categories.error ? <ErrorNote>{messageOf(categories.error)}</ErrorNote> : null}
-
-      <ul className="m-0 grid list-none gap-3 p-0 md:grid-cols-2">
-        {(categories.data ?? []).map((parent) => (
-          <li key={parent.id} className={`glass rounded-[20px] p-4 ${parent.archived ? "opacity-60" : ""}`}>
-            <div className="flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => setEditing({ category: parent, kind, parentId: null })}
-                className={`cursor-pointer rounded-[8px] text-left text-base font-extrabold hover:underline ${focusRing}`}
-              >
-                {parent.name}
-                {parent.archived ? <span className="ml-2 text-[12px] font-bold text-[var(--tl-muted)]">Archived</span> : null}
-              </button>
-              {!parent.archived ? (
-                <button
-                  type="button"
-                  aria-label={`Add a sub-category to ${parent.name}`}
-                  onClick={() => setEditing({ category: null, kind, parentId: parent.id })}
-                  className={`${chip} text-[var(--tl-primary)] hover:bg-[var(--tl-chip)]`}
-                >
-                  + Sub-category
-                </button>
-              ) : null}
-            </div>
-            {parent.children.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {parent.children.map((child) => (
-                  <button
-                    key={child.id}
-                    type="button"
-                    onClick={() => setEditing({ category: child, kind, parentId: parent.id })}
-                    className={`${chip} bg-[var(--tl-chip)] ${child.archived ? "line-through opacity-60" : ""}`}
-                  >
-                    {child.name}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </li>
-        ))}
-      </ul>
 
       {editing ? <CategoryForm editing={editing} all={categories.data ?? []} onClose={() => setEditing(null)} /> : null}
     </>

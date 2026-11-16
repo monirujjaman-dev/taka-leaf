@@ -1,7 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 
 export const inputClass =
-  "h-12 w-full rounded-[14px] border border-[var(--tl-glass-border)] bg-[var(--tl-surface)] px-3.5 text-[15px] text-[var(--tl-text)] outline-none transition placeholder:text-[var(--tl-muted)]/70 focus:border-[var(--tl-primary)] focus:ring-2 focus:ring-[var(--tl-primary)]/25 aria-[invalid=true]:border-expense dark:aria-[invalid=true]:border-expense-dark";
+  "h-[50px] w-full rounded-[16px] border border-[var(--tl-glass-border)] bg-[var(--tl-glass)] px-3.5 text-[15px] text-[var(--tl-text)] outline-none transition placeholder:text-[var(--tl-muted)]/70 focus:border-[var(--tl-primary)] focus:ring-2 focus:ring-[var(--tl-primary)]/25 aria-[invalid=true]:border-expense dark:aria-[invalid=true]:border-expense-dark";
 
 interface FieldShellProps {
   label: string;

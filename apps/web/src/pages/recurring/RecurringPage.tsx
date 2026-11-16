@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useRecurring } from "../../api/queries";
 import type { RecurringRule } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
+import { Icon } from "../../ui/Icon";
+import { iconButtonClass } from "../../ui/Parts";
 import { Button, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { dayLabel, scheduleLabel } from "../../ui/format";
@@ -25,10 +27,20 @@ export function RecurringPage() {
 
   return (
     <>
-      <PageHeader title="Recurring">
-        <Button onClick={() => setEditing("new")}>Add recurring</Button>
+      <PageHeader
+        title="Recurring"
+        back="/settings"
+        phoneAction={
+          <button type="button" aria-label="Add recurring" onClick={() => setEditing("new")} className={iconButtonClass}>
+            <Icon name="plus" size={20} />
+          </button>
+        }
+      >
+        <Button onClick={() => setEditing("new")}>
+          <Icon name="plus" size={18} /> Add recurring
+        </Button>
       </PageHeader>
-      <p className="-mt-3 mb-5 text-sm text-[var(--tl-muted)]">Rent, salary, subscriptions — anything that repeats.</p>
+      <p className="mb-3 mt-0 text-sm text-[var(--tl-muted)] lg:-mt-3 lg:mb-5">Rent, salary, subscriptions — anything that repeats.</p>
 
       {rules.isPending ? <Loading /> : null}
       {rules.error ? <ErrorNote>{messageOf(rules.error)}</ErrorNote> : null}

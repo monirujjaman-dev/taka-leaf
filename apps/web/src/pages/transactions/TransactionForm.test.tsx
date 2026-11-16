@@ -54,7 +54,7 @@ describe("transaction form", () => {
     await userEvent.selectOptions(within(dialog).getByLabelText("From"), "w-bkash");
     await userEvent.selectOptions(within(dialog).getByLabelText("To"), "w-cash");
     await userEvent.type(within(dialog).getByLabelText(/Fee/), "92.50");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Save" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: /^Save/ }));
 
     await vi.waitFor(() => expect(calls.some((c) => c.method === "POST" && c.path === "/transactions")).toBe(true));
     expect(calls.find((c) => c.method === "POST" && c.path === "/transactions")?.body).toMatchObject({
@@ -80,7 +80,7 @@ describe("transaction form", () => {
     const dialog = await openForm();
 
     await userEvent.type(within(dialog).getByLabelText("Amount (৳)"), "12.345");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Save" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: /^Save/ }));
 
     expect(await within(dialog).findByText(/Enter an amount above zero/)).toBeInTheDocument();
     expect(within(dialog).getByText("Choose the wallet the money left.")).toBeInTheDocument();
@@ -96,8 +96,33 @@ describe("transaction form", () => {
     await userEvent.type(within(dialog).getByLabelText("Amount (৳)"), "120");
     await userEvent.selectOptions(within(dialog).getByLabelText("Paid from"), "w-cash");
     await userEvent.selectOptions(within(dialog).getByLabelText("Category"), "c-tea");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Save" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: /^Save/ }));
 
     expect(await within(dialog).findByText("That category is archived.")).toBeInTheDocument();
+  });
+
+  it("takes the amount from the number pad and the category from a quick chip", async () => {
+    const { calls } = backend({ "POST /transactions": { status: 201, body: {} } });
+    const dialog = await openForm();
+    const pad = within(dialog).getByRole("group", { name: "Number pad" });
+
+    for (const key of ["1", "2", "5", "0", "Decimal point", "5", "0", "9"]) {
+      await userEvent.click(within(pad).getByRole("button", { name: key }));
+    }
+    await userEvent.click(within(pad).getByRole("button", { name: "Delete last digit" }));
+    expect(within(dialog).getByLabelText("Amount (৳)")).toHaveValue("1250.5");
+
+    await userEvent.click(within(dialog).getByRole("button", { name: "Snacks and tea" }));
+    expect(within(dialog).getByRole("button", { name: "Snacks and tea" })).toHaveAttribute("aria-pressed", "true");
+    await userEvent.selectOptions(within(dialog).getByLabelText("Paid from"), "w-cash");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Save expense" }));
+
+    await vi.waitFor(() => expect(calls.some((c) => c.method === "POST" && c.path === "/transactions")).toBe(true));
+    expect(calls.find((c) => c.method === "POST" && c.path === "/transactions")?.body).toMatchObject({
+      type: "Expense",
+      amount: 125050,
+      fromWalletId: "w-cash",
+      categoryId: "c-tea",
+    });
   });
 });

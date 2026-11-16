@@ -119,3 +119,21 @@ export function compactTaka(poisha: number): string {
 export function shortMonth(month: string): string {
   return new Intl.DateTimeFormat("en-GB", { month: "short", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
 }
+
+/** "5 Nov", with the year added when it is not this year. */
+export function shortDate(isoOrDay: string): string {
+  const day = isoOrDay.length === 10 ? isoOrDay : localDate(new Date(isoOrDay));
+  const sameYear = day.slice(0, 4) === localDate().slice(0, 4);
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", ...(sameYear ? {} : { year: "numeric" }), timeZone: "UTC" }).format(
+    new Date(`${day}T00:00:00Z`),
+  );
+}
+
+/** History day headings: "Today · 15 Nov", "Yesterday · 14 Nov", "Thu · 13 Nov". */
+export function dayHeading(day: string): string {
+  const relative = dayLabel(day);
+  const name = ["Today", "Yesterday", "Tomorrow"].includes(relative)
+    ? relative
+    : new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
+  return `${name} · ${shortDate(day)}`;
+}

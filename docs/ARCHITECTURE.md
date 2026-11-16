@@ -173,10 +173,10 @@ has ready-made requests.
 ```
 src/api/        client.ts (fetch + silent refresh), queries.ts (TanStack Query hooks), types.ts
 src/auth/       AuthContext, sign-in / register / verify / forgot / reset pages
-src/layout/     AppShell (sidebar on desktop; top bar, bottom tabs, add button on phones),
+src/layout/     AppShell (240 px sidebar on desktop; tab bar with a centre Add on phones), PageHeader,
                 TransactionSheet (one transaction form for the whole app)
 src/pages/      dashboard, transactions, wallets, people, reports, budgets, recurring, categories, settings
-src/ui/         Button, Field, Modal, Feedback, Icon, format.ts (dates in Asia/Dhaka, amounts)
+src/ui/         Button, Field, Modal, Feedback, Icon, Parts (tiles, list cards, segmented), MonthPicker, format.ts (dates in Asia/Dhaka, amounts)
 src/test/       fakeApi (fetch stand-in), renderApp
 ```
 

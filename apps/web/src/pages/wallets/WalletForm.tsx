@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { formatBdt, parseTaka } from "@takaleaf/shared";
 import { useState, type FormEvent } from "react";
 import { ApiError } from "../../api/client";
@@ -62,6 +63,11 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
   return (
     <Modal title={wallet ? `Edit ${wallet.name}` : "Add a wallet"} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+        {wallet ? (
+          <Link to={`/transactions?walletId=${wallet.id}&from=2000-01-01`} className="self-start text-[13px] font-bold text-[var(--tl-primary)]">
+            See its transactions
+          </Link>
+        ) : null}
         {wallet ? (
           <p className="m-0 text-sm text-[var(--tl-muted)]">
             {WALLET_TYPE_LABEL[wallet.type]} · balance now {formatBdt(wallet.balance)}

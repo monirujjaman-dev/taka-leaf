@@ -13,7 +13,7 @@ test.describe("everyday money, in a real browser", () => {
     let dialog = page.getByRole("dialog", { name: "Add a wallet" });
     await dialog.getByLabel("Name").fill("Cash");
     await dialog.getByLabel(/Balance when you start tracking/).fill("10,000");
-    await dialog.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: /^Save/ }).click();
     await expect(dialog).toBeHidden();
 
     await page.getByRole("button", { name: "Add a wallet" }).click();
@@ -21,26 +21,28 @@ test.describe("everyday money, in a real browser", () => {
     await dialog.getByLabel("Type").selectOption({ label: "Mobile banking" });
     await dialog.getByRole("button", { name: "bKash" }).click();
     await dialog.getByLabel(/Balance when you start tracking/).fill("5000");
-    await dialog.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: /^Save/ }).click();
     await expect(dialog).toBeHidden();
 
-    await page.getByRole("complementary").getByRole("button", { name: /Add transaction/ }).click();
+    // On wide screens the add button sits in the Dashboard and Transactions headers.
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Dashboard" }).click();
+    await page.getByRole("main").getByRole("button", { name: "Add transaction" }).click();
     dialog = page.getByRole("dialog", { name: "Add transaction" });
     await dialog.getByLabel("Amount (৳)").fill("1250");
     await dialog.getByLabel("Paid from").selectOption({ label: "Cash" });
     await dialog.getByLabel("Category").selectOption({ label: "Daily bazaar" });
     await dialog.getByLabel("Note (optional)").fill("Weekly bazaar");
-    await dialog.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: /^Save/ }).click();
     await expect(dialog).toBeHidden();
 
-    await page.getByRole("complementary").getByRole("button", { name: /Add transaction/ }).click();
+    await page.getByRole("main").getByRole("button", { name: "Add transaction" }).click();
     dialog = page.getByRole("dialog", { name: "Add transaction" });
     await dialog.getByRole("radio", { name: "Transfer" }).click();
     await dialog.getByLabel("Amount (৳)").fill("2000");
     await dialog.getByLabel("From", { exact: true }).selectOption({ label: "bKash" });
     await dialog.getByLabel("To", { exact: true }).selectOption({ label: "Cash" });
     await dialog.getByLabel(/Fee/).fill("18.50");
-    await dialog.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: /^Save/ }).click();
     await expect(dialog).toBeHidden();
 
     await page.getByRole("link", { name: "Dashboard" }).first().click();

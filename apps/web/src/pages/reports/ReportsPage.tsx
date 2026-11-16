@@ -4,12 +4,13 @@ import { Link, useSearchParams } from "react-router";
 import { useBudgets, useReport } from "../../api/queries";
 import type { CategoryTotal, Report, ReportPeriod } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
+import { Segmented } from "../../ui/Parts";
 import { focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { compactTaka, localMonth, monthLabel, shortMonth } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetsPage";
-import { MonthSwitcher } from "../dashboard/DashboardPage";
+import { MonthPicker } from "../../ui/MonthPicker";
 
 function YearSwitcher({ year, onChange }: { year: number; onChange: (year: number) => void }) {
   const current = Number(localMonth().slice(0, 4));
@@ -215,24 +216,18 @@ export function ReportsPage() {
   return (
     <>
       <PageHeader title="Reports">
-        <div role="radiogroup" aria-label="Period" className="grid grid-cols-2 gap-1 rounded-[14px] bg-[var(--tl-chip)] p-1">
-          {(["Month", "Year"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              role="radio"
-              aria-checked={period === option}
-              onClick={() => set({ period: option })}
-              className={`h-10 cursor-pointer rounded-[10px] px-4 text-sm font-bold ${focusRing} ${
-                period === option ? "bg-forest text-white dark:bg-sage dark:text-ink" : "text-[var(--tl-muted)]"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label="Period"
+          className="w-44"
+          options={[
+            { value: "Month", label: "Month" },
+            { value: "Year", label: "Year" },
+          ]}
+          value={period}
+          onChange={(option) => set({ period: option })}
+        />
         {period === "Month" ? (
-          <MonthSwitcher month={month} onChange={(m) => set({ month: m })} />
+          <MonthPicker month={month} onChange={(m) => set({ month: m })} />
         ) : (
           <YearSwitcher year={year} onChange={(y) => set({ year: String(y) })} />
         )}

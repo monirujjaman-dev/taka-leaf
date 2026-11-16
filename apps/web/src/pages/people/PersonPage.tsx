@@ -6,6 +6,7 @@ import type { Loan, LoanKind } from "../../api/types";
 import { Button, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
+import { iconButtonClass } from "../../ui/Parts";
 import { dayLabel, localDate, timeLabel } from "../../ui/format";
 import { LOAN_LABEL, LoanForm } from "./LoanForm";
 import { Standing } from "./PeoplePage";
@@ -36,13 +37,16 @@ export function PersonPage() {
 
   return (
     <>
-      <Link to="/people" className="mb-3 inline-flex items-center gap-1 text-sm font-bold text-[var(--tl-primary)]">
-        <Icon name="left" size={16} /> People
-      </Link>
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="m-0 truncate text-[26px] font-extrabold tracking-tight">{person.name}</h1>
-          {person.note ? <p className="m-0 mt-1 text-sm text-[var(--tl-muted)]">{person.note}</p> : null}
+      <div className="mb-3 flex min-h-14 items-center gap-3 lg:mb-5">
+        <Link to="/people" aria-label="Back to people" className={iconButtonClass}>
+          <Icon name="left" size={20} />
+        </Link>
+        <span aria-hidden="true" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-forest text-base font-extrabold text-white">
+          {person.name.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h1 className="m-0 truncate text-xl font-extrabold tracking-tight lg:text-[26px]">{person.name}</h1>
+          {person.note ? <p className="m-0 truncate text-[13px] text-[var(--tl-muted)]">{person.note}</p> : null}
         </div>
         <Button variant="secondary" onClick={() => setEditing(true)}>
           Edit
