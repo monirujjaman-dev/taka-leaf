@@ -9,7 +9,7 @@ namespace TakaLeaf.App.Features.Transactions;
 /// <summary>
 /// GET /api/transactions - history, newest first, a page at a time. Filters: from and to (local
 /// dates, both included), walletId, categoryId (a top-level category includes its sub-categories),
-/// type, and search (words in the note). Totals cover every matching row, not only this page;
+/// uncategorised (only rows with no category), type, and search (words in the note). Totals cover every matching row, not only this page;
 /// transfers are neither income nor expense.
 /// </summary>
 public static class ListTransactions
@@ -33,6 +33,7 @@ public static class ListTransactions
         DateOnly? to,
         Guid? walletId,
         Guid? categoryId,
+        bool? uncategorised,
         TransactionType? type,
         string? search,
         int? page,
@@ -69,6 +70,11 @@ public static class ListTransactions
                 .Select(c => c.Id)
                 .ToListAsync(cancellationToken);
             query = query.Where(t => t.CategoryId != null && ids.Contains(t.CategoryId.Value));
+        }
+
+        if (uncategorised == true)
+        {
+            query = query.Where(t => t.CategoryId == null);
         }
 
         if (type is { } onlyType)

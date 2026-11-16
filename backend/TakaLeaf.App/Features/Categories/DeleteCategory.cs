@@ -45,7 +45,23 @@ public static class DeleteCategory
                 statusCode: StatusCodes.Status409Conflict);
         }
 
-        category.DeletedAt = clock.GetUtcNow();
+        if (await db.RecurringRules.AnyAsync(r => r.UserId == userId && r.CategoryId == id, cancellationToken))
+        {
+            return Results.Problem(
+                title: "A recurring transaction uses this category. Change or delete it first.",
+                statusCode: StatusCodes.Status409Conflict);
+        }
+
+        var now = clock.GetUtcNow();
+        category.DeletedAt = now;
+
+        // Its budget has nothing left to measure.
+        var budget = await db.Budgets.FirstOrDefaultAsync(b => b.UserId == userId && b.CategoryId == id, cancellationToken);
+        if (budget is not null)
+        {
+            budget.DeletedAt = now;
+        }
+
         await db.SaveChangesAsync(cancellationToken);
         return Results.NoContent();
     }

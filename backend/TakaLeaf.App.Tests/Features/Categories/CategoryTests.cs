@@ -4,6 +4,7 @@ using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Tests.Data;
 using TakaLeaf.App.Tests.Features.Auth;
+using TakaLeaf.App.Tests.Features.Transactions;
 using TakaLeaf.App.Tests.Features.Wallets;
 using TakaLeaf.App.Tests.Support;
 
@@ -175,4 +176,36 @@ public class CategoryTests(DatabaseFixture fixture)
         Assert.Equal(HttpStatusCode.NotFound,
             (await stranger.PostAsJsonAsync($"/api/categories/{housing.Id}/merge", new { intoCategoryId = theirs.Id })).StatusCode);
     }
+
+    [Fact]
+    public async Task Merging_moves_recurring_rules_and_the_budget_and_delete_respects_them()
+    {
+        var (client, _) = await auth.SignedInClient();
+        var cash = await WalletTests.Create(client, new { type = "Cash", name = "Cash" });
+        var bus = await TransactionTests.Category(client, "Expense", "Transport", "Bus fare");
+        var cng = await TransactionTests.Category(client, "Expense", "Transport", "Rickshaw and CNG");
+        var fuel = await TransactionTests.Category(client, "Expense", "Transport", "Fuel");
+        var rule = await client.PostAsJsonAsync("/api/recurring", new { type = "Expense", amount = 100, fromWalletId = cash.Id, categoryId = bus, frequency = "Monthly", startDate = "2027-01-01" });
+        var ruleId = (await rule.Content.ReadFromJsonAsync<IdResult>())!.Id;
+        await client.PostAsJsonAsync("/api/budgets", new { categoryId = bus, amount = 5000 });
+        await client.PostAsJsonAsync("/api/budgets", new { categoryId = fuel, amount = 9000 });
+
+        Assert.Equal(HttpStatusCode.Conflict, (await client.DeleteAsync($"/api/categories/{bus}")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync($"/api/categories/{bus}/merge", new { intoCategoryId = cng })).StatusCode);
+
+        Assert.Equal(cng, (await client.GetFromJsonAsync<RuleResult>($"/api/recurring/{ruleId}"))!.CategoryId);
+        var budgets = (await client.GetFromJsonAsync<BudgetList>("/api/budgets"))!.Budgets;
+        Assert.Contains(budgets, b => b.CategoryId == cng && b.Amount == 5000);
+
+        Assert.Equal(HttpStatusCode.NoContent, (await client.DeleteAsync($"/api/categories/{fuel}")).StatusCode);
+        Assert.DoesNotContain((await client.GetFromJsonAsync<BudgetList>("/api/budgets"))!.Budgets, b => b.CategoryId == fuel);
+    }
+
+    private sealed record IdResult(Guid Id);
+
+    private sealed record RuleResult(Guid Id, Guid? CategoryId);
+
+    private sealed record BudgetItem(Guid? CategoryId, long Amount);
+
+    private sealed record BudgetList(List<BudgetItem> Budgets);
 }
