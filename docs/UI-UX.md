@@ -125,7 +125,15 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 
 The same areas and flows, with Android in mind: bottom tabs, a number-pad amount entry that keeps
 an expense to four taps plus the amount, a sync status line (last sync, changes waiting, rejected
-changes), a Sync button, app lock with PIN or fingerprint, and a daily reminder. Glass blur is
+changes), a Sync button, app lock with PIN or fingerprint, and a daily reminder.
+
+- **Expense in four taps**: + → amount on the pad → a quick category chip → Save. The wallet is the
+  last one used; the time is now.
+- **Forms are full screens** with the main button pinned at the bottom; Delete confirms in place.
+- **Pickers open in place** (a row that expands into the choices), never a separate screen.
+- **Sync line** on Home and More: "Synced 2 min ago · 3 changes waiting", or the problem in words.
+- **More → Sync** lists changes the server did not accept, with its reason.
+- **Lock screen**: the leaf, "Enter your PIN", 4–6 dots, a 64 dp keypad with fingerprint and delete. Glass blur is
 used on few surfaces, with a plain translucent fallback on slower phones.
 
 ## 9. Loading

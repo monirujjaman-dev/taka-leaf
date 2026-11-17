@@ -17,7 +17,7 @@ current.
 | M3 Full features | People and loans, budgets, recurring, reports, category merge and delete | 8 days | ✅ | #7, #8, #12 |
 | M4 Hardening | Deploy setup, security headers, CSV export, devices, closing registration, performance, accessibility, browser tests, dependency scan | 5 days | ✅ | #9, #13, #14 |
 | M5 Release v1 | Running on the VPS with Dokploy, backups proven, a week of real use | 4 days | ⬜ | |
-| A1–A4 | Android setup, offline, sync, finish and ship (version 2) | 32 days | 🟡 A1 | see §3 |
+| A1–A4 | Android setup, offline, sync, finish and ship (version 2) | 32 days | 🟡 A4 signing left | see §3 |
 
 The estimates are rough and assume one full-time developer: about 37 working days for version 1
 and 32 for version 2.
@@ -97,9 +97,9 @@ use of version 1 can still shape the later Android screens. The app lives in `ap
 | Milestone | Estimate | Status | Pull requests |
 | --- | --- | --- | --- |
 | A1 Android setup | 3 days | 🟡 code done; waiting for the two experiments on the owner's phone | |
-| A2 Offline | 10 days | ⬜ | |
-| A3 Sync | 8 days | ⬜ | |
-| A4 Finish and ship | 11 days | ⬜ | |
+| A2 Offline | 10 days | ✅ | #29 |
+| A3 Sync | 8 days | ✅ server; phone in #29 | #28, #29 |
+| A4 Finish and ship | 11 days | 🟡 screens, lock, reminder done; release key and manual checks left | #29 |
 
 ### A1 — Android setup 🟡
 
@@ -115,31 +115,32 @@ use of version 1 can still shape the later Android screens. The app lives in `ap
 - [ ] **Owner, on the phone**: notes survive closing the app (experiment 1)
 - [ ] **Owner, on the phone**: "background" rows appear after an hour with the app closed (experiment 2)
 
-### A2 — Offline ⬜
+### A2 — Offline ✅
 
-- [ ] Phone schema mirroring the server: wallets, categories, transactions, people, budgets, recurring rules (Guid v7 ids made on the phone, `updated_at`, `deleted_at`); `outbox` and `sync_state`
-- [ ] Money rules shared with the server through `contract/fixtures/` (balances calculated, never stored; poisha integers)
-- [ ] Sign in, register (name, email, password; name checked with `checkName` from `@takaleaf/shared`), forgot password against the user's server address; refresh token in expo-secure-store (`client: "mobile"`)
-- [ ] Settings account card with the name and email; change the name with `PUT /api/auth/me`
-- [ ] First full download of the account into SQLite (uses the current read endpoints until A3)
-- [ ] Bottom tabs as on the web design: Home, History, centre Add, Reports, More
-- [ ] Dashboard, history, wallets and categories reading live from SQLite
-- [ ] Add/edit/delete transaction with the number pad and quick categories; each save writes the row and its outbox entry in one SQLite transaction
+- [x] Phone schema mirroring the server: wallets, categories, transactions, people, budgets, recurring rules (Guid v7 ids made on the phone, `updated_at`, `deleted_at`); `outbox` and `sync_state`
+- [x] Money rules shared with the server through `contract/fixtures/` (balances calculated, never stored; poisha integers)
+- [x] Sign in, register (name, email, password; name checked with `checkName` from `@takaleaf/shared`), forgot password against the user's server address; refresh token in expo-secure-store (`client: "mobile"`)
+- [x] Settings account card with the name and email; change the name with `PUT /api/auth/me`
+- [x] First full download of the account into SQLite (a sync pull from cursor 0)
+- [x] Bottom tabs as on the web design: Home, History, centre Add, Reports, More
+- [x] Dashboard, history, wallets and categories reading live from SQLite
+- [x] Add/edit/delete transaction with the number pad and quick categories; each save writes the row and its outbox entry in one SQLite transaction
 - [ ] Done when: in airplane mode, add, edit and delete give correct balances; an expense takes four taps plus the amount
 
-### A3 — Sync ⬜
+### A3 — Sync ✅
 
-- [ ] `POST /api/sync/push`: outbox batches, idempotent by mutation id, each change accepted or rejected with a reason, one database transaction per batch
-- [ ] `GET /api/sync/pull?cursor=`: every row changed after the cursor (`ServerSeq`), deletions included, paged
-- [ ] Later edit wins (server receive time when the phone's clock is off); deleted rows kept 90 days
-- [ ] Triggers: app open / to the front, a few seconds after a save, internet returns (NetInfo), background task, Sync button; backoff on failure
-- [ ] Sync status on the dashboard and in Settings (last synced, changes waiting, rejected changes explained)
-- [ ] Done when: S-1 to S-12 automated, S-13 and S-17 by hand, X-3
+- [x] `POST /api/sync/push`: outbox batches, idempotent by mutation id, each change accepted or rejected with a reason, one database transaction per batch
+- [x] `GET /api/sync/pull?cursor=`: every row changed after the cursor (`ServerSeq`), deletions included, paged
+- [x] Later edit wins (server receive time when the phone's clock is off); deleted rows kept 90 days
+- [x] Triggers: app open / to the front, a few seconds after a save, internet returns (NetInfo), background task, Sync button; backoff on failure
+- [x] Sync status on the dashboard and in Settings (last synced, changes waiting, rejected changes explained)
+- [x] S-1 to S-12, S-15, S-16 and X-3 automated (server: SyncTests; phone: sync engine tests)
+- [ ] **Owner, on the phone**: S-13 (background sync with the app closed) and S-17 (Sync button online and offline)
 
-### A4 — Finish and ship ⬜
+### A4 — Finish and ship 🟡
 
-- [ ] People and loans, budgets, recurring (due list), reports, categories, settings on Android
-- [ ] App lock with PIN and fingerprint (expo-local-authentication); daily reminder (expo-notifications)
+- [x] People and loans, budgets, recurring (due list), reports, categories, settings on Android
+- [x] App lock with PIN and fingerprint (expo-local-authentication; five wrong PINs sign out); daily reminder (expo-notifications)
 - [ ] Performance with 50,000 transactions; TalkBack labels, 48 dp targets, font scaling
 - [ ] Release signing key (owner keeps it), version code, signed APK from CI
 - [ ] Done when: remaining acceptance criteria, S-14 to S-16, X-10

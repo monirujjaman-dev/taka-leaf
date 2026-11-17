@@ -26,6 +26,8 @@
       "expo-background-task",
       "expo-secure-store",
       "expo-status-bar",
+      "expo-notifications",
+      "expo-local-authentication",
       [
         "expo-splash-screen",
         {
@@ -48,7 +50,7 @@
       ]
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": false
     },
     "extra": {
       "defaultServerUrl": "https://takaleaf.monirujjaman.dev"

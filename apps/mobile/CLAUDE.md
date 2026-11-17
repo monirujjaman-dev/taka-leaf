@@ -4,8 +4,11 @@
   and the A1–A4 lists in `docs/DEVELOPMENT-PLAN.md` before changing behaviour.
 - Install native libraries with `EXPO_OFFLINE=1 npx expo install <pkg>` (the Expo version service is
   not reachable from Claude sessions; offline mode uses the versions bundled with the SDK).
-- The phone never waits for the network: every write goes to SQLite first (and, from A2, to the outbox
-  in the same transaction).
+- The phone never waits for the network: every write goes through `put`/`remove` in `src/data/write.ts`
+  inside `db.transaction`, which saves the row and its outbox entry together. Domain rules live in
+  `src/data/*` (same messages as the server); screens only call them and show `FieldError`s.
+- Screens read with `useData(() => query(db, …), deps)`; it re-runs on every database change.
+- Sync: `src/sync/engine.ts` (pure, tested with a fake server); triggers in `src/state/AppState.tsx`.
 - Database: change `src/db/schema.ts`, then `pnpm --filter @takaleaf/mobile db:generate` (drizzle-kit
   writes `drizzle/`). Never edit generated migrations. Queries go in store files that take `AppDb`, so
   they are tested in Node with `openTestDb()` (sql.js, same migrations).
