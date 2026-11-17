@@ -141,7 +141,7 @@ jobs:
             --model ${{ vars.CLAUDE_FIX_MODEL || 'opus' }}
             --max-turns 120
             --permission-mode acceptEdits
-            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(jq:*),Bash(ls:*),Bash(cat:*),Bash(shellcheck:*),Bash(bash -n:*),Bash(actionlint:*),Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh run view:*),Bash(gh run list:*),Bash(gh api:*)"
+            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(jq:*),Bash(ls:*),Bash(cat:*),Bash(shellcheck:*),Bash(bash -n:*),Bash(actionlint:*),Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(cd:*),Bash(git fetch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh run view:*),Bash(gh run list:*),Bash(gh api:*)"
 
       # Without a push nothing runs again, so say so instead of going quiet.
       - name: Report when nothing was pushed
