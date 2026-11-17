@@ -208,6 +208,11 @@
       "description": "Shortcuts and sub-categories.",
       "html": "<button class=\"ds-chip\">bKash</button>",
       "css": ".ds-chip{font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif;font-variant-numeric:tabular-nums;height:44px;padding:0 14px;border:0;border-radius:14px;background:#E7F5EC;color:#0F7A44;font-size:13px;font-weight:700;cursor:pointer}"
+    },
+    {
+      "name": "Loader",
+      "description": "Option A \"Leaf assembly\": the four pieces of the leaf mark float apart in an isometric view, then turn face-on and lock together (3.2 s cycle) over a shadow that tightens; 150 px at start-up, 44 px in pages; assembled and fading with reduced motion.",
+      "css": ".ds-loader{perspective:900px;display:flex;flex-direction:column;align-items:center;font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif}.ds-loader-scene{position:relative;width:150px;height:150px;transform-style:preserve-3d;animation:ds-turn 3.2s cubic-bezier(.65,0,.35,1) infinite}.ds-loader-piece{position:absolute;inset:0;animation:ds-fly 3.2s cubic-bezier(.65,0,.35,1) infinite}@keyframes ds-turn{0%,18%,100%{transform:rotateX(58deg) rotateZ(-38deg)}50%,84%{transform:none}}@keyframes ds-fly{0%,18%,100%{transform:translate3d(var(--x),var(--y),var(--z))}50%,84%{transform:none}}@media (prefers-reduced-motion:reduce){.ds-loader-scene,.ds-loader-piece{animation:none;transform:none}}"
     }
   ],
   "narrative": {

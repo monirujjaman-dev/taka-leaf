@@ -1,3 +1,4 @@
+import { AppLoader } from "../ui/AppLoader";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 import { useAuth } from "../auth/AuthContext";
 import { ForgotPasswordPage } from "../auth/ForgotPasswordPage";
@@ -16,12 +17,11 @@ import { ReportsPage } from "../pages/reports/ReportsPage";
 import { SettingsPage } from "../pages/settings/SettingsPage";
 import { TransactionsPage } from "../pages/transactions/TransactionsPage";
 import { WalletsPage } from "../pages/wallets/WalletsPage";
-import { Loading } from "../ui/Feedback";
 
 function Starting() {
   return (
     <div className="grid min-h-screen place-items-center">
-      <Loading label="Opening TakaLeaf…" />
+      <AppLoader label="Opening TakaLeaf…" bar />
     </div>
   );
 }

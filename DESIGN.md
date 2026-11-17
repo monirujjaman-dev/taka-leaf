@@ -288,6 +288,15 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 - **Empty state**: centred bold title, one muted sentence, and at most one primary action.
 - **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house
   (`ui/Icon.tsx`).
+- **Loader** (design option A, "Leaf assembly"): the four pieces of the leaf mark float apart in an
+  isometric view (scene rotateX 58°, rotateZ −38°, each piece lifted 40–150 px and shifted a
+  little), then turn face-on and lock together, hold, and drift apart again: one 3.2 s cycle (ease
+  0.65, 0, 0.35, 1; apart until 18%, together 50–84%). A soft shadow tightens and darkens as the
+  pieces meet. 150 px with "Opening TakaLeaf…" and a sliding 120 × 4 px bar while the app starts
+  (also drawn by `index.html` before the script loads); 44 px with a muted line inside pages. With
+  reduced motion the mark stays assembled and only fades between 55% and 100%. Geometry, colours
+  and timing: `LEAF_PATHS`, `LEAF_COLORS`, `LOADER_MOTION` in `packages/shared`. Android turns each
+  lift into the in-plane shift that looks the same, since React Native has no 3D layering.
 - **Email**: a 600 px column on mint; the leaf mark (40 px PNG) and a live-text "TakaLeaf" wordmark
   above a white card (radius 20, 1 px line border, padding 40, 24 px on phones where the card goes
   edge to edge). Inside: a 24px/800 title, "Hi {name}," (or "Hello,"), 15px/24px body, one forest
