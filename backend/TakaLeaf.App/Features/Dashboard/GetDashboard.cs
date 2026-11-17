@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Transactions;
@@ -43,6 +44,7 @@ public static class GetDashboard
         ClaimsPrincipal principal,
         AppDbContext db,
         LocalCalendar calendar,
+        UserDataCache cache,
         CancellationToken cancellationToken)
     {
         DateOnly first;
@@ -57,6 +59,16 @@ public static class GetDashboard
         }
 
         var userId = principal.UserId();
+        var dashboard = await cache.GetOrCreateAsync(
+            userId,
+            $"dashboard:{first.ToString("yyyy-MM", CultureInfo.InvariantCulture)}",
+            ct => LoadAsync(db, calendar, userId, first, ct),
+            cancellationToken);
+        return Results.Ok(dashboard);
+    }
+
+    private static async ValueTask<DashboardDto> LoadAsync(AppDbContext db, LocalCalendar calendar, Guid userId, DateOnly first, CancellationToken cancellationToken)
+    {
         var start = calendar.StartOf(first);
         var end = calendar.StartOf(first.AddMonths(1));
 
@@ -88,7 +100,7 @@ public static class GetDashboard
             .ToListAsync(cancellationToken);
         var recent = await TransactionRules.ToDtosAsync(db, userId, recentRows, cancellationToken);
 
-        return Results.Ok(new DashboardDto(
+        return new DashboardDto(
             first.ToString("yyyy-MM", CultureInfo.InvariantCulture),
             summary.Net,
             summary.Assets,
@@ -98,7 +110,7 @@ public static class GetDashboard
             summary.OwedToMe,
             summary.IOwe,
             spending,
-            recent));
+            recent);
     }
 
     /// <summary>Spending is shown per top-level category: a sub-category counts toward its parent.</summary>

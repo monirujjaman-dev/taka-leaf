@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 
@@ -23,6 +24,7 @@ public static class GetCategories
         bool? includeArchived,
         ClaimsPrincipal principal,
         AppDbContext db,
+        UserDataCache cache,
         CancellationToken cancellationToken)
     {
         var userId = principal.UserId();
@@ -30,26 +32,34 @@ public static class GetCategories
         // Accounts made before starter categories existed get them on first look.
         await StarterCategories.EnsureAsync(db, userId, cancellationToken);
 
+        var tree = await cache.GetOrCreateAsync(
+            userId,
+            $"categories:{kind?.ToString() ?? "all"}:{includeArchived == true}",
+            ct => LoadAsync(db, userId, kind, includeArchived == true, ct),
+            cancellationToken);
+        return Results.Ok(tree);
+    }
+
+    private static async ValueTask<List<CategoryDto>> LoadAsync(AppDbContext db, Guid userId, CategoryKind? kind, bool includeArchived, CancellationToken cancellationToken)
+    {
         var query = db.Categories.Where(c => c.UserId == userId);
         if (kind is { } onlyKind)
         {
             query = query.Where(c => c.Kind == onlyKind);
         }
 
-        if (includeArchived != true)
+        if (!includeArchived)
         {
             query = query.Where(c => !c.Archived);
         }
 
         var rows = await query.OrderBy(c => c.SortOrder).ThenBy(c => c.Name).ToListAsync(cancellationToken);
         var children = rows.Where(c => c.ParentId != null).ToLookup(c => c.ParentId!.Value);
-        var tree = rows
+        return rows
             .Where(c => c.ParentId == null)
             .Select(parent => CategoryRules.ToDto(
                 parent,
                 children[parent.Id].Select(child => CategoryRules.ToDto(child, [])).ToList()))
             .ToList();
-
-        return Results.Ok(tree);
     }
 }

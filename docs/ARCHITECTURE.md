@@ -40,6 +40,7 @@ Android app (v2) ──HTTPS──▶ same /api (refresh token in body instead o
 | --- | --- |
 | Backend | .NET 10, ASP.NET Core minimal APIs, EF Core 10 + Npgsql, Serilog, MailKit |
 | Database | PostgreSQL 18, snake_case names |
+| Cache | HybridCache: memory, plus Redis 8 when configured (optional) |
 | Web | React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query |
 | Shared TS | `packages/shared`: money formatting and parsing, brand constants |
 | Tests | xUnit + WebApplicationFactory against real PostgreSQL; Vitest + Testing Library |
@@ -204,6 +205,29 @@ src/test/       fakeApi (fetch stand-in), renderApp
 `RecurringWorker` runs every `Recurring:PollMinutes` (30 by default) and records automatic recurring
 dates that are due, at 9 AM local time. A unique index means a date can never be recorded twice. If
 a rule can't be recorded (for example its wallet was deleted), it stays in the user's due list.
+
+### Cache
+
+The heavy read endpoints are cached per user with .NET `HybridCache`: in the app's memory (5
+minutes) and, when `ConnectionStrings:Redis` is set, in Redis (30 minutes), so a restart or a second
+instance starts warm. Without Redis everything still works, from memory and PostgreSQL.
+
+| Endpoint | Cache key (per user) |
+| --- | --- |
+| `GET /dashboard` | `dashboard:{month}` |
+| `GET /wallets` | `wallets` (archived ones filtered after) |
+| `GET /people` | `people` |
+| `GET /budgets` | `budgets:{month}` |
+| `GET /reports` | `report:{period}:{label}` |
+| `GET /categories` | `categories:{kind}:{includeArchived}` |
+
+- **Invalidation**: every entry is tagged `user:{id}`. `AppDbContext.SaveChangesAsync` collects the
+  users of every synced row it adds or changes and removes their tag after the save, so nothing can
+  be forgotten: any write through `SaveChangesAsync` (the only way user tables change) empties that
+  user's cached answers at once, including writes by the recurring worker.
+- Keys always include the user id, so one account can never read another's entry.
+- `/transactions` (filtered and paged), single-row reads and auth are not cached.
+- `Cache:Enabled=false` turns it off. `/api/health` reports `"cache"`: `memory`, `up` or `down`.
 
 ### Outbox
 

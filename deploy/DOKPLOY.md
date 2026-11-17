@@ -25,6 +25,9 @@ Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ takaleaf app :8080 ─�
    - Image: `postgres:18`.
    - Do **not** set an external port; the app reaches it inside Dokploy.
 3. Deploy the database, then copy its **Internal Host** from the database's General tab.
+4. Optional, for faster dashboards and reports: **Create Service → Database → Redis**, name
+   `takaleaf-cache`, image `redis:8-alpine`, a password, no external port. Deploy it and copy its
+   **Internal Host**. Without Redis the app still caches, in its own memory.
 
 ## 2. The app
 
@@ -89,6 +92,7 @@ the database, take a manual backup first (Backups → Run).
 | Build stops or the server freezes during the build | The VPS needs about 2 GB of free memory while building. Add swap or a bigger plan. |
 | The app restarts straight after starting | Its Logs tab. Usually a missing `ConnectionStrings__Database` or a `Auth__SigningKey` shorter than 32 characters. |
 | Logs say `DataProtection certificate not found` or `could not be opened` | The bind mount (host `/etc/takaleaf/dataprotection.pfx` → `/app/certs/dataprotection.pfx`), that the file is readable (`chmod 644`), and `DataProtection__CertificatePassword`. |
+| `/api/health` says `"cache":"down"` | The host and password in `ConnectionStrings__Redis`, and that the Redis service is running. The app keeps working, reading from PostgreSQL. |
 | `/api/health` says `"database":"down"` | The Internal Host and password in `ConnectionStrings__Database`, and that the database service is running. |
 | No verification email arrives | The app logs show the SMTP error. Check `Email__*`, and that the sender address is allowed by the provider. |
 | Certificate does not issue | The DNS A record must point to the VPS, and ports 80 and 443 must be open. |
