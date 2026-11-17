@@ -3,7 +3,10 @@
 - Visual rules: `DESIGN.md` (tokens, components, do's and don'ts) and `PRODUCT.md` (principles).
   Screen and interaction rules: `docs/UI-UX.md`. Change those docs when the UI changes.
 
-- Pages: `src/pages/<area>/<Area>Page.tsx`; forms are modals (`ui/Modal.tsx`) with local state,
+- Pages: `src/pages/<area>/<Area>Page.tsx`, registered as a lazy page in `src/app/routes.ts` (the
+  loader map and `loaderFor`) and used from `App.tsx`. A part another page needs goes in its own file
+  (like `budgets/BudgetBar.tsx`), so importing it does not pull in the whole page.
+- Forms are modals (`ui/Modal.tsx`) with local state,
   client-side checks first, then the server's field errors via `ApiError.field(name)`.
 - Data: add hooks in `src/api/queries.ts`, types in `src/api/types.ts`. Anything that changes money
   invalidates with `useInvalidateMoney()`.

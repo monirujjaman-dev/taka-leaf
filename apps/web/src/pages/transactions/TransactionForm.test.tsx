@@ -36,7 +36,9 @@ async function openForm() {
   renderApp("/");
   const [add] = await screen.findAllByRole("button", { name: /add transaction/i });
   await userEvent.click(add!);
-  return screen.findByRole("dialog", { name: "Add transaction" });
+  // The form's code loads on demand; until it arrives the sheet shows "Loading…" under the same title.
+  await screen.findByRole("radiogroup", { name: "Type" });
+  return screen.getByRole("dialog", { name: "Add transaction" });
 }
 
 describe("transaction form", () => {

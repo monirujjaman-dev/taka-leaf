@@ -5,16 +5,16 @@ import { useWallets } from "../../api/queries";
 import type { Wallet, WalletType } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
-import { Chevron, IconTile, iconButtonClass, ListCard, SectionHeading, StatTile, walletIcon } from "../../ui/Parts";
+import { Chevron, IconTile, iconButtonClass, ListCard, SectionHeading, StatGrid, StatTile, walletIcon } from "../../ui/Parts";
 import { WALLET_TYPE_LABEL } from "../../ui/format";
 import { WalletForm } from "./WalletForm";
 
 /** The design's groups. Lent and Borrowed wallets belong to people and are summed under Loans. */
 const GROUPS: { title: string; types: WalletType[] }[] = [
   { title: "Cash and bank", types: ["Cash", "Bank"] },
-  { title: "MFS", types: ["Mfs"] },
+  { title: "Mobile banking", types: ["Mfs"] },
   { title: "Credit card", types: ["CreditCard"] },
 ];
 
@@ -32,17 +32,18 @@ function WalletRow({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
       <button
         type="button"
         onClick={onOpen}
-        aria-label={`Edit ${wallet.name}`}
-        className={`-mx-1.5 flex h-14 w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+        className={`-mx-1.5 flex min-h-14 w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
       >
         <IconTile icon={walletIcon(wallet.type)} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[15px] font-bold">{wallet.name}</span>
-          <span className="block truncate text-[12px] text-[var(--tl-muted)]">{detail(wallet)}</span>
+          <span className="block truncate text-body font-bold">{wallet.name}</span>
+          <span className="block truncate text-caption text-[var(--tl-muted)]">{detail(wallet)}</span>
         </span>
-        <span className={`shrink-0 text-[15px] font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
+        <span className={`shrink-0 text-body font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
           {formatBdt(wallet.balance)}
         </span>
+        {/* Read as "Cash, Cash, ৳8,500.00, edit": the balance stays in the button's name. */}
+        <span className="sr-only">, edit</span>
         <Chevron />
       </button>
     </li>
@@ -88,19 +89,19 @@ export function WalletsPage() {
       </PageHeader>
 
       {wallets.isPending ? <Loading /> : null}
-      {wallets.error ? <ErrorNote>{messageOf(wallets.error)}</ErrorNote> : null}
+      <LoadError query={wallets} />
 
       {wallets.data ? (
         <div className="flex flex-col gap-3">
-          <section aria-label="Totals" className="grid grid-cols-2 gap-2.5 lg:max-w-xl">
+          <StatGrid label="Totals" className="lg:max-w-xl">
             <StatTile icon="moneyIn" label="Assets" value={formatBdt(wallets.data.totals.assets)} />
             <StatTile icon="moneyOut" tone="expense" label="Liabilities" value={formatBdt(wallets.data.totals.liabilities)} />
-          </section>
+          </StatGrid>
 
           {all.length === 0 ? (
             <section className="glass rounded-[22px]">
               <EmptyState title="No wallets yet">
-                <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">Cash, a bank account, bKash, a credit card — add each with what it holds today.</p>
+                <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">Cash, a bank account, bKash, a credit card — add each with what it holds today.</p>
               </EmptyState>
             </section>
           ) : null}
@@ -140,14 +141,14 @@ export function WalletsPage() {
                         <li key={row.label}>
                           <Link
                             to="/people"
-                            className={`-mx-1.5 flex h-14 items-center gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] ${focusRing}`}
+                            className={`-mx-1.5 flex min-h-14 items-center py-1.5 gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] ${focusRing}`}
                           >
                             <IconTile icon={row.icon} tone={row.label === "Borrowed" ? "expense" : "primary"} />
                             <span className="min-w-0 flex-1">
-                              <span className="block truncate text-[15px] font-bold">{row.label}</span>
-                              <span className="block text-[12px] text-[var(--tl-muted)]">{people(row.list.length)}</span>
+                              <span className="block truncate text-body font-bold">{row.label}</span>
+                              <span className="block text-caption text-[var(--tl-muted)]">{people(row.list.length)}</span>
                             </span>
-                            <span className="text-[15px] font-extrabold">{formatBdt(sum(row.list))}</span>
+                            <span className="text-body font-extrabold">{formatBdt(sum(row.list))}</span>
                             <Chevron />
                           </Link>
                         </li>

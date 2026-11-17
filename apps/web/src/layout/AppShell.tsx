@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { prefetchSignedInPages } from "../app/routes";
 import { useTheme } from "../app/theme";
 import { useAuth } from "../auth/AuthContext";
 import { Logo } from "../shared/Logo";
@@ -7,6 +8,9 @@ import { Backdrop } from "../ui/Backdrop";
 import { focusRing } from "../ui/Button";
 import { Icon, type IconName } from "../ui/Icon";
 import { iconButtonClass } from "../ui/Parts";
+import { Loading } from "../ui/Feedback";
+import { PageBoundary } from "../ui/PageBoundary";
+import { useOnline } from "../ui/useOnline";
 import { TransactionSheetProvider, useTransactionSheet } from "./TransactionSheet";
 
 /** The sidebar on wide screens, in the design's order. Phones reach most of these from More. */
@@ -32,7 +36,7 @@ export function AddTransactionButton() {
     <button
       type="button"
       onClick={() => sheet.open()}
-      className={`hidden h-11 cursor-pointer items-center gap-1.5 rounded-[14px] bg-forest px-4 text-sm font-extrabold text-white hover:bg-[#0c6a3b] lg:inline-flex ${focusRing}`}
+      className={`hidden h-11 cursor-pointer items-center gap-1.5 rounded-[14px] bg-forest px-4 text-sm font-extrabold text-white hover:bg-forest-hover dark:bg-sage dark:text-ink dark:hover:bg-sage-hover lg:inline-flex ${focusRing}`}
     >
       <Icon name="plus" size={18} />
       Add transaction
@@ -43,6 +47,7 @@ export function AddTransactionButton() {
 function Sidebar() {
   const [theme, toggleTheme] = useTheme();
   const { signOut } = useAuth();
+  const online = useOnline();
   return (
     <aside className="glass sticky top-5 hidden h-[calc(100vh-40px)] w-60 shrink-0 flex-col gap-1 rounded-[26px] px-3.5 py-5 lg:flex">
       <div className="px-2 pb-[18px]">
@@ -82,11 +87,12 @@ function Sidebar() {
           <Icon name="out" size={19} />
           Sign out
         </button>
-        <p className="m-0 flex items-center gap-2.5 px-2.5 pt-2 text-[12px] font-semibold text-[var(--tl-muted)]">
-          <span className="flex text-[var(--tl-primary)]">
+        {/* States the connection as it is, not as it usually is (the page also says it above). */}
+        <p className="m-0 flex items-center gap-2.5 px-2.5 pt-2 text-caption font-semibold text-[var(--tl-muted)]">
+          <span className={`flex ${online ? "text-[var(--tl-primary)]" : ""}`}>
             <Icon name="sync" size={17} />
           </span>
-          Connected to your server
+          {online ? "Connected to your server" : "Offline. Changes will not save."}
         </p>
       </div>
     </aside>
@@ -98,7 +104,7 @@ function Tab({ to, label, icon, active }: { to: string; label: string; icon: Ico
     <Link
       to={to}
       aria-current={active ? "page" : undefined}
-      className={`flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-[10px] font-bold ${focusRing} ${
+      className={`flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-tab font-bold ${focusRing} ${
         active ? "text-[var(--tl-nav-active)]" : "text-[var(--tl-muted)]"
       }`}
     >
@@ -116,7 +122,7 @@ function TabBar() {
   return (
     <nav
       aria-label="Main"
-      className="glass fixed inset-x-4 bottom-4 z-30 flex h-[68px] items-center justify-between rounded-[24px] px-2.5 lg:hidden"
+      className="glass fixed inset-x-4 bottom-4 z-30 mx-auto flex h-[68px] max-w-md items-center justify-between rounded-[24px] px-2.5 lg:hidden"
     >
       <Tab to="/" label="Home" icon="home" active={pathname === "/"} />
       <Tab to="/transactions" label="History" icon="list" active={under("/transactions")} />
@@ -124,7 +130,7 @@ function TabBar() {
         type="button"
         aria-label="Add transaction"
         onClick={() => sheet.open()}
-        className={`grid h-14 w-14 cursor-pointer place-items-center rounded-[20px] bg-forest text-white shadow-[0_8px_18px_rgb(15_122_68/0.4)] ${focusRing}`}
+        className={`grid h-14 w-14 cursor-pointer place-items-center rounded-[20px] bg-forest text-white shadow-float ${focusRing}`}
       >
         <Icon name="plus" size={26} />
       </button>
@@ -135,15 +141,46 @@ function TabBar() {
 }
 
 /** Signed-in layout: a 240 px glass sidebar beside the page on wide screens, a floating tab bar on phones. */
+/** Said once, in words, when the browser loses its connection; saves would fail until it returns. */
+function OfflineNote() {
+  const online = useOnline();
+  return (
+    <div role="status" aria-live="polite">
+      {online ? null : (
+        <p className="m-0 mb-3 flex items-center gap-2.5 rounded-[14px] bg-[var(--tl-chip)] px-3.5 py-3 text-sm font-semibold text-[var(--tl-text)] lg:mb-5">
+          <span aria-hidden="true" className="flex shrink-0 text-[var(--tl-primary)]">
+            <Icon name="sync" size={18} />
+          </span>
+          You are offline. What you see may be out of date, and changes will not save until you reconnect.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function AppShell() {
+  const { pathname } = useLocation();
+  // Once the first page is up, fetch the others and the add sheet in the background.
+  useEffect(prefetchSignedInPages, []);
   return (
     <TransactionSheetProvider>
       <div className="relative min-h-screen">
+        <a
+          href="#main"
+          className={`sr-only z-50 rounded-[14px] bg-forest px-4 py-3 text-sm font-bold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4 ${focusRing}`}
+        >
+          Skip to content
+        </a>
         <Backdrop />
         <div className="flex gap-5 lg:p-5">
           <Sidebar />
-          <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 lg:px-0 lg:pb-5 lg:pt-0">
-            <Outlet />
+          <main id="main" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 outline-none lg:px-0 lg:pb-5 lg:pt-0">
+            <OfflineNote />
+            <PageBoundary resetKey={pathname}>
+              <Suspense fallback={<Loading />}>
+                <Outlet />
+              </Suspense>
+            </PageBoundary>
           </main>
         </div>
         <TabBar />
@@ -176,7 +213,7 @@ export function PageHeader({
           <Icon name="left" size={20} />
         </Link>
       ) : null}
-      <h1 className="m-0 min-w-0 flex-1 text-xl font-extrabold tracking-[-0.4px] lg:flex-none lg:text-[26px] lg:tracking-[-0.5px]">{title}</h1>
+      <h1 className="m-0 min-w-0 flex-1 text-xl font-extrabold tracking-[-0.4px] lg:flex-none lg:text-headline">{title}</h1>
       {phoneAction ? <div className="lg:hidden">{phoneAction}</div> : null}
       {children ? (
         <div className={`flex flex-wrap items-center gap-2.5 ${phoneAction ? "hidden lg:flex" : ""}`}>{children}</div>

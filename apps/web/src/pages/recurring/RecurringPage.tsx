@@ -6,8 +6,8 @@ import { PageHeader } from "../../layout/AppShell";
 import { Icon } from "../../ui/Icon";
 import { iconButtonClass } from "../../ui/Parts";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
-import { dayLabel, scheduleLabel } from "../../ui/format";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
+import { inlineDayLabel, scheduleLabel } from "../../ui/format";
 import { DueList, ruleTitle } from "./DueList";
 import { RecurringForm } from "./RecurringForm";
 
@@ -16,7 +16,7 @@ const TONE = { Income: "text-forest dark:text-income-dark", Expense: "text-expen
 function status(rule: RecurringRule): string {
   if (rule.nextDate === null) return "Ended";
   if (rule.paused) return "Paused";
-  return `Next ${dayLabel(rule.nextDate)}`;
+  return `Next ${inlineDayLabel(rule.nextDate)}`;
 }
 
 export function RecurringPage() {
@@ -40,15 +40,15 @@ export function RecurringPage() {
           <Icon name="plus" size={18} /> Add recurring
         </Button>
       </PageHeader>
-      <p className="mb-3 mt-0 text-sm text-[var(--tl-muted)] lg:-mt-3 lg:mb-5">Rent, salary, subscriptions — anything that repeats.</p>
+      <p className="mb-3 mt-0 text-body text-[var(--tl-muted)] lg:-mt-3 lg:mb-5">Rent, salary, subscriptions — anything that repeats.</p>
 
       {rules.isPending ? <Loading /> : null}
-      {rules.error ? <ErrorNote>{messageOf(rules.error)}</ErrorNote> : null}
+      <LoadError query={rules} />
 
       {due.length > 0 ? (
         <section className="glass mb-4 rounded-[22px] p-4" aria-labelledby="due-title">
           <h2 id="due-title" className="m-0 mb-3 text-base font-extrabold">
-            Waiting for you
+            Due to record
           </h2>
           <DueList rules={due} />
         </section>
@@ -57,7 +57,7 @@ export function RecurringPage() {
       {rules.isSuccess && all.length === 0 ? (
         <section className="glass rounded-[22px]">
           <EmptyState title="Nothing repeating yet">
-            <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">Add your house rent or salary once, and TakaLeaf reminds you — or records it for you — every time.</p>
+            <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">Add your house rent or salary once, and TakaLeaf reminds you — or records it for you — every time.</p>
           </EmptyState>
         </section>
       ) : null}
@@ -72,16 +72,16 @@ export function RecurringPage() {
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-base font-extrabold">{ruleTitle(rule)}</span>
-                <span className="block text-[13px] text-[var(--tl-muted)]">
+                <span className="block text-small text-[var(--tl-muted)]">
                   {scheduleLabel(rule.frequency, rule.interval)} · {status(rule)}
                 </span>
-                <span className="mt-1 block truncate text-[13px] text-[var(--tl-muted)]">
+                <span className="mt-1 block truncate text-small text-[var(--tl-muted)]">
                   {rule.type === "Transfer" ? `${rule.fromWalletName} → ${rule.toWalletName}` : rule.type === "Income" ? `Into ${rule.toWalletName}` : `From ${rule.fromWalletName}`}
                 </span>
               </span>
               <span className="shrink-0 text-right">
                 <span className={`block text-base font-extrabold ${TONE[rule.type]}`}>{formatBdt(rule.amount)}</span>
-                <span className="mt-1 inline-block rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-[11px] font-bold text-[var(--tl-primary)]">
+                <span className="mt-1 inline-block rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-caption font-bold text-[var(--tl-primary)]">
                   {rule.autoRecord ? "Automatic" : "Ask me"}
                 </span>
               </span>

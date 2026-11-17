@@ -1,7 +1,9 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { api, ApiError } from "../api/client";
 import type { MessageResponse } from "../api/types";
+import { prefetchRouteData, preloadRoute } from "../app/routes";
 import { Button } from "../ui/Button";
 import { ErrorNote, SuccessNote } from "../ui/Feedback";
 import { TextField } from "../ui/Field";
@@ -13,6 +15,7 @@ export function SignInPage() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<ApiError | null>(null);
@@ -26,8 +29,12 @@ export function SignInPage() {
     setBusy(true);
     setError(null);
     setNotice(null);
+    // Fetch the next page's code while the password is checked, and its data as soon as it passes.
+    const path = from.split("?")[0] ?? "/";
+    preloadRoute(path);
     try {
       await signIn(email, password);
+      prefetchRouteData(queryClient, path);
       navigate(from, { replace: true });
     } catch (caught) {
       setError(caught instanceof ApiError ? caught : new ApiError(0, "Something went wrong. Try again."));

@@ -1,7 +1,9 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, Suspense, useCallback, useContext, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import type { Transaction } from "../api/types";
-import { TransactionForm } from "../pages/transactions/TransactionForm";
+import { TransactionForm } from "../app/routes";
+import { Loading } from "../ui/Feedback";
+import { Modal } from "../ui/Modal";
 
 interface SheetValue {
   /** Opens the form: empty for a new transaction, or with an id to edit one. */
@@ -19,7 +21,19 @@ export function TransactionSheetProvider({ children }: { children: ReactNode }) 
   return (
     <SheetContext.Provider value={{ open }}>
       {children}
-      {state ? <TransactionForm key={state.id ?? "new"} id={state.id} onClose={close} /> : null}
+      {state ? (
+        // The form's code is fetched in the background after the first page loads; this sheet only
+        // shows if someone taps Add before that finishes.
+        <Suspense
+          fallback={
+            <Modal sheet title={state.id ? "Edit transaction" : "Add transaction"} onClose={close}>
+              <Loading />
+            </Modal>
+          }
+        >
+          <TransactionForm key={state.id ?? "new"} id={state.id} onClose={close} />
+        </Suspense>
+      ) : null}
     </SheetContext.Provider>
   );
 }

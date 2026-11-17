@@ -9,9 +9,9 @@ import { PASSWORD_HINT, PasswordField } from "../../auth/PasswordField";
 import { Link } from "react-router";
 import { PageHeader } from "../../layout/AppShell";
 import { Button } from "../../ui/Button";
-import { ErrorNote, Loading, SuccessNote, messageOf } from "../../ui/Feedback";
+import { ErrorNote, Loading, SuccessNote, messageOf, LoadError } from "../../ui/Feedback";
 import { TextField } from "../../ui/Field";
-import { dayLabel, localDate, timeLabel } from "../../ui/format";
+import { inlineDayLabel, localDate, timeLabel } from "../../ui/format";
 import { useTheme } from "../../app/theme";
 import { download } from "../../api/client";
 import { focusRing } from "../../ui/Button";
@@ -76,7 +76,11 @@ function Devices() {
   const sessions = useSessions();
   const signOut = useSignOutSession();
   const others = (sessions.data ?? []).filter((s) => !s.current);
-  const when = (iso: string) => `${dayLabel(localDate(new Date(iso)))}, ${timeLabel(iso)}`;
+  const when = (iso: string) => `${inlineDayLabel(localDate(new Date(iso)))}, ${timeLabel(iso)}`;
+  const [showAll, setShowAll] = useState(false);
+  // This device first, then the most recently used; a long list (many browsers over a year) stays short.
+  const ordered = [...(sessions.data ?? [])].sort((a, b) => Number(b.current) - Number(a.current) || b.lastUsedAt.localeCompare(a.lastUsedAt));
+  const shown = showAll ? ordered : ordered.slice(0, 5);
 
   return (
     <section id="devices" className="glass scroll-mt-5 rounded-[20px] p-4" aria-labelledby="devices-title">
@@ -91,19 +95,20 @@ function Devices() {
         ) : null}
       </div>
       {sessions.isPending ? <Loading /> : null}
-      <ErrorNote>{messageOf(sessions.error ?? signOut.error)}</ErrorNote>
+      {sessions.error ? <LoadError query={sessions} /> : <ErrorNote>{messageOf(signOut.error)}</ErrorNote>}
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
-        {(sessions.data ?? []).map((session) => (
+        {shown.map((session) => (
           <li key={session.id} className="flex flex-wrap items-center gap-3 rounded-[16px] bg-[var(--tl-chip)] px-3 py-2.5">
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-bold">
+              <span className="block truncate text-body font-bold">
                 {session.device}
                 {session.current ? (
-                  <span className="ml-2 rounded-full bg-[var(--tl-surface)] px-2 py-0.5 text-[11px] font-bold text-[var(--tl-primary)]">This device</span>
+                  <span className="ml-2 rounded-full bg-[var(--tl-surface)] px-2 py-0.5 text-caption font-bold text-[var(--tl-primary)]">This device</span>
                 ) : null}
               </span>
-              <span className="block text-[13px] text-[var(--tl-muted)]">
-                Last used {when(session.lastUsedAt)} · signed in {when(session.signedInAt)}
+              <span className="block text-small text-[var(--tl-muted)]">
+                Last used {when(session.lastUsedAt)}
+                {when(session.signedInAt) === when(session.lastUsedAt) ? null : ` · signed in ${when(session.signedInAt)}`}
               </span>
             </span>
             {session.current ? null : (
@@ -114,6 +119,11 @@ function Devices() {
           </li>
         ))}
       </ul>
+      {ordered.length > 5 ? (
+        <Button variant="ghost" className="mt-2 self-start" aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
+          {showAll ? "Show fewer" : `Show all ${ordered.length} devices`}
+        </Button>
+      ) : null}
     </section>
   );
 }
@@ -126,14 +136,14 @@ const MORE: { to: string; label: string; icon: IconName }[] = [
   { to: "/categories", label: "Categories", icon: "tag" },
 ];
 
-const rowClass = `-mx-1.5 flex h-[54px] w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`;
+const rowClass = `-mx-1.5 flex min-h-[54px] w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`;
 
 function RowText({ icon, label, value, danger = false }: { icon: IconName; label: string; value?: string; danger?: boolean }) {
   return (
     <>
       <IconTile icon={icon} size={36} tone={danger ? "expense" : "primary"} />
-      <span className={`flex-1 text-[15px] font-bold ${danger ? "text-expense dark:text-expense-dark" : ""}`}>{label}</span>
-      {value ? <span className="text-sm font-semibold text-[var(--tl-muted)]">{value}</span> : null}
+      <span className={`flex-1 text-body font-bold ${danger ? "text-expense dark:text-expense-dark" : ""}`}>{label}</span>
+      {value ? <span className="text-small font-semibold text-[var(--tl-muted)]">{value}</span> : null}
       {danger ? null : <Chevron />}
     </>
   );
@@ -180,10 +190,10 @@ function AccountCard() {
           <span className={`block truncate text-base font-extrabold ${user.name ? "" : "text-[var(--tl-muted)]"}`}>
             {user.name || "Add your name"}
           </span>
-          <span className="block truncate text-[13px] text-[var(--tl-muted)]">{user.email}</span>
+          <span className="block truncate text-small text-[var(--tl-muted)]">{user.email}</span>
         </span>
         {editing ? null : (
-          <Button variant="secondary" onClick={start} aria-label={user.name ? "Change your name" : "Add your name"}>
+          <Button variant="secondary" onClick={start} aria-label={user.name ? "Edit your name" : "Add your name"}>
             {user.name ? "Edit" : "Add"}
           </Button>
         )}
@@ -254,8 +264,9 @@ export function SettingsPage() {
         <ListCard label="Preferences">
           <ul className="m-0 flex list-none flex-col p-0">
             <li>
-              <button type="button" onClick={toggleTheme} className={rowClass} aria-label={`Theme: ${theme === "light" ? "Light" : "Dark"}. Switch to ${theme === "light" ? "dark" : "light"}`}>
+              <button type="button" onClick={toggleTheme} className={rowClass}>
                 <RowText icon={theme === "light" ? "sun" : "moon"} label="Theme" value={theme === "light" ? "Light" : "Dark"} />
+                <span className="sr-only">, switch to {theme === "light" ? "dark" : "light"}</span>
               </button>
             </li>
             <li>

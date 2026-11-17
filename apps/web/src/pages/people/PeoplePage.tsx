@@ -5,24 +5,24 @@ import { usePeople } from "../../api/queries";
 import type { Person } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
-import { Chevron, iconButtonClass, ListCard, Segmented, StatTile } from "../../ui/Parts";
+import { Chevron, iconButtonClass, ListCard, Segmented, StatGrid, StatTile } from "../../ui/Parts";
 import { PersonForm } from "./PersonForm";
 
 export function Standing({ person, large = false }: { person: Person; large?: boolean }) {
-  const size = large ? "text-[30px]" : "text-lg";
+  const size = large ? "text-display-sm" : "text-lg";
   if (person.net > 0)
     return (
       <span className="block">
-        <span className="block text-[13px] font-semibold text-[var(--tl-muted)]">Owes you</span>
+        <span className="block text-small font-semibold text-[var(--tl-muted)]">Owes you</span>
         <span className={`block font-extrabold tracking-tight text-forest dark:text-income-dark ${size}`}>{formatBdt(person.net)}</span>
       </span>
     );
   if (person.net < 0)
     return (
       <span className="block">
-        <span className="block text-[13px] font-semibold text-[var(--tl-muted)]">You owe</span>
+        <span className="block text-small font-semibold text-[var(--tl-muted)]">You owe</span>
         <span className={`block font-extrabold tracking-tight text-expense dark:text-expense-dark ${size}`}>{formatBdt(-person.net)}</span>
       </span>
     );
@@ -66,19 +66,19 @@ export function PeoplePage() {
       </PageHeader>
 
       {people.isPending ? <Loading /> : null}
-      {people.error ? <ErrorNote>{messageOf(people.error)}</ErrorNote> : null}
+      <LoadError query={people} />
 
       {data ? (
         <div className="flex flex-col gap-3 lg:max-w-3xl">
-          <section aria-label="Totals" className="grid grid-cols-2 gap-2.5">
+          <StatGrid label="Totals">
             <StatTile icon="moneyIn" label="Owed to me" value={formatBdt(data.owedToMe)} />
             <StatTile icon="moneyOut" tone="expense" label="I owe" value={formatBdt(data.iOwe)} />
-          </section>
+          </StatGrid>
 
           {data.people.length === 0 ? (
             <section className="glass rounded-[22px]">
               <EmptyState title="Nobody here yet">
-                <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">
+                <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">
                   Add a friend, colleague or relative when you lend them money or borrow from them.
                 </p>
               </EmptyState>
@@ -87,7 +87,11 @@ export function PeoplePage() {
             <>
               <Segmented label="Show" options={FILTERS} value={filter} onChange={setFilter} />
               <ListCard>
-                {shown.length === 0 ? <p className="m-0 py-4 text-center text-sm text-[var(--tl-muted)]">Nobody in this list.</p> : null}
+                {shown.length === 0 ? (
+                  <p className="m-0 py-4 text-center text-body text-[var(--tl-muted)]">
+                    {filter === "owed" ? "Nobody owes you money right now." : filter === "owe" ? "You do not owe anyone right now." : "Nobody here yet."}
+                  </p>
+                ) : null}
                 <ul className="m-0 flex list-none flex-col p-0">
                   {shown.map((person) => (
                     <li key={person.id}>
@@ -95,15 +99,15 @@ export function PeoplePage() {
                         to={`/people/${person.id}`}
                         className={`-mx-1.5 flex h-[60px] items-center gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] ${focusRing}`}
                       >
-                        <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest text-[15px] font-extrabold text-white">
+                        <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest text-body font-extrabold text-white">
                           {person.name.charAt(0).toUpperCase()}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[15px] font-bold">{person.name}</span>
-                          <span className="block truncate text-[12px] text-[var(--tl-muted)]">{standingLine(person)}</span>
+                          <span className="block truncate text-body font-bold">{person.name}</span>
+                          <span className="block truncate text-caption text-[var(--tl-muted)]">{standingLine(person)}</span>
                         </span>
                         <span
-                          className={`shrink-0 text-[15px] font-extrabold ${
+                          className={`shrink-0 text-body font-extrabold ${
                             person.net > 0 ? "text-forest dark:text-income-dark" : person.net < 0 ? "text-expense dark:text-expense-dark" : "text-[var(--tl-muted)]"
                           }`}
                         >

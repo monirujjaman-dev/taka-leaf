@@ -18,12 +18,12 @@ export function AuthLayout({ title, intro, children }: { title: string; intro?: 
           <LeafWatermark size={380} className="!-bottom-[70px] !-right-[60px] !top-auto hidden !opacity-[0.14] lg:block" />
           <span className="relative flex items-center gap-2.5">
             <img src={markOnDark} width={44} height={44} alt="" />
-            <span className="text-[26px] font-extrabold tracking-[-0.5px]">
-              Taka<span className="text-[#b5e2c4]">Leaf</span>
+            <span className="text-headline font-extrabold">
+              Taka<span className="text-sage-soft">Leaf</span>
             </span>
           </span>
           <div className="relative">
-            <p className="m-0 text-[26px] font-extrabold leading-[1.15] tracking-[-0.8px] lg:text-[34px]">
+            <p className="m-0 text-headline font-extrabold leading-[1.15] lg:text-display">
               Your Money.
               <br />
               Your Control.
@@ -38,8 +38,8 @@ export function AuthLayout({ title, intro, children }: { title: string; intro?: 
             <ThemeToggle />
           </div>
           <section className="glass w-full max-w-[440px] rounded-[26px] p-6 sm:p-9">
-            <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.6px]">{title}</h1>
-            {intro ? <p className="mb-0 mt-2 text-[15px] leading-[1.45] text-[var(--tl-muted)]">{intro}</p> : null}
+            <h1 className="m-0 text-display-sm font-extrabold">{title}</h1>
+            {intro ? <p className="mb-0 mt-2 text-body leading-[1.45] text-[var(--tl-muted)]">{intro}</p> : null}
             <div className="mt-6">{children}</div>
           </section>
         </main>
@@ -48,4 +48,4 @@ export function AuthLayout({ title, intro, children }: { title: string; intro?: 
   );
 }
 
-export const linkClass = "font-bold text-[var(--tl-primary)] underline-offset-4 hover:underline";
+export const linkClass = "tap-area font-bold text-[var(--tl-primary)] underline-offset-4 hover:underline";

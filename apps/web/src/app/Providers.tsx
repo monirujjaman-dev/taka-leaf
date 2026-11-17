@@ -10,7 +10,9 @@ export function createQueryClient() {
       queries: {
         staleTime: 15_000,
         // A 4xx will not fix itself; a network blip might.
-        retry: (count, error) => !(error instanceof ApiError && error.status >= 400 && error.status < 500) && count < 2,
+        // A timeout already waited 30 seconds; the person can choose "Try again" instead.
+        retry: (count, error) =>
+          !(error instanceof ApiError && ((error.status >= 400 && error.status < 500) || error.code === "timeout")) && count < 2,
       },
     },
   });

@@ -68,3 +68,60 @@ describe("api client", () => {
     await expect(api("/wallets")).rejects.toThrow(/internet connection/);
   });
 });
+
+describe("api client timeouts", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  /** Makes the timeout fire at once and the network call fail the way fetch does when aborted. */
+  function timeOut() {
+    const controller = new AbortController();
+    controller.abort();
+    vi.spyOn(AbortSignal, "timeout").mockReturnValue(controller.signal);
+    vi.stubGlobal("fetch", () => Promise.reject(new DOMException("The operation timed out.", "TimeoutError")));
+  }
+
+  it("says a slow read should be tried again", async () => {
+    timeOut();
+    const error = await api("/wallets").catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).code).toBe("timeout");
+    expect((error as ApiError).message).toBe("TakaLeaf took too long to answer. Check your connection and try again.");
+  });
+
+  it("warns that a slow save may already have saved", async () => {
+    timeOut();
+    const error = await api("/transactions", { method: "POST", body: {} }).catch((e: unknown) => e);
+    expect((error as ApiError).message).toMatch(/may or may not have saved\. Check before trying again\./);
+  });
+});
+
+describe("api client when the session cannot be checked", () => {
+  beforeEach(() => setSession(session("a@example.com", "old-token")));
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    setSession(null);
+  });
+
+  it("keeps the person signed in when the refresh is rate limited", async () => {
+    fakeApi({ "GET /wallets": signedOut, "POST /auth/refresh": { status: 429 } });
+    const listener = vi.fn();
+    const stop = onSignedOut(listener);
+    const error = await api("/wallets").catch((e: unknown) => e);
+    stop();
+    expect((error as ApiError).message).toBe("Too many requests from this network right now. Wait a minute, then try again.");
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("keeps the person signed in when the server fails", async () => {
+    fakeApi({ "GET /wallets": signedOut, "POST /auth/refresh": { status: 503 } });
+    const listener = vi.fn();
+    const stop = onSignedOut(listener);
+    const error = await api("/wallets").catch((e: unknown) => e);
+    stop();
+    expect((error as ApiError).message).toBe("TakaLeaf could not check your session just now. Try again in a moment.");
+    expect(listener).not.toHaveBeenCalled();
+  });
+});

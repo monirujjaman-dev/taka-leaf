@@ -64,35 +64,78 @@
         "darkCounterpart": "warning-dark"
       },
       "budget-near": {
-        "role": "budget bar at 80% or more"
+        "role": "budget bar at 80% or more",
+        "cssVar": "--color-budget-near"
       },
       "night-nav-active": {
         "role": "active phone tab text in dark theme (no tint behind it)",
         "cssVar": "--tl-nav-active"
+      },
+      "forest-hover": {
+        "role": "primary button hover (light)",
+        "cssVar": "--color-forest-hover",
+        "darkCounterpart": "sage-hover"
+      },
+      "sage-hover": {
+        "role": "primary button hover (dark)",
+        "cssVar": "--color-sage-hover"
+      },
+      "sage-soft": {
+        "role": "\"Leaf\" in the wordmark on forest panels",
+        "cssVar": "--color-sage-soft"
       }
     },
     "typographyMeta": {
       "display": {
-        "use": "net balance",
-        "phone": "30px"
+        "use": "net balance; at most 13cqi on the balance card",
+        "class": "text-display"
+      },
+      "display-sm": {
+        "use": "budget total, a person's standing, sign-in title",
+        "class": "text-display-sm"
       },
       "headline": {
-        "use": "page titles"
+        "use": "page titles (20px text-xl on phones)",
+        "class": "text-headline"
+      },
+      "dialog": {
+        "use": "dialog and add-sheet titles",
+        "class": "text-dialog"
+      },
+      "wordmark": {
+        "use": "TakaLeaf beside the mark",
+        "class": "text-wordmark"
       },
       "title": {
-        "use": "card titles, names"
+        "use": "card titles, names",
+        "class": "text-base"
       },
       "amount": {
-        "use": "amounts in rows and tiles; 24px on wallet cards"
+        "use": "amounts in rows, tiles and cards (15-18px, 800, tabular)"
       },
       "body": {
-        "use": "paragraphs, inputs; row titles at 700"
+        "use": "reading text, inputs; row titles at 700",
+        "class": "text-body"
       },
-      "label": {
-        "use": "field labels, buttons, chips"
+      "control": {
+        "use": "buttons, navigation, segments, chips only",
+        "class": "text-sm"
+      },
+      "small": {
+        "use": "field labels, hints, metadata, section headings",
+        "class": "text-small"
       },
       "caption": {
-        "use": "secondary lines; tab labels at 11px"
+        "use": "detail lines, tile labels, badges",
+        "class": "text-caption"
+      },
+      "micro": {
+        "use": "chart labels on wider screens",
+        "class": "text-micro"
+      },
+      "tab": {
+        "use": "tab-bar labels, chart labels on phones",
+        "class": "text-tab"
       }
     },
     "shadows": [
@@ -142,7 +185,8 @@
         "min": "1024px",
         "layout": "flex row, padding and gap 20px: 240px glass sidebar (active item solid forest), content header with title, month button and Add transaction"
       }
-    ]
+    ],
+    "typographyUnits": "rem tokens in apps/web/src/index.css (@theme --text-*), so browser text size scales them"
   },
   "components": [
     {

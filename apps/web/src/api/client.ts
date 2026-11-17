@@ -25,6 +25,8 @@ export class ApiError extends Error {
 }
 
 const NETWORK_MESSAGE = "Could not reach TakaLeaf. Check your internet connection and try again.";
+const BUSY_MESSAGE = "Too many requests from this network right now. Wait a minute, then try again.";
+const SERVER_MESSAGE = "TakaLeaf could not check your session just now. Try again in a moment.";
 
 let accessToken: string | null = null;
 let refreshing: Promise<AuthUser | null> | null = null;
@@ -56,13 +58,40 @@ async function toError(response: Response): Promise<ApiError> {
 
   const firstField = Object.values(fieldErrors)[0];
   const title = body.errors && firstField ? firstField : body.title;
-  return new ApiError(response.status, title ?? `Something went wrong (${response.status}). Try again.`, fieldErrors, body.code);
+  // The rate limiter answers with no body; say what it means rather than "Something went wrong (429)".
+  if (response.status === 429 && !title) return new ApiError(429, BUSY_MESSAGE, {}, "rate-limited");
+  if (title) return new ApiError(response.status, title, fieldErrors, body.code);
+  const fallback =
+    response.status >= 500
+      ? `TakaLeaf had a problem on its side. Try again in a moment. (Error ${response.status})`
+      : `That did not work. Try again, or reload the page if it keeps happening. (Error ${response.status})`;
+  return new ApiError(response.status, fallback, fieldErrors, body.code);
+}
+
+/** How long a call may hang on a poor mobile connection before the person is told. */
+export const REQUEST_TIMEOUT_MS = 30_000;
+const SLOW_READ_MESSAGE = "TakaLeaf took too long to answer. Check your connection and try again.";
+// A save that timed out may still have reached the server, so trying again blindly could record it twice.
+const SLOW_WRITE_MESSAGE = "TakaLeaf took too long to answer, so this may or may not have saved. Check before trying again.";
+
+/** The caller's signal plus a timeout, where the browser supports combining them. */
+function withTimeout(signal: AbortSignal | null | undefined): { signal?: AbortSignal; timeout?: AbortSignal } {
+  if (typeof AbortSignal.timeout !== "function") return { signal: signal ?? undefined };
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  if (!signal) return { signal: timeout, timeout };
+  if (typeof AbortSignal.any !== "function") return { signal };
+  return { signal: AbortSignal.any([signal, timeout]), timeout };
 }
 
 async function rawFetch(path: string, init: RequestInit): Promise<Response> {
+  const { signal, timeout } = withTimeout(init.signal);
   try {
-    return await fetch(`/api${path}`, { credentials: "same-origin", ...init });
+    return await fetch(`/api${path}`, { credentials: "same-origin", ...init, signal });
   } catch (error) {
+    if (timeout?.aborted) {
+      const write = (init.method ?? "GET") !== "GET" && !path.startsWith("/auth/refresh");
+      throw new ApiError(0, write ? SLOW_WRITE_MESSAGE : SLOW_READ_MESSAGE, {}, "timeout");
+    }
     if (error instanceof DOMException && error.name === "AbortError") throw error;
     throw new ApiError(0, NETWORK_MESSAGE);
   }
@@ -87,18 +116,48 @@ async function doRefresh(): Promise<AuthUser | null> {
       await wait(400);
       continue;
     }
+    // "Could not check" is not "signed out": a busy or failing server, like a lost connection
+    // (which rawFetch throws), leaves the session alone so the person can try again.
+    if (response.status === 429) throw await toError(response);
+    if (response.status >= 500) throw new ApiError(response.status, SERVER_MESSAGE);
     break;
   }
   setSession(null);
   return null;
 }
 
-/** Restores or renews the session from the refresh cookie. Concurrent callers share one request. */
+/** True when the session could not be checked (busy, server or network trouble), as opposed to ended. */
+export function isTransient(error: unknown): error is ApiError {
+  return error instanceof ApiError && (error.status === 0 || error.status === 429 || error.status >= 500);
+}
+
+/**
+ * Restores or renews the session from the refresh cookie. Concurrent callers share one request.
+ * Resolves with null when the session has ended; rejects (see isTransient) when it could not be checked.
+ */
 export function refreshSession(): Promise<AuthUser | null> {
   refreshing ??= doRefresh().finally(() => {
     refreshing = null;
   });
   return refreshing;
+}
+
+let primed: Promise<AuthUser | null> | null = null;
+
+/**
+ * Starts restoring the session as the script loads (main.tsx), before React has rendered, so the
+ * refresh call overlaps start-up instead of waiting for it. AuthProvider takes this promise once.
+ */
+export function primeSession(): Promise<AuthUser | null> {
+  primed ??= refreshSession();
+  return primed;
+}
+
+/** The primed session, once: a second caller (or a test that never primed) refreshes as usual. */
+export function takePrimedSession(): Promise<AuthUser | null> | null {
+  const promise = primed;
+  primed = null;
+  return promise;
 }
 
 export interface RequestOptions {

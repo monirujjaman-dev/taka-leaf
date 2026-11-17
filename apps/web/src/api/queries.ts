@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "./client";
 import type {
   SessionInfo,
@@ -30,15 +30,24 @@ function useInvalidateMoney() {
   return () => Promise.all(MONEY_KEYS.map((queryKey) => client.invalidateQueries({ queryKey })));
 }
 
+/*
+ * The dashboard's reads as shared options, so the app can start them the moment the session is back
+ * (app/routes.ts) and the hooks below pick up the same cache entries.
+ */
+export const dashboardQuery = (month: string) =>
+  queryOptions({ queryKey: ["dashboard", month], queryFn: ({ signal }) => api<Dashboard>(`/dashboard?month=${month}`, { signal }) });
+export const walletsQuery = () => queryOptions({ queryKey: ["wallets"], queryFn: ({ signal }) => api<WalletList>("/wallets", { signal }) });
+export const budgetsQuery = (month: string) =>
+  queryOptions({ queryKey: ["budgets", month], queryFn: ({ signal }) => api<BudgetList>(`/budgets?month=${month}`, { signal }) });
+export const recurringDueQuery = () =>
+  queryOptions({ queryKey: ["recurring", "due"], queryFn: ({ signal }) => api<RecurringRule[]>("/recurring/due", { signal }) });
+
 export function useDashboard(month: string) {
-  return useQuery({
-    queryKey: ["dashboard", month],
-    queryFn: ({ signal }) => api<Dashboard>(`/dashboard?month=${month}`, { signal }),
-  });
+  return useQuery(dashboardQuery(month));
 }
 
 export function useWallets() {
-  return useQuery({ queryKey: ["wallets"], queryFn: ({ signal }) => api<WalletList>("/wallets", { signal }) });
+  return useQuery(walletsQuery());
 }
 
 export function useCategories(kind?: CategoryKind, includeArchived = false) {
@@ -202,7 +211,7 @@ export function useDeleteLoan(personId: string) {
 }
 
 export function useBudgets(month: string) {
-  return useQuery({ queryKey: ["budgets", month], queryFn: ({ signal }) => api<BudgetList>(`/budgets?month=${month}`, { signal }) });
+  return useQuery(budgetsQuery(month));
 }
 
 export function useSaveBudget() {
@@ -227,7 +236,7 @@ export function useRecurring() {
 }
 
 export function useRecurringDue() {
-  return useQuery({ queryKey: ["recurring", "due"], queryFn: ({ signal }) => api<RecurringRule[]>("/recurring/due", { signal }) });
+  return useQuery(recurringDueQuery());
 }
 
 export function useSaveRecurring() {

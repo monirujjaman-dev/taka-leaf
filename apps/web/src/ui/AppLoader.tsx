@@ -77,7 +77,7 @@ export function AppLoader({
         })}
       </div>
       <div className="tl-loader-shadow" style={{ width: size * 0.8, height: Math.max(6, size * 0.15), marginTop: size * 0.12 }} />
-      <p className={`m-0 font-bold tracking-tight ${large ? "mt-7 text-[15px] text-[var(--tl-text)]" : "mt-2 text-sm text-[var(--tl-muted)]"}`}>{label}</p>
+      <p className={`m-0 font-bold tracking-tight ${large ? "mt-7 text-body text-[var(--tl-text)]" : "mt-2 text-sm text-[var(--tl-muted)]"}`}>{label}</p>
       {bar ? (
         <div aria-hidden="true" className="mt-3 h-1 w-[120px] overflow-hidden rounded-[2px] bg-[var(--tl-track)]">
           <div className="tl-loader-bar h-1 w-2/5 rounded-[2px] bg-[var(--tl-primary)]" />

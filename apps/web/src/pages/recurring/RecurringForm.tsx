@@ -3,11 +3,12 @@ import { useState, type FormEvent } from "react";
 import { ApiError } from "../../api/client";
 import { useCategories, useRecurringAction, useSaveRecurring, useWallets } from "../../api/queries";
 import type { Frequency, RecurringRule, TransactionType } from "../../api/types";
-import { Button, focusRing } from "../../ui/Button";
+import { Button } from "../../ui/Button";
 import { ErrorNote, messageOf } from "../../ui/Feedback";
 import { AmountField, SelectField, TextField } from "../../ui/Field";
 import { localDate, toAmountText } from "../../ui/format";
 import { Modal } from "../../ui/Modal";
+import { Segmented } from "../../ui/Parts";
 import { CategoryOptions, pickableWallets, WalletOptions } from "../transactions/pickers";
 
 const TYPES: TransactionType[] = ["Expense", "Income", "Transfer"];
@@ -46,7 +47,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
     const found: Record<string, string> = {};
     const poisha = parseTaka(amount);
     const every = Number(interval);
-    if (poisha === null || poisha <= 0) found.amount = "Enter an amount above zero.";
+    if (poisha === null || poisha <= 0) found.amount = "Enter an amount above zero, like 1250 or 1250.50.";
     if (type !== "Income" && !fromWalletId) found.fromWalletId = "Choose the wallet the money leaves.";
     if (type !== "Expense" && !toWalletId) found.toWalletId = "Choose the wallet the money goes to.";
     if (!Number.isInteger(every) || every < 1 || every > 366) found.interval = "Use a whole number from 1 to 366.";
@@ -79,25 +80,16 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
   return (
     <Modal title={rule ? "Edit recurring" : "Add recurring"} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-        <div role="radiogroup" aria-label="Type" className="grid grid-cols-3 gap-1 rounded-[16px] bg-[var(--tl-chip)] p-1">
-          {TYPES.map((option) => (
-            <button
-              key={option}
-              type="button"
-              role="radio"
-              aria-checked={type === option}
-              onClick={() => {
-                setType(option);
-                setCategory("");
-              }}
-              className={`h-10 cursor-pointer rounded-[12px] text-sm font-bold ${focusRing} ${
-                type === option ? "bg-[var(--tl-surface)] text-[var(--tl-primary)] shadow-sm" : "text-[var(--tl-muted)]"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
+        {/* The same switch as the add sheet, so Expense · Income · Transfer looks and works alike. */}
+        <Segmented
+          label="Type"
+          options={TYPES.map((option) => ({ value: option, label: option }))}
+          value={type}
+          onChange={(option) => {
+            setType(option);
+            setCategory("");
+          }}
+        />
         <AmountField label="Amount (৳)" value={amount} onChange={(e) => setAmount(e.target.value)} error={errorFor("amount")} hint="You can change it each time you record." />
         <div className={`grid gap-4 ${type === "Transfer" ? "sm:grid-cols-2" : ""}`}>
           {type !== "Income" ? (
@@ -122,7 +114,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
         <TextField label="Note (optional)" value={note} maxLength={500} placeholder="House rent, Claude Pro…" onChange={(e) => setNote(e.target.value)} />
 
         <fieldset className="m-0 grid grid-cols-[6rem_1fr] gap-3 border-0 p-0">
-          <legend className="mb-1.5 text-[13px] font-bold">Repeat every</legend>
+          <legend className="mb-1.5 text-small font-bold">Repeat every</legend>
           <TextField label="How many" type="number" min={1} max={366} value={interval} onChange={(e) => setInterval(e.target.value)} error={errorFor("interval")} />
           <SelectField label="Unit" value={frequency} onChange={(e) => setFrequency(e.target.value as Frequency)}>
             {FREQUENCIES.map((f) => (
@@ -137,10 +129,10 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
           <TextField label="Last date (optional)" type="date" min={startDate} value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errorFor("endDate")} />
         </div>
         <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" checked={autoRecord} onChange={(e) => setAutoRecord(e.target.checked)} className="mt-0.5 h-4 w-4 accent-forest" />
+          <input type="checkbox" checked={autoRecord} onChange={(e) => setAutoRecord(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--tl-primary)]" />
           <span>
             Record it automatically
-            <span className="block text-[13px] text-[var(--tl-muted)]">Otherwise it waits for you to record or skip each time, with the amount you choose.</span>
+            <span className="block text-small text-[var(--tl-muted)]">Otherwise it waits for you to record or skip each time, with the amount you choose.</span>
           </span>
         </label>
 
@@ -153,7 +145,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
               </Button>
               {confirmDelete ? (
                 <Button variant="danger" onClick={() => run("delete")} disabled={action.isPending}>
-                  Yes, stop it
+                  Yes, delete
                 </Button>
               ) : (
                 <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => setConfirmDelete(true)}>
@@ -173,7 +165,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
             </Button>
           </span>
         </div>
-        {rule && confirmDelete ? <p className="m-0 text-[13px] text-[var(--tl-muted)]">Transactions it already recorded stay in your history.</p> : null}
+        {rule && confirmDelete ? <p className="m-0 text-small text-[var(--tl-muted)]">Transactions it already recorded stay in your history. To stop it for a while, use Pause instead.</p> : null}
       </form>
     </Modal>
   );

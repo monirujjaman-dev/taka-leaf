@@ -3,8 +3,11 @@ name: TakaLeaf
 description: Your Money. Your Control. A calm, natural-green personal finance app for Bangladeshi taka.
 colors:
   forest: "#0F7A44"
+  forest-hover: "#0C6A3B"
   leaf: "#22A06B"
   sage: "#83CFA2"
+  sage-hover: "#9ADAB4"
+  sage-soft: "#B5E2C4"
   mint: "#E7F5EC"
   ink: "#0B3B24"
   slate: "#55637A"
@@ -33,12 +36,35 @@ typography:
     lineHeight: 1.1
     letterSpacing: "-0.025em"
     fontFeature: "tnum"
+  display-sm:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "28px"
+    fontWeight: 800
+    lineHeight: 1.15
+    letterSpacing: "-0.02em"
+    fontFeature: "tnum"
   headline:
     fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
     fontSize: "26px"
     fontWeight: 800
     lineHeight: 1.2
-    letterSpacing: "-0.025em"
+    letterSpacing: "-0.02em"
+  headline-phone:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
+  dialog:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "18px"
+    fontWeight: 800
+    lineHeight: 1.3
+  wordmark:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "22px"
+    fontWeight: 800
+    lineHeight: 1.2
   title:
     fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
     fontSize: "16px"
@@ -55,7 +81,12 @@ typography:
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.6
-  label:
+  control:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 700
+    lineHeight: 1.4
+  small:
     fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 700
@@ -65,6 +96,16 @@ typography:
     fontSize: "12px"
     fontWeight: 600
     lineHeight: 1.4
+  micro:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "11px"
+    fontWeight: 700
+    lineHeight: 1.3
+  tab:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "10px"
+    fontWeight: 700
+    lineHeight: 1.3
 rounded:
   sm: "10px"
   md: "14px"
@@ -198,7 +239,10 @@ The palette comes from the brand board: natural greens with one warm counterweig
 | track | ink at 8% | white at 10% | Progress bar track |
 | income | #0F7A44 | #83CFA2 | Income amounts, "owes you" |
 | expense | #A8412A | #F0997F | Expense amounts, "you owe", over budget, errors, delete |
-| budget near | #C98A1B (bar) | same | Budget at 80% or more |
+| budget near | `budget-near` #C98A1B (bar) | same | Budget at 80% or more |
+| hover | `forest-hover` #0C6A3B | `sage-hover` #9ADAB4 | Primary buttons on hover |
+| sage soft | `sage-soft` #B5E2C4 | same | "Leaf" in the wordmark on forest panels |
+| selection | forest at 18% | sage at 30% | Selected text; the caret and native checkboxes use the primary colour |
 | active tab text | `forest` | `night-nav-active` #83CFA2 | Active phone tab (no tint behind it). The active sidebar item is solid forest with white text in both themes |
 | glow A / B | leaf 30% / sage 55% | leaf 28% / forest 55% | The two blurred background circles |
 
@@ -207,6 +251,7 @@ Rules:
 - Income and expense are always shown with a sign (`+৳85,000.00`, `−৳1,250.00`) **and** a colour.
   Transfers stay neutral.
 - `leaf` #22A06B is for progress fills only (category and budget bars), not for text.
+- Each theme sets `color-scheme`, so native select menus, the date picker and scrollbars match it.
 - Error text uses `expense`, on a 10% `expense` tint for alert boxes. Success uses the primary
   colour on the chip tint.
 
@@ -215,16 +260,25 @@ Rules:
 **Inter** for everything (Noto Sans Bengali as a fallback), with tabular figures on by default
 (`font-variant-numeric: tabular-nums` on the body), so columns of amounts line up.
 
-| Role | Size / weight | Used for |
+Each role is a Tailwind token in `index.css` (`text-display`, `text-body`, …), set in rem so a
+person's browser text size scales it. Use the role, never a pixel value: **14 px is for controls,
+reading text is 15, supporting text 13.**
+
+| Role (class) | Size / weight | Used for |
 | --- | --- | --- |
-| display | 34px / 800, −0.8px; 48px in the add sheet | Net balance; the amount being typed |
-| headline | 26px desktop, 20px phone / 800 | Page titles ("Dashboard", "Wallets") |
-| title | 16px / 800 | Card titles, wallet and person names |
-| amount | 15–24px / 800, tabular | Amounts in rows, tiles and cards (24px on wallet cards) |
-| body | 15px / 400, line-height 1.6 | Paragraphs, inputs, row titles (row titles 700) |
-| label | 13px / 700 | Field labels, buttons, chips |
-| caption | 12–13px / 400–600 | Secondary lines, hints, tab-bar labels (10px/700) |
-| section | 13px / 800 muted | Day headings ("Today · 15 Nov") with the day total, wallet groups |
+| display (`text-display`) | 34px / 800, −0.025em | The amount that answers the screen: net balance. On the balance card it is at most 13% of the card's width, so larger text keeps it on one line |
+| display-sm (`text-display-sm`) | 28px / 800, −0.02em | A secondary hero: the budget total, a person's standing, the sign-in title |
+| amount being typed | 48px / 800, stepping down to 28px for long amounts | The add sheet |
+| headline (`text-headline`; `text-xl` on phones) | 26px desktop, 20px phone / 800 | Page titles ("Dashboard", "Wallets") |
+| dialog (`text-dialog`) | 18px / 800 | Dialog and add-sheet titles |
+| title (`text-base`) | 16px / 800 | Card titles, wallet and person names |
+| amount | 15–18px / 800, tabular | Amounts in rows, tiles and cards |
+| body (`text-body`) | 15px / 400 | Reading text: empty-state sentences, messages, inputs; row titles at 700 |
+| control (`text-sm`) | 14px / 700 | Buttons, navigation, segmented options, chips, pagination; in-page notes (error, success, offline) at 600. Nothing else |
+| small (`text-small`) | 13px | Field labels (700), hints, notes and metadata (400, muted), section headings (800 muted: "Today · 15 Nov") |
+| caption (`text-caption`) | 12px / 400–600 | The detail line under a row title, tile labels, badges ("Automatic", "This device") |
+| micro / tab (`text-micro`, `text-tab`) | 11px / 10px, 700 | Chart value labels and tab-bar labels only; never reading text |
+| wordmark (`text-wordmark`) | 22px / 800 | "TakaLeaf" beside the mark |
 
 Headings are tight (−0.025em) and heavy, and body text is relaxed. There is no italic, and amounts
 are never shown in a light weight.
@@ -236,7 +290,7 @@ Depth comes from glass and soft green shadows, not from stacking layers.
 | Level | Treatment | Used for |
 | --- | --- | --- |
 | 0 Ground | Mint (night) background + two 80–90 px blurred glows | Page |
-| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, tab bar, stat tiles, fields |
+| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, tab bar, stat tiles, fields. Inside a dialog the same tint without the blur, since it sits on a solid surface |
 | 2 Hero | Solid forest, shadow `0 12px 28px rgb(11 59 36 / 0.22)`, leaf watermark at 16% top right | Net balance card, month budget card, sign-in brand panel |
 | 3 Floating | Solid forest, radius 20, shadow `0 8px 18px rgb(15 122 68 / 0.4)` | Centre Add button in the tab bar |
 | 4 Overlay | Night at 45% + 2 px blur backdrop; solid surface panel, large shadow | Dialogs; the add sheet is full screen on phones |
@@ -245,16 +299,18 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 
 ## Components
 
-- **Buttons**: 44 px tall, radius 14 px, 13px/700 label. Primary is forest (sage in dark).
+- **Buttons**: 44 px tall, radius 14 px, 14px/700 label. Primary is forest (sage in dark).
   Secondary is glass. Ghost uses the chip tint on hover. Danger is expense. A disabled button is at
   50% opacity with a not-allowed cursor.
 - **Fields**: label above (13px/700), then a 50 px glass input with radius 16 px, a 1 px line border,
   and a primary border plus 25% ring on focus. Errors turn the border expense and show a message
   below, linked with `aria-describedby`. Amount fields use `inputmode="decimal"` and the placeholder
   `0.00`.
+  On touch screens field text is at least 16px, so iOS does not zoom in when a field is focused.
 - **Segmented control** (Expense · Income · Transfer, All · Expense · Income · Transfer, Month ·
   Year, All · Owed to me · I owe): a 44 px glass track with 3 px padding; 36 px options with radius
   11 px; the chosen one is solid forest with white text. Options are radios.
+  Each option keeps a 44 px touch area (the `tap-area` utility) around its 36 px look.
 - **Glass card**: radius 20–22 px, padding 16–20 px, holding a title row with a primary text link on
   the right ("See all", "History").
 - **List card**: a glass card (radius 20, padding 4/14) of 54–62 px rows: a 36–40 px icon tile or a
@@ -262,7 +318,8 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   chevron. Used for wallets, people, categories, budgets, settings and day groups in history.
 - **Balance card**: the solid forest hero with "Net balance" 13px, the 34px amount, and Assets and
   Liabilities below (12px mint labels, 15/700 white figures), with the leaf watermark.
-- **Stat tile**: glass, radius 18, padding 12/14, a 36 px icon tile (radius 12; money-in green,
+- **Stat tile**: two by two in a `StatGrid`, one per row when that space is under 20rem (320 px
+  phones, larger text). Glass, radius 18, padding 12/14, a 36 px icon tile (radius 12; money-in green,
   money-out rust), a 12px/600 muted label and a 16px/800 value. Two by two on the dashboard.
 - **Transaction row**: a 40 px icon tile (radius 14; money in, money out in rust, swap for
   transfer), a bold title and a muted "detail · time" line (or "· 5 Nov" outside history), and a
@@ -275,17 +332,23 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   to your server". The phone tab bar has four icon-over-label items (22 px icons, 10px/700 labels,
   active in primary with no tint) around the centre Add button; More lights up on every screen
   reached from it.
+  On tablets the tab bar keeps phone width (448 px max), centred, so both thumbs reach Add.
 - **Add sheet**: full screen on phones, a 512 px dialog on desktop. A 44 px glass close button and
   a 17px title; the type switch; a centred 48px amount (rust for expense, green for income) over
   an "Add a note" pill; up to eight quick category chips (selected: forest border on mint); 52 px
   glass picker rows (radius 16) for wallets, category and time; a 3 × 4 number pad of 48 px glass
   keys on phones; and a 52 px "Save expense" button (radius 18).
+  The Save row is pinned to the bottom of the sheet (content scrolls under a short fade), so a
+  360 px phone, a phone on its side or 200% zoom can save without scrolling.
 - **Dialog**: a bottom sheet on phones (top corners 26 px) and a centred 512 px dialog on desktop,
   with a solid surface, a title and a round 44 px close button, actions on the right (Cancel
   secondary, Save primary) and any destructive action on the left.
 - **Chip**: 44 px, radius 14, chip tint, 13–14px/700 text. Used for MFS name shortcuts, "All of
   it", sub-categories and "+ Sub-category".
 - **Empty state**: centred bold title, one muted sentence, and at most one primary action.
+- **Error note**: expense text on a 10% expense tint, radius 14. When data failed to load it also holds
+  a 44 px "Try again" button outlined in the same colour ("Trying…" while it reloads). The offline note
+  is the same shape on the chip tint, in body text.
 - **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house
   (`ui/Icon.tsx`).
 - **Loader** (design option A, "Leaf assembly"): the four pieces of the leaf mark float apart in an

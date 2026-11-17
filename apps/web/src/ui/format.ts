@@ -70,6 +70,12 @@ export function dayLabel(day: string): string {
   );
 }
 
+/** dayLabel inside a sentence: "due today", "last used yesterday, 9:10 pm". */
+export function inlineDayLabel(day: string): string {
+  const label = dayLabel(day);
+  return /^(Today|Yesterday|Tomorrow)$/.test(label) ? label.toLowerCase() : label;
+}
+
 export function timeLabel(iso: string): string {
   return new Intl.DateTimeFormat("en-GB", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: TIME_ZONE }).format(new Date(iso));
 }
