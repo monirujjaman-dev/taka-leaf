@@ -8,6 +8,7 @@ using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Tests.Data;
 using TakaLeaf.App.Tests.Features.Auth;
+using TakaLeaf.App.Tests.Support;
 
 namespace TakaLeaf.App.Tests.Common;
 
