@@ -165,4 +165,4 @@ investments and stocks, iOS, and Google Drive backup.
 | 2026-11-15 | Backend is one project, `TakaLeaf.App`, with vertical slices; mobile in React Native + TypeScript; sign-in by email and password |
 | 2026-11-16 | Version 1 = backend + web; Android is version 2 |
 | 2026-11-16 | Structured logging with Serilog (console, file, Seq), with user IP and email in request logs |
-| 2026-11-16 | Production on a personal Linux VPS with Dokploy |
+| 2026-11-16 | Production on a personal Linux VPS with Dokploy, at https://takaleaf.monirujjaman.dev |

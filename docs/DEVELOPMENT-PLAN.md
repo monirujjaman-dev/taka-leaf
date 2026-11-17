@@ -110,6 +110,7 @@ use of version 1 can still shape the later Android screens. The app lives in `ap
 - [x] "Setup checks" screen: save notes, check the server, see background runs
 - [x] Unit tests in Node against real SQLite (sql.js) with the same migrations; Jest via jest-expo
 - [x] CI: the Android workflow typechecks, tests and builds an installable APK as an artifact
+- [x] Every green build on `main` is published as the latest GitHub Release; the web app links to it ("Get the Android app")
 - [x] Oldest Android version: 7.0 (API 24), the React Native 0.88 minimum
 - [ ] **Owner, on the phone**: notes survive closing the app (experiment 1)
 - [ ] **Owner, on the phone**: "background" rows appear after an hour with the app closed (experiment 2)
