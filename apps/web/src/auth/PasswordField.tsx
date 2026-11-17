@@ -18,4 +18,4 @@ export function PasswordField(props: InputHTMLAttributes<HTMLInputElement> & { l
   );
 }
 
-export const PASSWORD_HINT = "At least 10 characters. A short sentence is easy to remember.";
+export const PASSWORD_HINT = "At least 8 characters. A short sentence is easy to remember.";

@@ -121,6 +121,8 @@ public class AuthTests(DatabaseFixture fixture)
     // A-3
     [Theory]
     [InlineData("short-1")]
+    [InlineData("12345678")]
+    [InlineData("password")]
     [InlineData("1234567890")]
     [InlineData("password123")]
     [InlineData("aaaaaaaaaaaa")]
@@ -129,6 +131,16 @@ public class AuthTests(DatabaseFixture fixture)
         var response = await Register(NewClient(), NewEmail(), password);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("green-28")]
+    [InlineData("Leaf2026!")]
+    public async Task Passwords_of_eight_characters_or_more_are_accepted(string password)
+    {
+        var response = await Register(NewClient(), NewEmail(), password);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
     }
 
     [Theory]
