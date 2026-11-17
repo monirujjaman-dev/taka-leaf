@@ -30,3 +30,11 @@ pnpm --filter @takaleaf/mobile start     # Metro for the development app afterwa
 ```
 
 The development app shows **Run the background task now** to test the task without waiting.
+
+## What the app does
+
+Everything in TakaLeaf works offline on the phone: wallets, income, expenses and transfers (with
+fees), people and loans, budgets, recurring entries, reports and categories. Changes are saved in
+SQLite first and synced with your server when there is a connection. More → Sync shows what is
+waiting and anything the server did not accept. More → App lock adds a PIN or fingerprint, and
+More → Daily reminder a notification each evening.

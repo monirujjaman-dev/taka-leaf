@@ -146,6 +146,7 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Reports | `GET /reports?period=Month&month=yyyy-MM` or `?period=Year&year=yyyy`: income, expense, saved, by category (with sub-categories), trend (6 or 12 months). Only income and expense count |
 | People | `GET/POST /people`, `GET/PUT/DELETE /people/{id}`, `POST /people/{id}/loans`, `PUT/DELETE /people/{id}/loans/{loanId}` (Lend, GotBack, Borrow, PaidBack) |
 | Budgets | `GET /budgets?month=`, `POST /budgets`, `PUT/DELETE /budgets/{id}` (status OnTrack / Near ≥ 80% / Over) |
+| Sync | `GET /sync/pull?cursor=&protocol=1` (rows changed after the cursor, deletions included, 500 a page, `cursor`, `hasMore`), `POST /sync/push` `{ protocol, changes: [{ mutationId, table, row }] }` (≤ 200; each `accepted` / `superseded` / `rejected` with a reason, plus `current`, the server's row); 426 for an outdated app |
 | Recurring | `GET /recurring`, `GET /recurring/due`, `GET/PUT/DELETE /recurring/{id}`, `POST /recurring`, `POST /{id}/record`, `/skip`, `/pause`, `/resume` |
 
 Unknown `/api/...` paths return a 404 problem. [backend/TakaLeaf.App/TakaLeaf.App.http](../backend/TakaLeaf.App/TakaLeaf.App.http)
@@ -296,12 +297,23 @@ production server, `https://takaleaf.monirujjaman.dev` (`app.json` `extra.defaul
 
 ```text
 apps/mobile/
-  app/             Expo Router screens (_layout runs the SQLite migrations)
-  src/db/          schema.ts (Drizzle), client.ts (expo-sqlite), store.ts (queries on any sync Drizzle DB)
-  src/api/         calls to the user's server
-  src/background.ts  the background task (defined at start-up so Android can run it with the app closed)
+  app/             Expo Router screens: (auth) sign-in flow, (tabs) Home/History/Reports/More, forms
+  src/db/          schema.ts (Drizzle, mirrors the server tables + outbox + sync_rejects), client.ts
+  src/data/        the money rules on SQLite: wallets, transactions (fees), people (loans), categories
+                   (merge), budgets, recurring (DateFor), reports, dashboard; every write = row + outbox
+  src/sync/        engine.ts: push the outbox, apply answers, pull pages (no network code inside)
+  src/api/         ApiClient (bearer, one refresh on 401, refresh token in expo-secure-store)
+  src/state/       AppState (session, sync triggers, data version), app lock, daily reminder
+  src/background.ts  background sync task (defined at start-up so Android can run it with the app closed)
   drizzle/         migrations from `pnpm --filter @takaleaf/mobile db:generate`; never edit by hand
 ```
+
+Screens read SQLite through `useData(read, deps)`, which re-runs on every database change (expo-sqlite
+change listener), so a sync or a save refreshes what is on screen. Sync runs a few seconds after a
+save, when the app comes to the front (if the last sync is over two minutes old or changes wait),
+when the connection returns (NetInfo), in the background task, and on the Sync button; failures retry
+after 30 s, 1, 2, 5 and 15 minutes. Automatic recurring rules are recorded by the server only; the
+phone records "ask me" rules by hand.
 
 Store functions take an `AppDb` (any synchronous Drizzle SQLite database), so the unit tests run
 the same queries and migrations in Node on sql.js. Colours come from `packages/shared` (`themes`).
