@@ -37,7 +37,27 @@ public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options,
     /// number, so "what changed since X" is always answerable, and then drops the cached read
     /// answers of every user whose rows changed.
     /// </summary>
+    /// <remarks>
+    /// A user's saves are serialised with a transaction-level advisory lock taken before the
+    /// sequence numbers, so they commit in ServerSeq order. Without it a save that took number 10
+    /// could commit after one that took 11, and a sync pull that had already moved its cursor past
+    /// 11 would never see row 10.
+    /// </remarks>
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var stamping = ChangeTracker.Entries<SyncedEntity>().Any(entry => entry.State is EntityState.Added or EntityState.Modified);
+        if (!stamping || Database.CurrentTransaction is not null)
+        {
+            return await StampAndSaveAsync(cancellationToken);
+        }
+
+        await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
+        var saved = await StampAndSaveAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return saved;
+    }
+
+    private async Task<int> StampAndSaveAsync(CancellationToken cancellationToken)
     {
         var changed = ChangeTracker.Entries<SyncedEntity>()
             .Where(entry => entry.State is EntityState.Added or EntityState.Modified)
@@ -49,6 +69,12 @@ public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options,
 
         if (changed.Count > 0)
         {
+            foreach (var user in changed.Select(entry => entry.Entity.UserId).Distinct().Order())
+            {
+                var key = user.ToString();
+                await Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock(hashtextextended({key}, 0))", cancellationToken);
+            }
+
             var now = clock.GetUtcNow();
             var count = changed.Count;
             var sequenceNumbers = await Database
