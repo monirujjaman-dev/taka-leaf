@@ -1,18 +1,15 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { api, ApiError } from "../api/client";
-import { useAndroidApp } from "../api/queries";
 import type { MessageResponse } from "../api/types";
 import { Button } from "../ui/Button";
 import { ErrorNote, SuccessNote } from "../ui/Feedback";
 import { TextField } from "../ui/Field";
-import { Icon } from "../ui/Icon";
 import { useAuth } from "./AuthContext";
 import { AuthLayout, linkClass } from "./AuthLayout";
 import { PasswordField } from "./PasswordField";
 
 export function SignInPage() {
-  const android = useAndroidApp();
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -82,15 +79,6 @@ export function SignInPage() {
           Create account
         </Link>
       </div>
-      {android.data ? (
-        <a
-          href={android.data.downloadUrl}
-          className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-[14px] border border-[var(--tl-glass-border)] text-sm font-bold text-[var(--tl-primary)] hover:bg-[var(--tl-chip)]"
-        >
-          <Icon name="phone" size={18} />
-          Get the Android app
-        </a>
-      ) : null}
     </AuthLayout>
   );
 }

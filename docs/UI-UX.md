@@ -46,7 +46,7 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 
 | Screen | Contents | States |
 | --- | --- | --- |
-| Sign in | "Welcome back"; forest brand panel ("Your Money. Your Control.") beside the card on desktop, a short band above it on phones; email, password (show/hide), "Forgot password?" and "Create account", and "Get the Android app" when offered | Wrong password, locked (minutes left), email not verified with "Send the link again" |
+| Sign in | "Welcome back"; forest brand panel ("Your Money. Your Control.") beside the card on desktop, a short band above it on phones; email, password (show/hide), "Forgot password?" and "Create account" | Wrong password, locked (minutes left), email not verified with "Send the link again" |
 | Create account | Your name (autocomplete "name", how TakaLeaf greets you), email, password with the rule as a hint | Field errors beside fields (name checked before sending); "Check your email" confirmation |
 | Verify email | Verifies once on open | Verifying, success, expired/used link |
 | Forgot / reset password | Email → same answer for any email; new password from the link | Link used or expired → "Get a new link" |

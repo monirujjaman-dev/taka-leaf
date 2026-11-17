@@ -18,16 +18,6 @@ describe("signing in", () => {
     setSession(null);
   });
 
-  it("offers the Android app on the sign-in page", async () => {
-    fakeApi({
-      "POST /auth/refresh": signedOut,
-      "GET /app/android": { body: { downloadUrl: "https://example.test/takaleaf.apk" } },
-    });
-    renderApp("/sign-in");
-
-    expect(await screen.findByRole("link", { name: "Get the Android app" })).toHaveAttribute("href", "https://example.test/takaleaf.apk");
-  });
-
   it("sends a signed-out visitor to sign in, then to the dashboard", async () => {
     const { calls } = fakeApi({
       "POST /auth/refresh": signedOut,

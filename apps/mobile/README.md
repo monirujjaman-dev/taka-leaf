@@ -2,8 +2,8 @@
 
 ## Try it on your phone (no Android Studio needed)
 
-1. On the phone, open TakaLeaf on the web (https://takaleaf.monirujjaman.dev) and tap
-   **Get the Android app** on the sign-in page or in Settings. (The same file is the latest
+1. On the phone, open TakaLeaf on the web (https://takaleaf.monirujjaman.dev) and sign in, and tap
+   **More → Get the Android app**. (The same file is the latest
    release on GitHub: every green Android build on `main` is published there.)
 2. Copy the APK to the phone and open it. Allow "Install unknown apps" for your file manager or browser
    when Android asks. (Until A4 the APK is signed with a development key; you will reinstall the

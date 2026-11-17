@@ -13,7 +13,7 @@ public static class GetAndroidApp
 
     public static IEndpointRouteBuilder MapAppInfo(this IEndpointRouteBuilder api)
     {
-        api.MapGet("/app/android", Handle).WithName("GetAndroidApp").WithTags("App").AllowAnonymous();
+        api.MapGet("/app/android", Handle).WithName("GetAndroidApp").WithTags("App").RequireAuthorization();
         return api;
     }
 
