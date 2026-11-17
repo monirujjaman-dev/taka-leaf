@@ -88,11 +88,11 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={on}
             onClick={() => onChange(option.value)}
-            className={`h-9 min-w-0 flex-1 cursor-pointer truncate rounded-[11px] px-2 text-sm font-bold ${focusRing} ${
+            className={`tap-area h-9 min-w-0 flex-1 cursor-pointer rounded-[11px] px-2 text-sm font-bold ${focusRing} ${
               on ? "bg-forest text-white" : "text-[var(--tl-muted)] hover:text-[var(--tl-text)]"
             }`}
           >
-            {option.label}
+            <span className="block truncate">{option.label}</span>
           </button>
         );
       })}

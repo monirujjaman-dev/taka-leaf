@@ -112,7 +112,10 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 
 ## 7. Responsive and accessibility
 
-- Checked at 390 × 844 and 1440 × 900 in both themes, with no sideways scrolling. Grids drop to one
+- Checked at 390 × 844 and 1440 × 900 in both themes, with no sideways scrolling, and also at 320 and
+  360 px, a phone on its side (844 × 390), a tablet both ways (768 × 1024, 1024 × 768) and 200% zoom.
+- Every touch target is at least 44 px. Text links and 36 px segments get an invisible 44 px area
+  (`tap-area`); a history table row is tappable across its whole width. Grids drop to one
   column and long names truncate. Amounts are never cut off: they stay on one line where they fit and
   wrap only when a very large figure cannot.
 - A row that opens an editor keeps what it shows as its name (name, detail, amount) and adds a hidden

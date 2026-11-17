@@ -262,11 +262,14 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
             ))}
           </div>
 
-          <ErrorNote>{generalError ?? messageOf(remove.error)}</ErrorNote>
-
-          <Button type="submit" disabled={save.isPending} className="h-[52px] w-full rounded-[18px] text-base font-extrabold">
-            {save.isPending ? "Saving…" : transaction ? "Save changes" : `Save ${type.toLowerCase()}`}
-          </Button>
+          {/* Pinned to the bottom of the sheet, so a 360 px phone or a phone on its side can save
+              without scrolling past the number pad. Content scrolls under it behind a short fade. */}
+          <div className="sticky -bottom-5 z-10 -mx-5 flex flex-col gap-3 bg-[var(--sheet-bg)] px-5 pb-5 pt-2 [--sheet-bg:var(--tl-bg)] before:pointer-events-none before:absolute before:inset-x-0 before:-top-4 before:h-4 before:bg-linear-to-t before:from-[var(--sheet-bg)] before:to-transparent sm:[--sheet-bg:var(--tl-surface)]">
+            <ErrorNote>{generalError ?? messageOf(remove.error)}</ErrorNote>
+            <Button type="submit" disabled={save.isPending} className="h-[52px] w-full rounded-[18px] text-base font-extrabold">
+              {save.isPending ? "Saving…" : transaction ? "Save changes" : `Save ${type.toLowerCase()}`}
+            </Button>
+          </div>
 
           {transaction ? (
             confirmDelete ? (

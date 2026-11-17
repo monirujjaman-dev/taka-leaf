@@ -120,7 +120,7 @@ function TabBar() {
   return (
     <nav
       aria-label="Main"
-      className="glass fixed inset-x-4 bottom-4 z-30 flex h-[68px] items-center justify-between rounded-[24px] px-2.5 lg:hidden"
+      className="glass fixed inset-x-4 bottom-4 z-30 mx-auto flex h-[68px] max-w-md items-center justify-between rounded-[24px] px-2.5 lg:hidden"
     >
       <Tab to="/" label="Home" icon="home" active={pathname === "/"} />
       <Tab to="/transactions" label="History" icon="list" active={under("/transactions")} />

@@ -126,11 +126,36 @@ body {
     backdrop-filter: blur(20px) saturate(140%);
   }
 
+  /* Touch screens: fields use at least 16 px text, or iOS Safari zooms the page when one is focused.
+     1em is the parent's size, so large fields (the 48 px amount) keep theirs. */
+  @media (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      font-size: max(16px, 1em) !important;
+    }
+  }
+
   /* Inside a dialog the glass sits on a solid surface, so blurring it shows nothing and only costs
      frames on slower phones. It keeps the same tint, border and shadow. */
   [role="dialog"] .glass {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+}
+
+/* A 44 × 44 px touch area around a control that looks smaller (a text link, a 36 px segment),
+   without changing its size or the layout. The element must not clip its overflow. */
+@utility tap-area {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
   }
 }
 

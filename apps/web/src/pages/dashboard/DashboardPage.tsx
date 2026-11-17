@@ -19,7 +19,7 @@ import { BudgetBar } from "../budgets/BudgetBar";
 import { DueList } from "../recurring/DueList";
 import { TransactionRow } from "../transactions/TransactionRow";
 
-const linkClass = `text-[13px] font-bold text-[var(--tl-primary)] ${focusRing} rounded-[6px]`;
+const linkClass = `tap-area text-[13px] font-bold text-[var(--tl-primary)] ${focusRing} rounded-[6px]`;
 
 function walletDetail(wallet: Wallet): string {
   if (wallet.type === "CreditCard" && wallet.availableCredit !== null) return `${formatBdt(wallet.availableCredit)} left`;

@@ -1,4 +1,5 @@
 import { useState, type InputHTMLAttributes } from "react";
+import { focusRing } from "../ui/Button";
 import { TextField } from "../ui/Field";
 
 export function PasswordField(props: InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string; hint?: string }) {
@@ -9,7 +10,7 @@ export function PasswordField(props: InputHTMLAttributes<HTMLInputElement> & { l
       <button
         type="button"
         onClick={() => setShown((value) => !value)}
-        className="absolute right-2 top-[30px] h-10 cursor-pointer rounded-[10px] px-2.5 text-[13px] font-bold text-[var(--tl-primary)] hover:bg-[var(--tl-chip)]"
+        className={`absolute right-1.5 top-[27px] h-11 min-w-11 cursor-pointer rounded-[12px] px-2.5 text-[13px] font-bold text-[var(--tl-primary)] hover:bg-[var(--tl-chip)] ${focusRing}`}
         aria-label={shown ? `Hide ${props.label.toLowerCase()}` : `Show ${props.label.toLowerCase()}`}
       >
         {shown ? "Hide" : "Show"}

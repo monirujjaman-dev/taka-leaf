@@ -48,4 +48,4 @@ export function AuthLayout({ title, intro, children }: { title: string; intro?: 
   );
 }
 
-export const linkClass = "font-bold text-[var(--tl-primary)] underline-offset-4 hover:underline";
+export const linkClass = "tap-area font-bold text-[var(--tl-primary)] underline-offset-4 hover:underline";

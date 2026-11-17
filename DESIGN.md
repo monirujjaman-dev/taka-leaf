@@ -259,9 +259,11 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   and a primary border plus 25% ring on focus. Errors turn the border expense and show a message
   below, linked with `aria-describedby`. Amount fields use `inputmode="decimal"` and the placeholder
   `0.00`.
+  On touch screens field text is at least 16px, so iOS does not zoom in when a field is focused.
 - **Segmented control** (Expense · Income · Transfer, All · Expense · Income · Transfer, Month ·
   Year, All · Owed to me · I owe): a 44 px glass track with 3 px padding; 36 px options with radius
   11 px; the chosen one is solid forest with white text. Options are radios.
+  Each option keeps a 44 px touch area (the `tap-area` utility) around its 36 px look.
 - **Glass card**: radius 20–22 px, padding 16–20 px, holding a title row with a primary text link on
   the right ("See all", "History").
 - **List card**: a glass card (radius 20, padding 4/14) of 54–62 px rows: a 36–40 px icon tile or a
@@ -282,11 +284,14 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   to your server". The phone tab bar has four icon-over-label items (22 px icons, 10px/700 labels,
   active in primary with no tint) around the centre Add button; More lights up on every screen
   reached from it.
+  On tablets the tab bar keeps phone width (448 px max), centred, so both thumbs reach Add.
 - **Add sheet**: full screen on phones, a 512 px dialog on desktop. A 44 px glass close button and
   a 17px title; the type switch; a centred 48px amount (rust for expense, green for income) over
   an "Add a note" pill; up to eight quick category chips (selected: forest border on mint); 52 px
   glass picker rows (radius 16) for wallets, category and time; a 3 × 4 number pad of 48 px glass
   keys on phones; and a 52 px "Save expense" button (radius 18).
+  The Save row is pinned to the bottom of the sheet (content scrolls under a short fade), so a
+  360 px phone, a phone on its side or 200% zoom can save without scrolling.
 - **Dialog**: a bottom sheet on phones (top corners 26 px) and a centred 512 px dialog on desktop,
   with a solid surface, a title and a round 44 px close button, actions on the right (Cancel
   secondary, Save primary) and any destructive action on the left.
