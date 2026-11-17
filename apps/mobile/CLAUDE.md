@@ -15,3 +15,11 @@
   Touch targets at least 48 dp; every input has an accessibility label.
 - Checks: `pnpm --filter @takaleaf/mobile typecheck && pnpm --filter @takaleaf/mobile test`, and
   `pnpm --filter @takaleaf/mobile bundle` to prove Metro can bundle. The Android workflow builds the APK.
+
+## Release builds
+
+- R8 shrinks release builds. Libraries that create classes by reflection need keep rules in
+  `app.json` (`expo-build-properties` → `android.extraProguardRules`); WorkManager's Room
+  database is one (without it the app closed on start).
+- CI's "Opens on Android 16" job launches the release APK on an emulator; nothing is published
+  unless it stays open.

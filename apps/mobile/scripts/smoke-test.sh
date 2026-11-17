@@ -16,7 +16,7 @@ pid=$(adb shell pidof "$pkg" | tr -d '\r')
 echo "--- crash lines ---"
 grep -E "FATAL EXCEPTION|AndroidRuntime|ReactNativeJS|DEBUG   :|libc    :|Fatal signal|SoLoader|ExpoModulesCore|Unhandled" logcat.txt | head -150
 
-if [ -z "$pid" ] || grep -q "FATAL EXCEPTION\|Fatal signal" logcat.txt; then
+if [ -z "$pid" ] || grep -q "FATAL EXCEPTION\|Fatal signal\|E/ReactNativeJS" logcat.txt; then
   echo "TakaLeaf did not stay open."
   exit 1
 fi
