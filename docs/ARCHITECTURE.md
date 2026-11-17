@@ -286,7 +286,8 @@ on every user table, and refresh tokens in the response body for `client: "mobil
 
 The app is in `apps/mobile/`: Expo SDK 58, React Native 0.88, Expo Router, TypeScript strict,
 Android 7.0 (API 24) and newer, package `com.takaleaf.app`. The `Android` workflow builds an APK
-(version code = run number) and, on `main`, publishes it as the latest GitHub Release
+(version code = run number), opens the same release build on an Android 16 emulator
+(`apps/mobile/scripts/smoke-test.sh`: fails on a crash or a JS error) and, on `main`, publishes it as the latest GitHub Release
 (`android-v<version>-build.<n>`, `takaleaf.apk` + checksum). The web app links to
 `releases/latest/download/takaleaf.apk` from Settings (More on phones), after sign-in. The app fills in the
 production server, `https://takaleaf.monirujjaman.dev` (`app.json` `extra.defaultServerUrl`).
