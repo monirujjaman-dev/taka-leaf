@@ -1,22 +1,26 @@
-import { AppLoader } from "../ui/AppLoader";
+import { Suspense } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 import { useAuth } from "../auth/AuthContext";
-import { ForgotPasswordPage } from "../auth/ForgotPasswordPage";
-import { RegisterPage } from "../auth/RegisterPage";
-import { ResetPasswordPage } from "../auth/ResetPasswordPage";
-import { SignInPage } from "../auth/SignInPage";
-import { VerifyEmailPage } from "../auth/VerifyEmailPage";
 import { AppShell } from "../layout/AppShell";
-import { BudgetsPage } from "../pages/budgets/BudgetsPage";
-import { CategoriesPage } from "../pages/categories/CategoriesPage";
-import { DashboardPage } from "../pages/dashboard/DashboardPage";
-import { PeoplePage } from "../pages/people/PeoplePage";
-import { PersonPage } from "../pages/people/PersonPage";
-import { RecurringPage } from "../pages/recurring/RecurringPage";
-import { ReportsPage } from "../pages/reports/ReportsPage";
-import { SettingsPage } from "../pages/settings/SettingsPage";
-import { TransactionsPage } from "../pages/transactions/TransactionsPage";
-import { WalletsPage } from "../pages/wallets/WalletsPage";
+import { AppLoader } from "../ui/AppLoader";
+import { PageBoundary } from "../ui/PageBoundary";
+import {
+  BudgetsPage,
+  CategoriesPage,
+  DashboardPage,
+  ForgotPasswordPage,
+  PeoplePage,
+  PersonPage,
+  RecurringPage,
+  RegisterPage,
+  ReportsPage,
+  ResetPasswordPage,
+  SettingsPage,
+  SignInPage,
+  TransactionsPage,
+  VerifyEmailPage,
+  WalletsPage,
+} from "./routes";
 
 function Starting() {
   return (
@@ -44,31 +48,38 @@ function SignedOutOnly() {
 }
 
 export function App() {
+  const { pathname } = useLocation();
+  // Signed-in pages load inside AppShell's own boundary, so the navigation stays put meanwhile;
+  // this one covers the sign-in pages and the start-up.
   return (
-    <Routes>
-      <Route element={<SignedOutOnly />}>
-        <Route path="/sign-in" element={<SignInPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      </Route>
-      {/* Links from emails work whether or not someone is signed in on this browser. */}
-      <Route path="/verify-email" element={<VerifyEmailPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route element={<RequireSignIn />}>
-        <Route element={<AppShell />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="/transactions" element={<TransactionsPage />} />
-          <Route path="/wallets" element={<WalletsPage />} />
-          <Route path="/people" element={<PeoplePage />} />
-          <Route path="/people/:id" element={<PersonPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/budgets" element={<BudgetsPage />} />
-          <Route path="/recurring" element={<RecurringPage />} />
-          <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Route>
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <PageBoundary resetKey={pathname}>
+      <Suspense fallback={<Starting />}>
+        <Routes>
+          <Route element={<SignedOutOnly />}>
+            <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          </Route>
+          {/* Links from emails work whether or not someone is signed in on this browser. */}
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route element={<RequireSignIn />}>
+            <Route element={<AppShell />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/wallets" element={<WalletsPage />} />
+              <Route path="/people" element={<PeoplePage />} />
+              <Route path="/people/:id" element={<PersonPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/budgets" element={<BudgetsPage />} />
+              <Route path="/recurring" element={<RecurringPage />} />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </PageBoundary>
   );
 }

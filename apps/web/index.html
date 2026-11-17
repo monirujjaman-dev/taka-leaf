@@ -30,10 +30,11 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@500;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Inter has no taka sign. Ask for just ৳ from Noto Sans Bengali (4 KB) rather than the whole
+         Bengali script (105 KB), which every page with an amount used to download. Bengali text
+         typed into a note falls back to the system's Bengali font. -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@500..800&text=%E0%A7%B3&display=swap" rel="stylesheet" />
     <title>TakaLeaf: Your Money. Your Control.</title>
     <!-- Picks the theme before the first paint, as app/theme.tsx will, so the start-up loader matches. A file, not inline: the CSP allows only scripts from this site. -->
     <script src="/theme-boot.js"></script>

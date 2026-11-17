@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { api, onSignedOut, refreshSession, setSession } from "../api/client";
+import { api, onSignedOut, refreshSession, setSession, takePrimedSession } from "../api/client";
 import type { AuthResponse, AuthUser } from "../api/types";
 
 type AuthState = { status: "loading" } | { status: "signedOut" } | { status: "signedIn"; user: AuthUser };
@@ -21,8 +21,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    // A returning visitor still has a refresh cookie: pick the session back up.
-    refreshSession()
+    // A returning visitor still has a refresh cookie: pick the session back up (main.tsx has
+    // usually started this already).
+    (takePrimedSession() ?? refreshSession())
       .then((user) => active && setState(user ? { status: "signedIn", user } : { status: "signedOut" }))
       .catch(() => active && setState({ status: "signedOut" }));
     const stop = onSignedOut(() => {

@@ -9,7 +9,7 @@ import { focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { compactTaka, localMonth, monthLabel, shortMonth } from "../../ui/format";
-import { BudgetBar } from "../budgets/BudgetsPage";
+import { BudgetBar } from "../budgets/BudgetBar";
 import { MonthPicker } from "../../ui/MonthPicker";
 
 function YearSwitcher({ year, onChange }: { year: number; onChange: (year: number) => void }) {

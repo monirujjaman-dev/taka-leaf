@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { prefetchSignedInPages } from "../app/routes";
 import { useTheme } from "../app/theme";
 import { useAuth } from "../auth/AuthContext";
 import { Logo } from "../shared/Logo";
@@ -7,6 +8,8 @@ import { Backdrop } from "../ui/Backdrop";
 import { focusRing } from "../ui/Button";
 import { Icon, type IconName } from "../ui/Icon";
 import { iconButtonClass } from "../ui/Parts";
+import { Loading } from "../ui/Feedback";
+import { PageBoundary } from "../ui/PageBoundary";
 import { useOnline } from "../ui/useOnline";
 import { TransactionSheetProvider, useTransactionSheet } from "./TransactionSheet";
 
@@ -154,6 +157,9 @@ function OfflineNote() {
 }
 
 export function AppShell() {
+  const { pathname } = useLocation();
+  // Once the first page is up, fetch the others and the add sheet in the background.
+  useEffect(prefetchSignedInPages, []);
   return (
     <TransactionSheetProvider>
       <div className="relative min-h-screen">
@@ -168,7 +174,11 @@ export function AppShell() {
           <Sidebar />
           <main id="main" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 outline-none lg:px-0 lg:pb-5 lg:pt-0">
             <OfflineNote />
-            <Outlet />
+            <PageBoundary resetKey={pathname}>
+              <Suspense fallback={<Loading />}>
+                <Outlet />
+              </Suspense>
+            </PageBoundary>
           </main>
         </div>
         <TabBar />

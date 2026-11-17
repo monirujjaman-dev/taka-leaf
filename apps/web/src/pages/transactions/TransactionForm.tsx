@@ -139,7 +139,7 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
               Amount (৳)
             </label>
             <div
-              className={`flex max-w-full items-baseline justify-center gap-1 rounded-[16px] px-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--tl-primary)] ${tone}`}
+              className={`flex max-w-full items-baseline justify-center gap-1 rounded-[16px] px-2 in-data-[input=keyboard]:focus-within:outline-2 in-data-[input=keyboard]:focus-within:outline-offset-2 in-data-[input=keyboard]:focus-within:outline-[var(--tl-primary)] ${tone}`}
               // Long amounts step down in size so every digit stays in view on a phone.
               style={{ fontSize: `${Math.max(28, Math.min(48, Math.floor((48 * 10) / Math.max(amount.length, 10))))}px` }}
             >

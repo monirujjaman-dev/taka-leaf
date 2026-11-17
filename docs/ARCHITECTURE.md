@@ -183,6 +183,7 @@ has ready-made requests.
 
 ```
 src/api/        client.ts (fetch + silent refresh), queries.ts (TanStack Query hooks), types.ts
+src/app/        App (routes), routes.ts (lazy pages, preloading, prefetching), Providers, theme
 src/auth/       AuthContext, sign-in / register / verify / forgot / reset pages
 src/layout/     AppShell (240 px sidebar on desktop; tab bar with a centre Add on phones), PageHeader,
                 TransactionSheet (one transaction form for the whole app)
@@ -194,7 +195,16 @@ src/test/       fakeApi (fetch stand-in), renderApp
 - **Server data** lives only in TanStack Query. After a change, every money query (dashboard,
   wallets, transactions, people, budgets, recurring) is invalidated together.
 - **Silent refresh:** a 401 triggers one shared refresh request and a single retry. If that fails,
-  the app signs out.
+  the app signs out. Requests give up after 30 seconds.
+- **Start-up and loading:** each page is its own chunk, loaded through `app/routes.ts`; a new page
+  goes there, not straight into `App.tsx`. The build (`vite.config.ts`) keeps everything the shell
+  needs in one `core` chunk and code that several pages share in one `pages` chunk, so a phone makes
+  three script requests, not twenty. Before React renders, `main.tsx` restores the session, fetches
+  the current page's chunk and, on the dashboard, its data, all at once; sign-in does the same for
+  the page it returns to. The other pages and the transaction sheet are fetched when the browser is
+  idle (not with Save-Data on). `ui/PageBoundary` shows "Reload" if a chunk is gone after a deploy.
+- **Fonts:** Inter from Google Fonts; only the ৳ glyph comes from Noto Sans Bengali (`&text=৳`,
+  4 KB), because Inter has none. Bengali text typed by the person uses the system's Bengali font.
 - **Amounts** are typed as taka text ("1,250.50") and turned into poisha with `parseTaka`. Credit
   card debt is typed as a positive "amount owed".
 - **Layout:** works from 390 px phones to desktop with no sideways scrolling. On phones the five tabs

@@ -121,6 +121,24 @@ export function refreshSession(): Promise<AuthUser | null> {
   return refreshing;
 }
 
+let primed: Promise<AuthUser | null> | null = null;
+
+/**
+ * Starts restoring the session as the script loads (main.tsx), before React has rendered, so the
+ * refresh call overlaps start-up instead of waiting for it. AuthProvider takes this promise once.
+ */
+export function primeSession(): Promise<AuthUser | null> {
+  primed ??= refreshSession();
+  return primed;
+}
+
+/** The primed session, once: a second caller (or a test that never primed) refreshes as usual. */
+export function takePrimedSession(): Promise<AuthUser | null> | null {
+  const promise = primed;
+  primed = null;
+  return promise;
+}
+
 export interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: unknown;

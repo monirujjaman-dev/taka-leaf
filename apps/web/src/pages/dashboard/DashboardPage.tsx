@@ -15,7 +15,7 @@ import { MonthPicker } from "../../ui/MonthPicker";
 import { useWide } from "../../ui/useWide";
 import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatTile, walletIcon } from "../../ui/Parts";
 import { localMonth, monthLabel, WALLET_TYPE_LABEL } from "../../ui/format";
-import { BudgetBar } from "../budgets/BudgetsPage";
+import { BudgetBar } from "../budgets/BudgetBar";
 import { DueList } from "../recurring/DueList";
 import { TransactionRow } from "../transactions/TransactionRow";
 

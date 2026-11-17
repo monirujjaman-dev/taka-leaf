@@ -14,6 +14,31 @@ function siteUrl(): Plugin {
 // The backend runs on http://localhost:5080 in development; /api is proxied to it.
 export default defineConfig({
   plugins: [react(), tailwindcss(), siteUrl()],
+  build: {
+    rolldownOptions: {
+      output: {
+        /*
+         * Pages are loaded on demand (app/routes.ts). Without these groups the bundler cuts the shared
+         * code into a dozen tiny files, and on a phone each costs a round trip, queued with the
+         * session request. So: one "core" chunk with everything the shell needs, one "pages" chunk
+         * with the parts several pages share, and one chunk per page.
+         */
+        codeSplitting: {
+          groups: [
+            {
+              name: "core",
+              priority: 2,
+              test: (id) =>
+                /node_modules|[\\/]packages[\\/]shared[\\/]/.test(id) ||
+                /[\\/]apps[\\/]web[\\/]src[\\/](ui|layout|api|shared|app)[\\/]/.test(id) ||
+                /[\\/]src[\\/]auth[\\/]AuthContext/.test(id),
+            },
+            { name: "pages", priority: 1, test: /[\\/]src[\\/](pages|auth)[\\/]/, minShareCount: 2 },
+          ],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {
