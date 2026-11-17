@@ -77,8 +77,10 @@ owner="${REPO%%/*}"
 for b in $(gh api "$R/branches" --paginate --jq '.[].name'); do
   case "$b" in main|develop) continue ;; esac
   # Squash merges leave the branch "ahead", so look for a merged PR instead, or nothing new.
-  merged=$(gh api "$R/pulls?state=closed&head=$owner:$b&per_page=1" --jq '.[0].merged_at // empty')
-  if [ -n "$merged" ] || [ "$(gh api "$R/compare/develop...$b" --jq .ahead_by)" = 0 ]; then
+  # Only trust the merged PR if the branch tip is the commit it merged: a reused name may hold new work.
+  merged_sha=$(gh api "$R/pulls?state=closed&head=$owner:$b&per_page=1" --jq '.[0] | select(.merged_at) | .head.sha // empty')
+  tip=$(gh api "$R/git/ref/heads/$b" --jq .object.sha)
+  if { [ -n "$merged_sha" ] && [ "$merged_sha" = "$tip" ]; } || [ "$(gh api "$R/compare/develop...$b" --jq .ahead_by)" = 0 ]; then
     gh api -X DELETE "$R/git/refs/heads/$b" && echo "   deleted $b"
   fi
 done
