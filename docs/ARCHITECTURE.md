@@ -264,6 +264,8 @@ After the save `OutboxSignal` wakes `OutboxWorker`, which also polls every `Outb
   `DataProtection:CertificatePath`. `DataProtection:PreviousCertificatePaths` lets old certificates
   still decrypt existing keys after a change. Both are optional; without them the framework defaults
   apply (`Common/DataProtectionSetup.cs`).
+- **Link previews:** `index.html` carries Open Graph and X card tags with absolute URLs built from
+  `SITE_URL` (Vite plugin in `vite.config.ts`; Docker build arg, default `https://takaleaf.monirujjaman.dev`).
 - **Production:** a single Docker image (see `Dockerfile`). Migrations run on start. The health
   endpoint is `/api/health`. Backups are daily `pg_dump` to S3 through Dokploy.
 
