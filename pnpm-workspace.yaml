@@ -1,8 +1,12 @@
 packages:
-  - "apps/*"
-  - "packages/*"
-  - "e2e"
+  - apps/*
+  - packages/*
+  - e2e
 
-# One React for the web and Android apps, so Metro never bundles two copies.
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - better-sqlite3
+  - esbuild
+
 overrides:
   react: 19.3.1
