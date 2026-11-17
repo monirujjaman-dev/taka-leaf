@@ -4,6 +4,7 @@ using TakaLeaf.App.Common;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Categories;
+using TakaLeaf.App.Features.Loans;
 using TakaLeaf.App.Features.People;
 using TakaLeaf.App.Features.Recurring;
 using TakaLeaf.App.Features.Transactions;
@@ -30,6 +31,7 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
                 "transactions" => await TransactionAsync(change.MutationId, Read<TransactionRow>(change), cancellationToken),
                 "budgets" => await BudgetAsync(change.MutationId, Read<BudgetRow>(change), cancellationToken),
                 "recurringRules" => await RecurringAsync(change.MutationId, Read<RecurringRuleRow>(change), cancellationToken),
+                "loans" => await LoanAsync(change.MutationId, Read<LoanRow>(change), cancellationToken),
                 _ => Result(change.MutationId, SyncRules.Rejected, "This kind of change is not known to the server.", null),
             };
         }
@@ -196,6 +198,17 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
             return "Give the wallet a name.";
         }
 
+        if (row.Type == WalletType.Loan || existing?.Type == WalletType.Loan)
+        {
+            if (existing is not null && existing.Type != row.Type)
+            {
+                return "A loan's wallet keeps its type.";
+            }
+
+            return name.Length > WalletRules.NameMax ? $"Give the wallet a name of up to {WalletRules.NameMax} characters."
+                : row.PersonId is not null || row.CreditLimit is not null ? "A loan's wallet has no person or credit limit." : null;
+        }
+
         if (!personWallet)
         {
             if (row.PersonId is not null)
@@ -350,7 +363,18 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
 
     // Transactions
 
-    private Task<PushResult> TransactionAsync(Guid mutationId, TransactionRow row, CancellationToken cancellationToken) =>
+    private async Task<PushResult> TransactionAsync(Guid mutationId, TransactionRow row, CancellationToken cancellationToken)
+    {
+        // An EMI's interest saved offline without a category goes under Loan interest, as on the server.
+        if (row.LoanId is not null && row.LoanPart == LoanPart.Interest && row.CategoryId is null && row.DeletedAt is null)
+        {
+            row = row with { CategoryId = await LoanRules.InterestCategoryAsync(db, userId, cancellationToken) };
+        }
+
+        return await TransactionUpsertAsync(mutationId, row, cancellationToken);
+    }
+
+    private Task<PushResult> TransactionUpsertAsync(Guid mutationId, TransactionRow row, CancellationToken cancellationToken) =>
         UpsertAsync(
             mutationId, db.Transactions, row.Id, row.UpdatedAt, row.DeletedAt is not null,
             existing => CheckTransactionAsync(row, existing, cancellationToken),
@@ -367,6 +391,9 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
                 transaction.RecurringDate = row.RecurringDate;
                 transaction.OccurredAt = row.OccurredAt.ToUniversalTime();
                 transaction.Note = Text.Clean(row.Note);
+                transaction.LoanId = row.LoanId;
+                transaction.LoanEmi = row.LoanId is null ? null : row.LoanEmi;
+                transaction.LoanPart = row.LoanId is null ? null : row.LoanPart;
             },
             Fine,
             async transaction =>
@@ -409,6 +436,11 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
             && !await db.RecurringRules.IgnoreQueryFilters().AnyAsync(r => r.Id == ruleId && r.UserId == userId, cancellationToken))
         {
             return "That recurring transaction does not exist.";
+        }
+
+        if (row.LoanId is { } loanId)
+        {
+            return await CheckLoanRowAsync(row, loanId, cancellationToken);
         }
 
         if (row.FeeOfId is { } feeOf)
@@ -468,6 +500,134 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
         var personSide = wallets.Count(w => w.PersonId == personId && WalletRules.IsPersonWallet(w.Type));
         var ownSide = wallets.Count(w => !WalletRules.IsPersonWallet(w.Type));
         return personSide == 1 && ownSide == 1 ? null : "Choose one of your own wallets and this person's loan.";
+    }
+
+    /// <summary>A loan's row has the shape its part needs: money into or out of the loan's own wallet, or an expense from one of the user's.</summary>
+    private async Task<string?> CheckLoanRowAsync(TransactionRow row, Guid loanId, CancellationToken cancellationToken)
+    {
+        var loan = await db.Loans.FirstOrDefaultAsync(l => l.Id == loanId && l.UserId == userId, cancellationToken);
+        if (loan is null)
+        {
+            return "That loan does not exist.";
+        }
+
+        if (row.LoanPart is not { } part || !Enum.IsDefined(part) || row.PersonId is not null || row.FeeOfId is not null)
+        {
+            return "This loan entry could not be read.";
+        }
+
+        if (row.LoanEmi is <= 0)
+        {
+            return "An EMI number starts at 1.";
+        }
+
+        var (type, fromLoan, toLoan) = part switch
+        {
+            LoanPart.Disbursement => (TransactionType.Transfer, true, false),
+            LoanPart.Purchase => (TransactionType.Expense, true, false),
+            LoanPart.Principal => (TransactionType.Transfer, false, true),
+            _ => (TransactionType.Expense, false, false),
+        };
+        if (row.Type != type)
+        {
+            return "This loan entry has the wrong kind.";
+        }
+
+        if (fromLoan ? row.FromWalletId != loan.WalletId : !await OwnWalletAsync(row.FromWalletId, cancellationToken))
+        {
+            return "Choose one of your own wallets to pay from.";
+        }
+
+        if (type == TransactionType.Transfer ? (toLoan ? row.ToWalletId != loan.WalletId : !await OwnWalletAsync(row.ToWalletId, cancellationToken)) : row.ToWalletId is not null)
+        {
+            return "Choose one of your own wallets for the money.";
+        }
+
+        return row.CategoryId is { } categoryId
+            && !await db.Categories.AnyAsync(c => c.Id == categoryId && c.UserId == userId && c.Kind == CategoryKind.Expense, cancellationToken)
+            ? "Choose an expense category."
+            : null;
+    }
+
+    private async Task<bool> OwnWalletAsync(Guid? id, CancellationToken cancellationToken) =>
+        id is { } walletId && await db.Wallets.AnyAsync(
+            w => w.Id == walletId && w.UserId == userId && w.Type != WalletType.Lent && w.Type != WalletType.Borrowed && w.Type != WalletType.Loan,
+            cancellationToken);
+
+    // Loans
+
+    private Task<PushResult> LoanAsync(Guid mutationId, LoanRow row, CancellationToken cancellationToken) =>
+        UpsertAsync(
+            mutationId, db.Loans, row.Id, row.UpdatedAt, row.DeletedAt is not null,
+            existing => CheckLoanAsync(row, existing, cancellationToken),
+            loan =>
+            {
+                loan.Type = row.Type;
+                loan.Name = Text.Clean(row.Name)!;
+                loan.Lender = row.Type == LoanType.CardEmi ? null : Text.Clean(row.Lender);
+                loan.WalletId = row.WalletId;
+                loan.PayFromWalletId = row.PayFromWalletId;
+                loan.Principal = row.Principal;
+                loan.RatePoints = row.RatePoints;
+                loan.Months = row.Months;
+                loan.Emi = row.Emi;
+                loan.FirstDueDate = row.FirstDueDate;
+                loan.PaidBefore = row.PaidBefore;
+                loan.AutoRecord = row.Type == LoanType.CardEmi || row.AutoRecord;
+                loan.ClosedOn = row.ClosedOn;
+            },
+            Fine,
+            async loan =>
+            {
+                // Its wallet and every row recorded for it go with it, as when deleting through the API.
+                foreach (var t in await db.Transactions.Where(t => t.UserId == userId && t.LoanId == loan.Id).ToListAsync(cancellationToken))
+                {
+                    t.DeletedAt = now;
+                }
+
+                if (await db.Wallets.FirstOrDefaultAsync(w => w.Id == loan.WalletId && w.UserId == userId, cancellationToken) is { } wallet)
+                {
+                    wallet.DeletedAt = now;
+                }
+            },
+            loan => SyncRules.ToRow(loan),
+            cancellationToken);
+
+    private async Task<string?> CheckLoanAsync(LoanRow row, Loan? existing, CancellationToken cancellationToken)
+    {
+        if (!Enum.IsDefined(row.Type) || (existing is not null && existing.Type != row.Type))
+        {
+            return "Choose a bank loan or a credit card EMI.";
+        }
+
+        if (Text.LabelProblem(row.Name, LoanRules.NameMax) is { } nameProblem)
+        {
+            return nameProblem;
+        }
+
+        if (row.Principal <= 0 || row.Principal > TransactionRules.MaxAmount || row.Emi <= 0 || row.Emi > TransactionRules.MaxAmount)
+        {
+            return "Enter the loan amount and EMI, more than zero.";
+        }
+
+        if (row.RatePoints is < 0 or > LoanMath.MaxRatePoints || row.Months is < 1 or > LoanMath.MaxMonths || row.PaidBefore < 0 || row.PaidBefore >= row.Months)
+        {
+            return "Check the rate, the months and the EMIs already paid.";
+        }
+
+        if (!await db.Wallets.AnyAsync(w => w.Id == row.WalletId && w.UserId == userId && w.Type == WalletType.Loan, cancellationToken)
+            || await db.Loans.AnyAsync(l => l.UserId == userId && l.Id != row.Id && l.WalletId == row.WalletId, cancellationToken))
+        {
+            return "The loan's wallet does not exist.";
+        }
+
+        var payFrom = await db.Wallets.IgnoreQueryFilters().FirstOrDefaultAsync(w => w.Id == row.PayFromWalletId && w.UserId == userId, cancellationToken);
+        if (payFrom is null || payFrom.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan)
+        {
+            return "Choose one of your own wallets to pay the EMIs from.";
+        }
+
+        return row.Type == LoanType.CardEmi && payFrom.Type != WalletType.CreditCard ? "Choose a credit card." : null;
     }
 
     // Budgets

@@ -36,6 +36,10 @@ const PATHS = {
   phone: "M8 3h8v18H8zM11 18h2",
   cash: "M3 7h18v10H3zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 10v.01M18 14v.01",
   calendar: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  loan: "M4 9l8-5 8 5M5 9v9M19 9v9M3 20h18M9.5 12.5c0-1 1-1.5 2.5-1.5s2.5.6 2.5 1.6c0 2.4-5 1.2-5 3.6 0 1 1 1.8 2.5 1.8s2.5-.6 2.5-1.6M12 10v1M12 18v1",
+  flag: "M5 21V4h11l-2 4 2 4H5",
+  info: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 11v6M12 7.5h.01",
+  edit: "M4 20h4L19 9l-4-4L4 16zM13 7l4 4",
 } as const;
 
 export type IconName = keyof typeof PATHS;

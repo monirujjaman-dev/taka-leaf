@@ -20,6 +20,7 @@ public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options,
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Budget> Budgets => Set<Budget>();
     public DbSet<RecurringRule> RecurringRules => Set<RecurringRule>();
+    public DbSet<Loan> Loans => Set<Loan>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserToken> UserTokens => Set<UserToken>();

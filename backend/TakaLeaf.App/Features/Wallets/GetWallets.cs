@@ -41,7 +41,8 @@ public static class GetWallets
             .ToListAsync(cancellationToken);
         var movements = await Balances.MovementsAsync(db, userId, cancellationToken);
 
-        var all = wallets.Select(w => WalletRules.ToDto(w, movements.GetValueOrDefault(w.Id))).ToList();
+        var held = await Loans.GetLoans.HeldByCardAsync(db, userId, movements, cancellationToken);
+        var all = wallets.Select(w => WalletRules.ToDto(w, movements.GetValueOrDefault(w.Id), held.GetValueOrDefault(w.Id))).ToList();
         var summary = Balances.Summarize(wallets, movements);
         return new WalletList(all, new WalletTotals(summary.Assets, summary.Liabilities, summary.Net));
     }

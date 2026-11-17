@@ -32,10 +32,11 @@ internal static class WalletRules
     public const int IconMax = 40;
     public const int ColorMax = 20;
 
-    public static WalletDto ToDto(Wallet wallet, long movement)
+    /// <param name="held">For a credit card: what its card EMIs have still to bill, which the bank holds from the limit.</param>
+    public static WalletDto ToDto(Wallet wallet, long movement, long held = 0)
     {
         var balance = wallet.OpeningBalance + movement;
-        long? available = wallet.Type == WalletType.CreditCard && wallet.CreditLimit is { } limit ? limit + balance : null;
+        long? available = wallet.Type == WalletType.CreditCard && wallet.CreditLimit is { } limit ? limit + balance - held : null;
         return new WalletDto(
             wallet.Id, wallet.Type, wallet.Name, wallet.OpeningBalance, balance, wallet.CreditLimit, available,
             wallet.PersonId, wallet.Icon, wallet.Color, wallet.Archived, wallet.ExcludedFromTotal, wallet.SortOrder);
@@ -51,6 +52,16 @@ internal static class WalletRules
     {
         var movements = await Balances.MovementsAsync(db, wallet.UserId, cancellationToken);
         return movements.GetValueOrDefault(wallet.Id);
+    }
+
+    /// <summary>The wallet with its balance and, for a card, what its EMIs hold from the limit.</summary>
+    public static async Task<WalletDto> DtoAsync(AppDbContext db, Wallet wallet, CancellationToken cancellationToken)
+    {
+        var movements = await Balances.MovementsAsync(db, wallet.UserId, cancellationToken);
+        var held = wallet.Type == WalletType.CreditCard
+            ? (await Loans.GetLoans.HeldByCardAsync(db, wallet.UserId, movements, cancellationToken)).GetValueOrDefault(wallet.Id)
+            : 0;
+        return ToDto(wallet, movements.GetValueOrDefault(wallet.Id), held);
     }
 
     /// <summary>Checks the fields a person types; returns the 400 response, or null when all is well.</summary>

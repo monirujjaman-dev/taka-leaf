@@ -24,7 +24,7 @@ public static class StarterCategories
         new(CategoryKind.Expense, "Mobile and communication", "phone", ["Mobile recharge", "Data packs"]),
         new(CategoryKind.Expense, "Personal", "user", ["Clothing", "Grooming", "Entertainment"]),
         new(CategoryKind.Expense, "Gifts and donations", "gift", ["Gifts", "Charity", "Zakat"]),
-        new(CategoryKind.Expense, "Fees and charges", "percent", ["Bank charges", "MFS charges", "Credit card interest"]),
+        new(CategoryKind.Expense, "Fees and charges", "percent", ["Bank charges", "MFS charges", "Credit card interest", "Loan interest"]),
         new(CategoryKind.Expense, "Other", "dots", ["Uncategorised"]),
         new(CategoryKind.Income, "Salary", "brief", ["Monthly salary", "Bonus"]),
         new(CategoryKind.Income, "Freelance and side income", "laptop", ["Projects", "Consulting"]),

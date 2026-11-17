@@ -22,7 +22,8 @@ export interface PushResult {
   current: Record<string, unknown> | null;
 }
 
-export type PullPage = { cursor: number; hasMore: boolean } & Record<SyncedTableName, Record<string, unknown>[]>;
+/** A table missing from a page (an older server without loans, say) simply has no changes. */
+export type PullPage = { cursor: number; hasMore: boolean } & Partial<Record<SyncedTableName, Record<string, unknown>[]>>;
 
 export interface SyncApi {
   push(changes: PushChange[]): Promise<PushResult[]>;

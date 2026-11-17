@@ -11,7 +11,7 @@ import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/F
 import { TextField } from "../../ui/Field";
 import { Icon } from "../../ui/Icon";
 import { MonthPicker } from "../../ui/MonthPicker";
-import { ListCard, Segmented } from "../../ui/Parts";
+import { ListCard, Segmented, isOwnWallet } from "../../ui/Parts";
 import { useWide } from "../../ui/useWide";
 import { dayHeading, lastDayOf, localDate, localMonth, monthLabel, shortDate, signedAmount } from "../../ui/format";
 import { CategoryOptions, WalletOptions } from "./pickers";
@@ -128,7 +128,7 @@ export function TransactionsPage() {
   }
   const data = list.data;
   const pages = data ? Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)) : 1;
-  const ownWallets = (wallets.data?.wallets ?? []).filter((w) => w.personId === null);
+  const ownWallets = (wallets.data?.wallets ?? []).filter(isOwnWallet);
 
   // A whole calendar month reads as "November 2026"; anything else as its two dates.
   const wholeMonth = filters.from.endsWith("-01") && filters.to === lastDayOf(filters.from.slice(0, 7));

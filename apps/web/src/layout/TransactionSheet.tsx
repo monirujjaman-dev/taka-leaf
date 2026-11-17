@@ -45,7 +45,8 @@ export function useOpenTransaction() {
   const sheet = useTransactionSheet();
   const navigate = useNavigate();
   return useCallback(
-    (transaction: Transaction) => (transaction.personId ? navigate(`/people/${transaction.personId}`) : sheet.open(transaction.id)),
+    (transaction: Transaction) =>
+      transaction.loanId ? navigate(`/loans/${transaction.loanId}`) : transaction.personId ? navigate(`/people/${transaction.personId}`) : sheet.open(transaction.id),
     [sheet, navigate],
   );
 }

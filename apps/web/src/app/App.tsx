@@ -15,6 +15,8 @@ import {
   ForgotPasswordPage,
   PeoplePage,
   PersonPage,
+  LoansPage,
+  LoanPage,
   RecurringPage,
   RegisterPage,
   ReportsPage,
@@ -100,6 +102,8 @@ export function App() {
               <Route path="/wallets" element={<WalletsPage />} />
               <Route path="/people" element={<PeoplePage />} />
               <Route path="/people/:id" element={<PersonPage />} />
+              <Route path="/loans" element={<LoansPage />} />
+              <Route path="/loans/:id" element={<LoanPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/budgets" element={<BudgetsPage />} />
               <Route path="/recurring" element={<RecurringPage />} />

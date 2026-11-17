@@ -28,9 +28,10 @@ public class SyncTests(DatabaseFixture fixture)
         List<JsonElement> People,
         List<JsonElement> Transactions,
         List<JsonElement> Budgets,
-        List<JsonElement> RecurringRules)
+        List<JsonElement> RecurringRules,
+        List<JsonElement> Loans)
     {
-        public int Count => Wallets.Count + Categories.Count + People.Count + Transactions.Count + Budgets.Count + RecurringRules.Count;
+        public int Count => Wallets.Count + Categories.Count + People.Count + Transactions.Count + Budgets.Count + RecurringRules.Count + Loans.Count;
     }
 
     private static DateTimeOffset Now => DateTimeOffset.UtcNow;

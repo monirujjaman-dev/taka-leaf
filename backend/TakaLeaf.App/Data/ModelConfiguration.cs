@@ -86,6 +86,32 @@ internal sealed class TransactionConfiguration : IEntityTypeConfiguration<Transa
 
         // A recurring date is recorded at most once, even if two requests race.
         builder.HasIndex(e => new { e.RecurringRuleId, e.RecurringDate }).IsUnique().HasFilter("recurring_rule_id IS NOT NULL AND deleted_at IS NULL");
+
+        builder.Property(e => e.LoanPart).HasConversion<string>().HasMaxLength(20);
+        builder.HasOne<Loan>().WithMany().HasForeignKey(e => e.LoanId).OnDelete(DeleteBehavior.Restrict);
+
+        // Each EMI of a loan is paid once: one principal row, one interest row, one fee row at most.
+        builder.HasIndex(e => new { e.LoanId, e.LoanEmi, e.LoanPart }).IsUnique().HasFilter("loan_emi IS NOT NULL AND deleted_at IS NULL");
+    }
+}
+
+internal sealed class LoanConfiguration : IEntityTypeConfiguration<Loan>
+{
+    public void Configure(EntityTypeBuilder<Loan> builder)
+    {
+        builder.ConfigureSynced();
+        builder.ToTable(table =>
+        {
+            table.HasCheckConstraint("ck_loans_principal_positive", "principal > 0");
+            table.HasCheckConstraint("ck_loans_emi_positive", "emi > 0");
+            table.HasCheckConstraint("ck_loans_months", "months BETWEEN 1 AND 600");
+            table.HasCheckConstraint("ck_loans_rate", "rate_points BETWEEN 0 AND 10000");
+        });
+        builder.Property(e => e.Type).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.Name).HasMaxLength(80);
+        builder.Property(e => e.Lender).HasMaxLength(80);
+        builder.HasOne<Wallet>().WithMany().HasForeignKey(e => e.WalletId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Wallet>().WithMany().HasForeignKey(e => e.PayFromWalletId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 

@@ -7,7 +7,7 @@ import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
-import { Chevron, IconTile, iconButtonClass, ListCard, SectionHeading, StatGrid, StatTile, walletIcon } from "../../ui/Parts";
+import { Chevron, IconTile, iconButtonClass, ListCard, SectionHeading, StatGrid, StatTile, walletIcon, isOwnWallet } from "../../ui/Parts";
 import { WALLET_TYPE_LABEL } from "../../ui/format";
 import { WalletForm } from "./WalletForm";
 
@@ -60,11 +60,12 @@ export function WalletsPage() {
   const adding = params.get("add") === "1";
 
   const everything = wallets.data?.wallets ?? [];
-  const all = everything.filter((w) => w.personId === null);
+  const all = everything.filter(isOwnWallet);
   const visible = all.filter((w) => showArchived || !w.archived);
   const archivedCount = all.filter((w) => w.archived).length;
   const lent = everything.filter((w) => w.type === "Lent" && w.balance !== 0);
   const borrowed = everything.filter((w) => w.type === "Borrowed" && w.balance !== 0);
+  const bankLoans = everything.filter((w) => w.type === "Loan" && w.balance !== 0);
   const sum = (list: Wallet[]) => list.reduce((total, w) => total + Math.abs(w.balance), 0);
   const openAdd = () => setParams({ add: "1" }, { replace: true });
   const closeForm = () => {
@@ -127,26 +128,27 @@ export function WalletsPage() {
               );
             })}
 
-            {lent.length + borrowed.length > 0 ? (
+            {lent.length + borrowed.length + bankLoans.length > 0 ? (
               <section aria-labelledby="group-loans" className="flex flex-col gap-2">
                 <SectionHeading id="group-loans" title="Loans" />
                 <ListCard>
                   <ul className="m-0 flex list-none flex-col p-0">
                     {[
-                      { list: lent, label: "Lent to others", icon: "moneyOut" as const },
-                      { list: borrowed, label: "Borrowed", icon: "moneyIn" as const },
+                      { list: lent, label: "Lent to others", icon: "moneyOut" as const, to: "/people", count: people(lent.length) },
+                      { list: borrowed, label: "Borrowed", icon: "moneyIn" as const, to: "/people", count: people(borrowed.length) },
+                      { list: bankLoans, label: "Bank loans and card EMIs", icon: "loan" as const, to: "/loans", count: `${bankLoans.length} ${bankLoans.length === 1 ? "loan" : "loans"}` },
                     ]
                       .filter((row) => row.list.length > 0)
                       .map((row) => (
                         <li key={row.label}>
                           <Link
-                            to="/people"
+                            to={row.to}
                             className={`-mx-1.5 flex min-h-14 items-center py-1.5 gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                           >
-                            <IconTile icon={row.icon} tone={row.label === "Borrowed" ? "expense" : "primary"} />
+                            <IconTile icon={row.icon} tone={row.label === "Lent to others" ? "primary" : "expense"} />
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-body font-bold">{row.label}</span>
-                              <span className="block text-caption text-[var(--tl-muted)]">{people(row.list.length)}</span>
+                              <span className="block text-caption text-[var(--tl-muted)]">{row.count}</span>
                             </span>
                             <span className="text-body font-extrabold">{formatBdt(sum(row.list))}</span>
                             <Chevron />

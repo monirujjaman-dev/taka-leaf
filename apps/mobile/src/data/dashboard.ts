@@ -6,7 +6,7 @@ import { monthRange, today } from "./calendar";
 import { dueCount, dueRules } from "./recurring";
 import { byCategory, totals, type CategoryTotal } from "./reports";
 import { toViews, type TransactionView } from "./transactions";
-import { listWallets, summarize, type MoneySummary, type WalletWithBalance } from "./wallets";
+import { isOwnWallet, listWallets, summarize, type MoneySummary, type WalletWithBalance } from "./wallets";
 
 export interface Dashboard {
   summary: MoneySummary;
@@ -31,7 +31,7 @@ export function dashboard(db: AppDb, month: string, now: Date = new Date()): Das
     month,
     income: t.income,
     expense: t.expense,
-    wallets: all.filter((w) => !w.archived && w.type !== "Lent" && w.type !== "Borrowed"),
+    wallets: all.filter((w) => !w.archived && isOwnWallet(w.type)),
     recent: toViews(db, db.select().from(transactions).where(isNull(transactions.deletedAt)).orderBy(desc(transactions.occurredAt)).limit(5).all()),
     due: dueRules(db, day).map((r) => ({ ...r, dueCount: dueCount(r, day) })),
     budgets: budgetsFor(db, month),

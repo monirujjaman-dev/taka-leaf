@@ -24,11 +24,12 @@ TakaLeaf UI design canvas in claude.ai; the web app now follows them in code.
 | Transactions | `/transactions` | History with filters, search, totals |
 | Wallets | `/wallets` | Where the money is: balances by wallet type |
 | People | `/people`, `/people/:id` | Lending and borrowing, per person |
+| Loans | `/loans`, `/loans/:id` | Bank loans and credit card EMIs: what is left, EMIs, schedule, early settlement |
 | Reports | `/reports` | Month or year: income against expense, savings, trend, by category with drill-down |
 | Budgets | `/budgets` | Monthly limits and progress |
 | Recurring | `/recurring` | Rent, salary, subscriptions; items waiting to be recorded |
 | Categories | `/categories` | Income and expense categories, two levels |
-| Settings | `/settings` | The **More** tab on phones: links to Wallets, People and loans, Budgets, Recurring, Categories; then theme, password, export, devices, sign out |
+| Settings | `/settings` | The **More** tab on phones: links to Wallets, People and loans, Bank loans and card EMIs, Budgets, Recurring, Categories; then theme, password, export, devices, sign out |
 | Sign-in flow | `/sign-in`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password` | Account access; email links land on the last two |
 
 ### Navigation
@@ -40,7 +41,8 @@ TakaLeaf UI design canvas in claude.ai; the web app now follows them in code.
 
 The **Add transaction** form is one sheet for the whole app, opened from the tab bar, the page
 headers, the dashboard and history. Rows in the history open in the place they can be changed: a
-normal transaction in the form, a transfer fee on its transfer, and a loan on its person's page.
+normal transaction in the form, a transfer fee on its transfer, a loan on its person's page, and an
+EMI row on its loan.
 
 ## 3. Screens
 
@@ -53,10 +55,14 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Dashboard | Phone header: logo, "Nov 2026 ▾", refresh. Forest **Net balance** card (assets, liabilities); 2 × 2 tiles: Income, Expense, Owed to me, I owe; **Due to record** (Record/Skip); **Wallets** (sideways strip on phones, list on desktop); **Recent** (five rows, "History" link); **Budgets** (up to four bars); **Spending by category** | No wallets → "Start by adding your wallets"; empty month → zeros and "No spending this month" |
 | Transactions | **Export CSV** (the current filters, every matching row); search with a filter button (From/To dates, and on phones wallet and category); phones: All · Expense · Income · Transfer switch, a "November 2026 · In · Out" card and day groups ("Today · 15 Nov" with the day total); desktop: month, wallet, category and type selects and a table; Newer/Older paging | "Nothing matches these filters" |
 | Add / edit transaction | Full screen on phones. Expense · Income · Transfer switch; big centred amount and "Add a note"; quick category chips; picker rows for wallet(s), category (grouped, parent as "general") and time; fee on transfers; number pad on phones; "Save expense"; Delete with confirm | Checks before sending; server messages beside the field; "Add a wallet first" |
-| Wallets | Assets / Liabilities tiles; list cards "Cash and bank", "MFS", "Credit card" (limit and credit left) with group totals; **Loans** (lent to others, borrowed, linking to People); show archived; "See its transactions" in the edit sheet | "No wallets yet" |
+| Wallets | Assets / Liabilities tiles; list cards "Cash and bank", "MFS", "Credit card" (limit and credit left after EMIs held) with group totals; **Bank loans and card EMIs** (left to pay, linking to Loans); **Loans** (lent to others, borrowed, linking to People); show archived; "See its transactions" in the edit sheet | "No wallets yet" |
 | Add / edit wallet | Type (new only), name with MFS shortcuts, starting balance or "amount owed now" for cards, credit limit, leave out of net balance, archive, delete | Delete refused if used → archive instead |
 | People and loans | Owed to me / I owe tiles; All · Owed to me · I owe switch; rows with a forest initial, "Owes you · note", signed amount | "Nobody here yet" |
 | Person | Standing (Owes you / You owe / All settled); Lend · Got paid back · Borrow · Pay back; history | Repay buttons disabled when nothing is owed; "All of it" fills the amount owed |
+| Loans | Hero card "Left to pay on loans" with Bank loans / Card EMIs split, EMIs due this month, interest paid; All · Bank loans · Card EMIs switch; a card per loan (icon, name, lender or card, amount left, repaid bar "18 of 60 EMIs paid · 30% repaid", next EMI with a Due soon / Late pill); Closed list | "No loans yet" with Add a loan |
+| Add loan | Bank loan · Credit card EMI switch; name, bank or card, amount or price, rate (% a year), months with 12–60 chips, the bank's EMI (optional), first EMI or statement date; live **Your EMI** card (total interest, total to pay, last EMI); "I'm already paying this loan" with EMIs already paid; paid from, money received in (or paid to the seller), processing fee; "The bank takes it automatically"; for card EMIs, the purchase category | "Add your credit card in Wallets first" |
+| Loan | Hero: left to pay, repaid bar, EMI, rate, interest paid and still to come, last EMI; **Next EMI** card (number, date, principal + interest, **Record EMI**, or "Added to the card automatically"); card EMIs: card balance, held for EMIs, you can still spend; **Pay extra** and **Close the loan early**; schedule (Paid / Due / Upcoming, show all) with Undo the last EMI; activity | Closed loans show "Closed on …" |
+| Record EMI / Pay extra / Settle | Amount card; paid from; EMI: amount paid (optional) and late fee; settle: charge as % of what is left or an amount, with what is left, charge and total to pay now | Errors beside fields |
 | Reports | Month · Year switch with month or year arrows (kept in the address); **Income and expense** bars with "Saved ৳X · Y% of income"; **Expense, last 6 months** (or by month for a year) with the chosen month highlighted; **Spending by category** and **Income by category**, each category opening to its sub-categories with links to the matching transactions; Budgets (month only) | "Nothing recorded in …" |
 | Budgets | Month button; forest month card (spent of total, white bar, left and days to go); rows with spent / limit, bar and "৳x left · 82%" or "Over by ৳x · 104%" | "No budgets yet" |
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |

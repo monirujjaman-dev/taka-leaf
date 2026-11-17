@@ -21,6 +21,6 @@ public static class GetWallet
             return NotFound.Problem("Wallet");
         }
 
-        return Results.Ok(WalletRules.ToDto(wallet, await WalletRules.BalanceOfAsync(db, wallet, cancellationToken)));
+        return Results.Ok(await WalletRules.DtoAsync(db, wallet, cancellationToken));
     }
 }

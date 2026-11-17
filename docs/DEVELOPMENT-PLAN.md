@@ -190,6 +190,16 @@ yearly report (keep monthly), tags, wallet reordering, desktop-specific layouts 
 screens. **Never cut**: money fixtures, the cross-account data tests, backup and restore, and the
 sync-ready columns.
 
+### Bank loans and card EMIs ✅
+
+Designed on the canvas and approved by the owner, then built for web, API and Android in #34.
+
+- [x] Loans table, Loan wallets, loan parts on transactions; EMI maths shared between C# and TS
+- [x] Add (new or already running), edit (rate and EMI from the next EMI), delete
+- [x] Record EMI with late fee, a different amount, undo; pay extra; early settlement with a charge
+- [x] Card EMIs billed automatically and held from the card's limit; automatic bank EMIs
+- [x] Web Loans pages and dashboard due EMIs; Android screens, offline, synced
+
 ## 7. After version 2 (ideas, not planned)
 
 Receipt photo on a transaction · PDF export of reports · offline support in the web app · import

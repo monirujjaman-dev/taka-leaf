@@ -12,10 +12,12 @@ const synced = {
   deletedAt: text("deleted_at"),
 };
 
-export const WALLET_TYPES = ["Cash", "Bank", "CreditCard", "Mfs", "Lent", "Borrowed"] as const;
+export const WALLET_TYPES = ["Cash", "Bank", "CreditCard", "Mfs", "Lent", "Borrowed", "Loan"] as const;
 export const TRANSACTION_TYPES = ["Income", "Expense", "Transfer"] as const;
 export const CATEGORY_KINDS = ["Income", "Expense"] as const;
 export const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Yearly"] as const;
+export const LOAN_TYPES = ["Bank", "CardEmi"] as const;
+export const LOAN_PARTS = ["Disbursement", "Purchase", "Principal", "Interest", "Fee"] as const;
 
 /** Small key/value settings: server address, sync cursor, last sync, app lock... */
 export const settings = sqliteTable("settings", {
@@ -72,6 +74,10 @@ export const transactions = sqliteTable(
     recurringDate: text("recurring_date"),
     occurredAt: text("occurred_at").notNull(),
     note: text("note"),
+    /** Rows of a bank loan or card EMI: which loan, which EMI, and what the row is to it. */
+    loanId: text("loan_id"),
+    loanEmi: integer("loan_emi"),
+    loanPart: text("loan_part", { enum: LOAN_PARTS }),
     ...synced,
   },
   (t) => [
@@ -83,6 +89,7 @@ export const transactions = sqliteTable(
     index("transactions_category").on(t.categoryId),
     index("transactions_fee_of").on(t.feeOfId),
     index("transactions_person").on(t.personId),
+    index("transactions_loan").on(t.loanId),
   ],
 );
 
@@ -109,6 +116,26 @@ export const recurringRules = sqliteTable("recurring_rules", {
   nextDate: text("next_date").notNull(),
   autoRecord: integer("auto_record", { mode: "boolean" }).notNull(),
   paused: integer("paused", { mode: "boolean" }).notNull(),
+  ...synced,
+});
+
+/** A bank loan or card EMI; what is left is the balance of its own Loan wallet (as on the server). */
+export const loans = sqliteTable("loans", {
+  id: text("id").primaryKey(),
+  type: text("type", { enum: LOAN_TYPES }).notNull(),
+  name: text("name").notNull(),
+  lender: text("lender"),
+  walletId: text("wallet_id").notNull(),
+  payFromWalletId: text("pay_from_wallet_id").notNull(),
+  principal: integer("principal").notNull(),
+  /** Hundredths of a percent a year: 950 = 9.5 %. */
+  ratePoints: integer("rate_points").notNull(),
+  months: integer("months").notNull(),
+  emi: integer("emi").notNull(),
+  firstDueDate: text("first_due_date").notNull(),
+  paidBefore: integer("paid_before").notNull(),
+  autoRecord: integer("auto_record", { mode: "boolean" }).notNull(),
+  closedOn: text("closed_on"),
   ...synced,
 });
 
@@ -147,6 +174,9 @@ export type WalletType = (typeof WALLET_TYPES)[number];
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 export type CategoryKind = (typeof CATEGORY_KINDS)[number];
 export type Frequency = (typeof FREQUENCIES)[number];
+export type LoanRow = typeof loans.$inferSelect;
+export type LoanType = (typeof LOAN_TYPES)[number];
+export type LoanPart = (typeof LOAN_PARTS)[number];
 
 /** The synced tables by their sync name (the server's `table` in push and the keys of a pull page). */
 export const SYNCED_TABLES = {
@@ -156,6 +186,7 @@ export const SYNCED_TABLES = {
   transactions,
   budgets,
   recurringRules,
+  loans,
 } as const;
 
 export type SyncedTableName = keyof typeof SYNCED_TABLES;

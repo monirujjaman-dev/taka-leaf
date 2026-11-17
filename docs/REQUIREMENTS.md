@@ -93,6 +93,20 @@ Goals:
 | FR-L5 | Lending/borrowing moves money in the user's real wallets | Must | ✅ |
 | FR-L6 | Loan due dates and reminders | Could | ⬜ |
 
+### 3.5a Bank loans and credit card EMIs
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| FR-K1 | Add a bank loan (amount, yearly rate, months, first EMI date) or a credit card EMI (price, card, months, rate 0% by default); the EMI is worked out, or the bank's EMI typed in | Must | ✅ |
+| FR-K2 | Start a loan that is already running from the number of EMIs paid, with no need to enter old EMIs | Must | ✅ |
+| FR-K3 | Record an EMI as principal (moves money, lowers what is left) and interest (an expense under "Loan interest"), with an optional late fee; a different amount keeps the interest fixed; undo the last EMI | Must | ✅ |
+| FR-K4 | Card EMIs post to the card on each statement date; their rest is held from the card's available credit | Must | ✅ |
+| FR-K5 | Bank loans the bank debits itself can record automatically on the due date | Should | ✅ |
+| FR-K6 | Pay extra (all principal) and settle early with the bank's charge, as a % of what is left or an amount | Must | ✅ |
+| FR-K7 | Loans page: left to pay, bank and card totals, EMIs due this month, interest paid; each loan's progress, schedule and next EMI; EMIs due within a week on the dashboard | Must | ✅ |
+| FR-K8 | A new rate applies from the next EMI, with a suggested EMI that keeps the end date | Should | ✅ |
+| FR-K9 | The same on the Android app, offline, synced | Must | ✅ |
+
 ### 3.6 Budgets and recurring
 
 | ID | Requirement | Priority | Status |

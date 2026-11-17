@@ -2,7 +2,7 @@ import { formatBdt } from "@takaleaf/shared";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { listWallets, summarize, type WalletWithBalance } from "../src/data/wallets";
+import { listWallets, summarize, type WalletWithBalance, isOwnWallet } from "../src/data/wallets";
 import { db } from "../src/db/client";
 import { useData } from "../src/state/AppState";
 import { Body, Card, Empty, HeaderButton, Money, Row, Screen, SwitchRow, type IconName } from "../src/ui/kit";
@@ -18,7 +18,8 @@ export default function Wallets() {
   const all = useData(() => listWallets(db));
   const summary = summarize(all);
   const shown = all.filter((w) => showArchived || !w.archived);
-  const own = shown.filter((w) => w.type !== "Lent" && w.type !== "Borrowed");
+  const own = shown.filter((w) => isOwnWallet(w.type));
+  const loanLeft = all.filter((w) => w.type === "Loan" && w.balance < 0).reduce((s, w) => s - w.balance, 0);
 
   return (
     <Screen title="Wallets" back right={<HeaderButton icon="plus" label="Add a wallet" onPress={() => router.push("/wallet")} />}>
@@ -52,8 +53,13 @@ export default function Wallets() {
           </Card>
         );
       })}
+      {loanLeft ? (
+        <Card title="Bank loans and card EMIs" action={{ label: "Loans", onPress: () => router.push("/bank-loans") }}>
+          <Row icon="bank-outline" title="Left to pay" onPress={() => router.push("/bank-loans")} right={<Money amount={loanLeft} tone="expense" />} />
+        </Card>
+      ) : null}
       {summary.owedToMe || summary.iOwe ? (
-        <Card title="Loans" action={{ label: "People", onPress: () => router.push("/people") }}>
+        <Card title="Lending and borrowing" action={{ label: "People", onPress: () => router.push("/people") }}>
           <Row icon="account-arrow-right-outline" title="Lent to others" right={<Money amount={summary.owedToMe} tone="income" />} />
           <Row icon="account-arrow-left-outline" title="Borrowed" right={<Money amount={summary.iOwe} tone="expense" />} />
         </Card>

@@ -4,7 +4,8 @@
 
 TakaLeaf is a personal income and expense tracker in Bangladeshi taka (BDT). It keeps money in
 wallets (cash, bank accounts, credit cards, mobile banking such as bKash, Nagad, Upay and Rocket),
-tracks money lent to and borrowed from people, and adds monthly budgets and recurring transactions.
+tracks money lent to and borrowed from people, bank loans and credit card EMIs, and adds monthly
+budgets and recurring transactions.
 
 This document explains how it is built and why, as the code stands today. Related documents:
 [requirements](REQUIREMENTS.md), [UI/UX](UI-UX.md), [development plan](DEVELOPMENT-PLAN.md),
@@ -108,10 +109,11 @@ These hold everywhere. Code that breaks one of them is a bug.
 | `sessions`, `refresh_tokens` | token hashes, used_at, revoked_at | One session per signed-in device. |
 | `user_tokens` | purpose (VerifyEmail / ResetPassword), token_hash, expires_at, used_at | Single-use email links. |
 | `outbox_messages` | type, payload (JSON, cleared when done), created_at, available_at, attempts, locked_until, last_error, processed_at, failed_at | System table (no user, not synced): work to do after a save. See "Outbox". |
-| `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person. |
+| `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed, Loan), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person; a Loan wallet belongs to a loan. Wallet endpoints refuse to create, change, archive or delete Loan wallets. |
 | `people` | name (unique per user, ignoring case), note | Each has one Lent and one Borrowed wallet. |
 | `categories` | kind (Income/Expense), name, parent_id, archived, sort_order | Two levels. Starter set created at registration. |
-| `transactions` | type (Income/Expense/Transfer), amount > 0, from/to wallet, category, person_id, fee_of_id, recurring_rule_id, recurring_date, occurred_at, note | Unique (recurring_rule_id, recurring_date). |
+| `transactions` | type (Income/Expense/Transfer), amount > 0, from/to wallet, category, person_id, fee_of_id, recurring_rule_id, recurring_date, loan_id, loan_emi, loan_part (Disbursement, Purchase, Principal, Interest, Fee), occurred_at, note | Unique (recurring_rule_id, recurring_date); unique (loan_id, loan_emi, loan_part) for live EMI rows. |
+| `loans` | type (Bank, CardEmi), name, lender, wallet_id (its own Loan wallet), pay_from_wallet_id (a credit card for CardEmi), principal, rate_points (hundredths of a % a year: 950 = 9.50%), months, emi, first_due_date, paid_before, auto_record, closed_on | What is left is minus the Loan wallet's balance, never stored. Card EMIs always record automatically. |
 | `budgets` | category_id (null = all spending), amount > 0 | One per category per user (nulls not distinct). |
 | `recurring_rules` | transaction fields, frequency, interval, start/end date, occurrences, next_date, auto_record, paused | |
 
@@ -126,9 +128,20 @@ These hold everywhere. Code that breaks one of them is a bug.
 | Lend / got paid back | `Transfer` wallet → person's Lent wallet / Lent → wallet, with `person_id` |
 | Borrow / paid back | `Transfer` person's Borrowed wallet → wallet / wallet → Borrowed, with `person_id` |
 | Recorded recurring date | Normal transaction with `recurring_rule_id` and `recurring_date` |
+| Bank loan received | `Transfer` loan wallet → receiving wallet (`Disbursement`). Paid straight to a seller: the loan wallet opens at −principal. A loan already running opens at −(what is left after the EMIs already paid). |
+| Card EMI purchase | `Expense` of the price out of the loan wallet (`Purchase`), so the spending shows once, in its category |
+| EMI | `Transfer` paying wallet → loan wallet for the principal (`Principal`, `loan_emi` = N), an `Expense` for the interest under "Loan interest" (`Interest`), and an optional late fee under "Fees and charges" (`Fee`) |
+| Extra payment | A `Principal` transfer with no `loan_emi` |
+| Early settlement | A `Principal` transfer of everything left, a `Fee` expense "Early settlement charge" (a % of what is left or an amount), and `closed_on` set |
 
-Fee rows and loan rows are refused by the general transaction endpoints. They are changed through
-their owner (the transfer, or the person).
+Fee rows, person loan rows and bank loan rows are refused by the general transaction endpoints. They
+are changed through their owner (the transfer, the person, or the loan).
+
+**Loan arithmetic** (`Features/Loans/LoanMath.cs`, twin of `packages/shared/src/loan.ts`): reducing
+balance. A month's interest is balance × rate points / 120,000, rounded half up; the EMI is the
+standard annuity, rounded up to the poisha. A change of rate or EMI applies from the next EMI. If
+less than ৳1 would be left after an EMI, that EMI takes it. A card EMI's remaining instalments are
+held from its card: available credit = limit + balance − held.
 
 ## 5. API
 
@@ -145,6 +158,7 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Dashboard | `GET /dashboard?month=yyyy-MM` |
 | Reports | `GET /reports?period=Month&month=yyyy-MM` or `?period=Year&year=yyyy`: income, expense, saved, by category (with sub-categories), trend (6 or 12 months). Only income and expense count |
 | People | `GET/POST /people`, `GET/PUT/DELETE /people/{id}`, `POST /people/{id}/loans`, `PUT/DELETE /people/{id}/loans/{loanId}` (Lend, GotBack, Borrow, PaidBack) |
+| Loans | `GET/POST /loans` (list with summary and EMIs due), `GET/PUT/DELETE /loans/{id}` (detail: schedule, activity, card limit; delete removes its rows and wallet), `POST /loans/{id}/pay` (walletId, amount?, lateFee, occurredAt), `/extra`, `/settle` (charge or chargePoints), `DELETE /loans/{id}/emis/last` |
 | Budgets | `GET /budgets?month=`, `POST /budgets`, `PUT/DELETE /budgets/{id}` (status OnTrack / Near ≥ 80% / Over) |
 | Sync | `GET /sync/pull?cursor=&protocol=1` (rows changed after the cursor, deletions included, 500 a page, `cursor`, `hasMore`), `POST /sync/push` `{ protocol, changes: [{ mutationId, table, row }] }` (≤ 200; each `accepted` / `superseded` / `rejected` with a reason, plus `current`, the server's row); 426 for an outdated app |
 | Recurring | `GET /recurring`, `GET /recurring/due`, `GET/PUT/DELETE /recurring/{id}`, `POST /recurring`, `POST /{id}/record`, `/skip`, `/pause`, `/resume` |
@@ -220,6 +234,10 @@ src/test/       fakeApi (fetch stand-in), renderApp
 `RecurringWorker` runs every `Recurring:PollMinutes` (30 by default) and records automatic recurring
 dates that are due, at 9 AM local time. A unique index means a date can never be recorded twice. If
 a rule can't be recorded (for example its wallet was deleted), it stays in the user's due list.
+
+`LoanWorker` runs every `Loans:PollMinutes` (30) and records the due EMIs of loans with
+`auto_record` (all card EMIs, and bank loans the bank debits itself) at 9 AM local time on the due
+date. The unique EMI index makes it safe to run twice, or alongside a phone.
 
 ### Cache
 
@@ -378,6 +396,10 @@ local transaction.
   cannot leave a total inconsistent.
 - **Deletes** travel as rows with `DeletedAt`; they are kept at least 90 days so a long-offline phone
   still receives them.
+- **Loans** are the seventh synced table. The phone records EMIs by hand offline; automatic EMIs
+  are left to the server. Loan rows pushed from the phone are checked by part, and an interest row
+  sent without a category gets "Loan interest" on the server. A pull page without a table (an
+  older server) means no changes to it.
 - **Recurring**: a date is recorded once per (rule, date); the unique index already enforces this on
   the server, so phone and server cannot both create it.
 - **New phone**: sign in, then one full pull from an empty cursor.
@@ -400,6 +422,9 @@ local transaction.
 | CSS bars instead of a chart library | Category spending needs only bars; Recharts can come with Reports. |
 | Dokploy (Traefik) instead of hand-run Docker Compose + Caddy | HTTPS, deploys and database backups from one dashboard on the VPS. |
 | Recurring worker every 30 minutes instead of a daily job | Due dates appear soon after midnight local time; recording stays idempotent. |
+| Bank loans as their own Loan wallet, EMIs as principal transfer + interest expense | What is left is a calculated balance like any other; only interest and fees count as spending. |
+| Reducing-balance interest only | It is what Bangladeshi banks quote for EMIs; flat-rate loans can be entered with the bank's EMI. |
+| `GHSA-fc5q-39xc-vjpf` ignored in `pnpm audit` | picomatch ReDoS with no patched release, reached only through the phone's Jest tooling. Remove when fixed upstream. |
 
 ### Changes from the first architecture draft
 
