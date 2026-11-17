@@ -208,6 +208,11 @@
       "description": "Shortcuts and sub-categories.",
       "html": "<button class=\"ds-chip\">bKash</button>",
       "css": ".ds-chip{font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif;font-variant-numeric:tabular-nums;height:44px;padding:0 14px;border:0;border-radius:14px;background:#E7F5EC;color:#0F7A44;font-size:13px;font-weight:700;cursor:pointer}"
+    },
+    {
+      "name": "Loader",
+      "description": "Option E \"Extruded leaf\": the leaf mark as a 14-slice 3D badge that sways every 2.6 s over a soft shadow; 130 px at start-up, 44 px in pages; still and fading with reduced motion.",
+      "css": ".ds-loader{perspective:700px;display:flex;flex-direction:column;align-items:center;font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif}.ds-loader-solid{width:130px;height:130px;transform-style:preserve-3d;animation:ds-sway 2.6s cubic-bezier(.45,0,.55,1) infinite}@keyframes ds-sway{0%,100%{transform:rotateX(16deg) rotateY(-38deg)}50%{transform:rotateX(8deg) rotateY(38deg)}}@media (prefers-reduced-motion:reduce){.ds-loader-solid{animation:none;transform:rotateX(12deg) rotateY(-24deg)}}"
     }
   ],
   "narrative": {

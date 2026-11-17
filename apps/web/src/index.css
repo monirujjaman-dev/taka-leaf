@@ -34,6 +34,16 @@
   --tl-shadow: 0 8px 24px rgb(11 59 36 / 0.07);
   --tl-blob-a: rgb(34 160 107 / 0.3);
   --tl-blob-b: rgb(131 207 162 / 0.55);
+  /* The leaf mark and the loader's extrusion (packages/shared LEAF_COLORS). */
+  --tl-leaf-b0: #86d36b;
+  --tl-leaf-b1: #2fa24f;
+  --tl-leaf-b2: #0f7a44;
+  --tl-leaf-l0: #0f7a44;
+  --tl-leaf-l1: #45b25a;
+  --tl-leaf-stem: #0b6a3a;
+  --tl-leaf-right: #0e8048;
+  --tl-leaf-depth: #0b5e35;
+  --tl-loader-shadow: rgb(11 59 36 / 0.35);
 }
 
 [data-theme="dark"] {
@@ -50,6 +60,15 @@
   --tl-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
   --tl-blob-a: rgb(34 160 107 / 0.28);
   --tl-blob-b: rgb(15 122 68 / 0.55);
+  --tl-leaf-b0: #ffffff;
+  --tl-leaf-b1: #ddf3e4;
+  --tl-leaf-b2: #b5e2c4;
+  --tl-leaf-l0: #a9ddbb;
+  --tl-leaf-l1: #e4f6ea;
+  --tl-leaf-stem: #86cda0;
+  --tl-leaf-right: #9ad7b0;
+  --tl-leaf-depth: #0f5c36;
+  --tl-loader-shadow: rgb(0 0 0 / 0.6);
 }
 
 html {
@@ -85,4 +104,86 @@ body {
     -webkit-backdrop-filter: blur(20px) saturate(140%);
     backdrop-filter: blur(20px) saturate(140%);
   }
+}
+
+/* The loader (ui/AppLoader.tsx and the start-up copy in index.html): option E, "Extruded leaf". */
+.tl-loader {
+  perspective: 700px;
+}
+.tl-loader-solid {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: tl-sway 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.tl-loader-solid > * {
+  position: absolute;
+  inset: 0;
+}
+.tl-loader-shadow {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tl-loader-shadow), transparent);
+  animation: tl-shadow 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.tl-loader-bar {
+  animation: tl-bar 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes tl-sway {
+  0%,
+  100% {
+    transform: rotateX(16deg) rotateY(-38deg);
+  }
+  50% {
+    transform: rotateX(8deg) rotateY(38deg);
+  }
+}
+@keyframes tl-shadow {
+  0%,
+  100% {
+    transform: translateX(10%) scaleX(0.9);
+  }
+  50% {
+    transform: translateX(-10%) scaleX(0.9);
+  }
+}
+@keyframes tl-bar {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+@keyframes tl-calm {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tl-loader-solid {
+    transform: rotateX(12deg) rotateY(-24deg);
+    animation: tl-calm 1.8s ease-in-out infinite alternate;
+  }
+  .tl-loader-shadow,
+  .tl-loader-bar {
+    animation: none;
+  }
+}
+
+/* The start-up copy in index.html, replaced when React renders. */
+.tl-boot {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, "Noto Sans Bengali", system-ui, sans-serif;
+}
+.tl-boot-label {
+  margin: 32px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tl-text);
 }

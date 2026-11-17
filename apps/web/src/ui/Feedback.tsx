@@ -1,3 +1,4 @@
+import { AppLoader } from "./AppLoader";
 import type { ReactNode } from "react";
 
 export function ErrorNote({ children }: { children: ReactNode }) {
@@ -17,12 +18,9 @@ export function SuccessNote({ children }: { children: ReactNode }) {
   );
 }
 
+/** In-page loading: the small swaying leaf with a short line under it. */
 export function Loading({ label = "Loading…" }: { label?: string }) {
-  return (
-    <p role="status" className="m-0 py-6 text-center text-sm text-[var(--tl-muted)]">
-      {label}
-    </p>
-  );
+  return <AppLoader size={44} label={label} className="py-6" />;
 }
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {

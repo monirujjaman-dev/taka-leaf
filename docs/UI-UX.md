@@ -128,7 +128,14 @@ an expense to four taps plus the amount, a sync status line (last sync, changes 
 changes), a Sync button, app lock with PIN or fingerprint, and a daily reminder. Glass blur is
 used on few surfaces, with a plain translucent fallback on slower phones.
 
-## 9. Emails
+## 9. Loading
+
+One loader everywhere (design option E, "Extruded leaf"): the 3D leaf badge sways while the app
+starts ("Opening TakaLeaf…", full screen, shown by `index.html` before the script loads and by the
+Android app while its database opens) and, small, while a page or a server check loads. It is a
+`status` / `progressbar` with its label read aloud; with reduced motion it stays still and fades.
+
+## 10. Emails
 
 Every email has one job, one button and a plain-text twin. Wording is short and calm, and it
 always says what to do if the email was not expected.

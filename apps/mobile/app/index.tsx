@@ -10,6 +10,7 @@ import { SERVER_URL_KEY } from "../src/backgroundCheck";
 import { db } from "../src/db/client";
 import { healthChecks, probeNotes } from "../src/db/schema";
 import { addNote, getSetting, recordCheck, setSetting, sqliteVersion } from "../src/db/store";
+import { AppLoader } from "../src/ui/AppLoader";
 import { Body, Button, Card, Field } from "../src/ui/parts";
 import { useColors } from "../src/ui/theme";
 
@@ -111,6 +112,7 @@ export default function SetupScreen() {
         />
         {serverError ? <Text style={{ color: c.expense, fontWeight: "600" }}>{serverError}</Text> : null}
         <Button label={checking ? "Checking…" : "Check now"} disabled={checking} onPress={() => void checkNow()} />
+        {checking ? <AppLoader size={44} label="Asking your server…" /> : null}
       </Card>
 
       <Card title="3. Works with the app closed">

@@ -8,6 +8,7 @@ import { Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import migrations from "../drizzle/migrations";
 import { db } from "../src/db/client";
+import { AppLoader } from "../src/ui/AppLoader";
 import { useColors } from "../src/ui/theme";
 
 void SplashScreen.preventAutoHideAsync();
@@ -16,9 +17,10 @@ export default function RootLayout() {
   const colors = useColors();
   const { success, error } = useMigrations(db, migrations);
 
+  // Hand over from the native splash to the animated loader as soon as React draws.
   useEffect(() => {
-    if (success || error) void SplashScreen.hideAsync();
-  }, [success, error]);
+    void SplashScreen.hideAsync();
+  }, []);
 
   if (error) {
     return (
@@ -28,7 +30,13 @@ export default function RootLayout() {
       </View>
     );
   }
-  if (!success) return null;
+  if (!success) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
+        <AppLoader label="Opening TakaLeaf…" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
