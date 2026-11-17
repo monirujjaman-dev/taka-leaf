@@ -159,3 +159,17 @@ internal sealed class UserTokenConfiguration : IEntityTypeConfiguration<UserToke
         builder.HasOne<User>().WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+internal sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage>
+{
+    public void Configure(EntityTypeBuilder<OutboxMessage> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.Type).HasMaxLength(50);
+        builder.Property(e => e.LastError).HasMaxLength(2000);
+
+        // The worker's query: messages still to do, oldest due first.
+        builder.HasIndex(e => e.AvailableAt).HasFilter("processed_at IS NULL AND failed_at IS NULL");
+    }
+}

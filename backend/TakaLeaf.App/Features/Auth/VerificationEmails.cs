@@ -1,5 +1,6 @@
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Common.Email;
+using TakaLeaf.App.Common.Outbox;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 
@@ -8,10 +9,9 @@ namespace TakaLeaf.App.Features.Auth;
 /// <summary>Writes and sends the emails used by Register and ResendVerification.</summary>
 public sealed class VerificationEmails(
     AppDbContext db,
-    IEmailSender sender,
+    OutboxWriter outbox,
     EmailTemplates templates,
-    TimeProvider clock,
-    ILogger<VerificationEmails> logger)
+    TimeProvider clock)
 {
     public static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
 
@@ -30,7 +30,6 @@ public sealed class VerificationEmails(
             CreatedAt = now,
             ExpiresAt = now + LinkLifetime,
         });
-        await db.SaveChangesAsync(cancellationToken);
 
         var message = templates.Render(
             "verify-email",
@@ -62,16 +61,13 @@ public sealed class VerificationEmails(
         await SendAsync(message, cancellationToken);
     }
 
+    /// <summary>
+    /// Writes the email to the outbox and saves it with everything else this request changed, so
+    /// the email goes out if and only if the change is kept. The outbox worker sends and retries it.
+    /// </summary>
     private async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
     {
-        try
-        {
-            await sender.SendAsync(message, cancellationToken);
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            // The person can ask for the email again; a mail server problem must not lose the registration.
-            logger.LogError(exception, "Could not send the email \"{Subject}\"", message.Subject);
-        }
+        outbox.AddEmail(message);
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

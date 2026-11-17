@@ -22,6 +22,7 @@ public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options,
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserToken> UserTokens => Set<UserToken>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

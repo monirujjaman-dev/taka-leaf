@@ -106,6 +106,7 @@ These hold everywhere. Code that breaks one of them is a bug.
 | `users` | email (unique), name (1–100 characters; "" for accounts made before names), password_hash, email_verified_at, failed_sign_in_count, locked_until | Not synced. The name is cleaned by `NameRules` / `checkName` (contract fixture `person-name.json`). An unverified re-registration keeps its name and password on the emailed link and applies them only when that link is opened. |
 | `sessions`, `refresh_tokens` | token hashes, used_at, revoked_at | One session per signed-in device. |
 | `user_tokens` | purpose (VerifyEmail / ResetPassword), token_hash, expires_at, used_at | Single-use email links. |
+| `outbox_messages` | type, payload (JSON, cleared when done), created_at, available_at, attempts, locked_until, last_error, processed_at, failed_at | System table (no user, not synced): work to do after a save. See "Outbox". |
 | `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person. |
 | `people` | name (unique per user, ignoring case), note | Each has one Lent and one Borrowed wallet. |
 | `categories` | kind (Income/Expense), name, parent_id, archived, sort_order | Two levels. Starter set created at registration. |
@@ -162,8 +163,9 @@ has ready-made requests.
 - **Email links** are single-use and stored hashed. Verify links expire after 24 hours, reset links after 30 minutes. A password chosen at
   registration takes effect only if that particular link is opened, so nobody can take over an
   unverified account.
-- **Emails** (verify email, already registered, reset password, password changed) are sent as
-  multipart text + HTML. `Common/Email/EmailTemplates` fills the files in
+- **Emails** (verify email, already registered, reset password, password changed) are written to
+  the outbox in the same save as the token or change they belong to, and sent by the outbox
+  worker as multipart text + HTML. `Common/Email/EmailTemplates` fills the files in
   `Common/Email/Templates/` (`_layout.html` frame plus `<name>.html` and `<name>.txt`, embedded in
   the assembly): `{{tokens}}` are HTML-encoded in the HTML, and a token without a value throws.
   Links use `App:WebBaseUrl`; the logo is `/email/takaleaf-mark.png` from the web app's `public/`.
@@ -202,6 +204,30 @@ src/test/       fakeApi (fetch stand-in), renderApp
 `RecurringWorker` runs every `Recurring:PollMinutes` (30 by default) and records automatic recurring
 dates that are due, at 9 AM local time. A unique index means a date can never be recorded twice. If
 a rule can't be recorded (for example its wallet was deleted), it stays in the user's due list.
+
+### Outbox
+
+Side effects that talk to the outside world (today: email) never run inside a request. The
+request adds an `outbox_messages` row through `OutboxWriter`, and the row is saved by the same
+`SaveChangesAsync` as the change that caused it, so an email exists exactly when its change does.
+After the save `OutboxSignal` wakes `OutboxWorker`, which also polls every `Outbox:PollSeconds`.
+
+- **Claiming**: `OutboxProcessor` takes up to `BatchSize` due rows with
+  `UPDATE … SET locked_until = now + LeaseMinutes … FOR UPDATE SKIP LOCKED RETURNING *`, so
+  several app instances never take the same row, and a row held by a crashed worker is taken again
+  once its lease ends.
+- **Handlers**: one `IOutboxHandler` per `type` (`EmailOutboxHandler` for `"email"`). A handler
+  throws to retry, or throws `PermanentOutboxFailure` to give up now (an SMTP 5xx refusing the
+  recipient or sender, an unreadable payload, an unknown type).
+- **Retry policy** (`OutboxRetryPolicy`): the wait doubles from `FirstRetrySeconds` (30) up to
+  `MaxRetryMinutes` (60), with ±20% jitter; after `MaxAttempts` (8, about two hours in all) the row
+  gets `failed_at` and an error is logged. Each failure keeps `attempts` and `last_error`.
+- **Privacy**: the payload holds the email, links included, only until the row is done; it is
+  cleared on success and on giving up. Rows are deleted after `KeepDays` (7), given-up ones after
+  four times that.
+- **Delivery is at least once**: a crash after the mail server accepted a message but before the
+  row is marked done can send it twice. That is acceptable for these emails.
+- Tests turn the worker off (`Outbox:Enabled=false`); reading captured emails runs the processor.
 
 ## 9. Logging and operations
 
