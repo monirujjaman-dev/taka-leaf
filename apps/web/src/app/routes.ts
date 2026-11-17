@@ -19,6 +19,8 @@ const load = {
   wallets: () => import("../pages/wallets/WalletsPage"),
   people: () => import("../pages/people/PeoplePage"),
   person: () => import("../pages/people/PersonPage"),
+  loans: () => import("../pages/loans/LoansPage"),
+  loan: () => import("../pages/loans/LoanPage"),
   reports: () => import("../pages/reports/ReportsPage"),
   budgets: () => import("../pages/budgets/BudgetsPage"),
   recurring: () => import("../pages/recurring/RecurringPage"),
@@ -38,6 +40,8 @@ export const TransactionsPage = lazy(() => load.transactions().then((m) => ({ de
 export const WalletsPage = lazy(() => load.wallets().then((m) => ({ default: m.WalletsPage })));
 export const PeoplePage = lazy(() => load.people().then((m) => ({ default: m.PeoplePage })));
 export const PersonPage = lazy(() => load.person().then((m) => ({ default: m.PersonPage })));
+export const LoansPage = lazy(() => load.loans().then((m) => ({ default: m.LoansPage })));
+export const LoanPage = lazy(() => load.loan().then((m) => ({ default: m.LoanPage })));
 export const ReportsPage = lazy(() => load.reports().then((m) => ({ default: m.ReportsPage })));
 export const BudgetsPage = lazy(() => load.budgets().then((m) => ({ default: m.BudgetsPage })));
 export const RecurringPage = lazy(() => load.recurring().then((m) => ({ default: m.RecurringPage })));
@@ -49,6 +53,7 @@ export const TransactionForm = lazy(() => load.transactionForm().then((m) => ({ 
 function loaderFor(pathname: string) {
   if (pathname === "/") return load.dashboard;
   if (/^\/people\/[^/]+/.test(pathname)) return load.person;
+  if (/^\/loans\/[^/]+/.test(pathname)) return load.loan;
   const first = `/${pathname.split("/")[1] ?? ""}`;
   const byPath: Record<string, () => Promise<unknown>> = {
     "/sign-in": load.signIn,
@@ -58,6 +63,7 @@ function loaderFor(pathname: string) {
     "/verify-email": load.verifyEmail,
     "/transactions": load.transactions,
     "/wallets": load.wallets,
+    "/loans": load.loans,
     "/people": load.people,
     "/reports": load.reports,
     "/budgets": load.budgets,

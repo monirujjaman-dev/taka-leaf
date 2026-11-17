@@ -130,6 +130,7 @@ function Devices() {
 
 const MORE: { to: string; label: string; icon: IconName }[] = [
   { to: "/wallets", label: "Wallets", icon: "wallet" },
+  { to: "/loans", label: "Bank loans and card EMIs", icon: "loan" },
   { to: "/people", label: "People and loans", icon: "people" },
   { to: "/budgets", label: "Budgets", icon: "target" },
   { to: "/recurring", label: "Recurring", icon: "repeat" },

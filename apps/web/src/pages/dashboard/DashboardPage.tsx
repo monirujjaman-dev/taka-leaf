@@ -16,6 +16,7 @@ import { useWide } from "../../ui/useWide";
 import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatGrid, StatTile, walletIcon, isOwnWallet } from "../../ui/Parts";
 import { localMonth, monthLabel, WALLET_TYPE_LABEL } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetBar";
+import { DueEmis } from "../loans/DueEmis";
 import { DueList } from "../recurring/DueList";
 import { TransactionRow } from "../transactions/TransactionRow";
 
@@ -133,6 +134,8 @@ export function DashboardPage() {
               <DueList rules={due.data} />
             </section>
           ) : null}
+
+          <DueEmis />
 
           {hasWallets ? (
             <section aria-labelledby="wallets-strip" className="lg:hidden">
