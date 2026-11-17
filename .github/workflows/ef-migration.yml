@@ -5,7 +5,7 @@ name: EF migration
 
 on:
   push:
-    branches-ignore: [main]
+    branches-ignore: [main, develop]
     paths:
       - backend/.migration-request
 

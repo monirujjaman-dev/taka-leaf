@@ -1,0 +1,83 @@
+# The assistant agent. Write "@claude ..." in an issue, a PR comment or a review, or add the
+# "claude" label to an issue, and Claude does the work: on an issue it creates a claude/<...> branch
+# from develop and opens a PR (which then goes through review and auto merge); on a PR it changes
+# that PR's branch. Only the repository owner and collaborators can trigger it.
+name: Claude assistant
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: read
+
+jobs:
+  claude:
+    name: Claude assistant
+    if: >-
+      (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') &&
+          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude') &&
+          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)) ||
+        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude') &&
+          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.review.author_association)) ||
+        (github.event_name == 'issues' &&
+          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association) &&
+          (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude') ||
+           (github.event.action == 'labeled' && github.event.label.name == 'claude')))
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: takaleaf
+          POSTGRES_USER: takaleaf
+          POSTGRES_PASSWORD: takaleaf_dev
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U takaleaf -d takaleaf" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      ConnectionStrings__Database: Host=localhost;Port=5432;Database=takaleaf;Username=takaleaf;Password=takaleaf_dev
+      ConnectionStrings__Redis: localhost:6379
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - run: pnpm install --frozen-lockfile
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          base_branch: develop
+          branch_prefix: claude/
+          track_progress: ${{ github.event_name == 'issues' }}
+          claude_args: |
+            --model ${{ vars.CLAUDE_FIX_MODEL || 'opus' }}
+            --max-turns 200
+            --append-system-prompt "You work on TakaLeaf. Follow CLAUDE.md and docs/GIT-WORKFLOW.md: work branches start from develop and PRs target develop; never push to main or develop; never edit backend/TakaLeaf.App/Data/Migrations; run pnpm typecheck, pnpm test, pnpm build and dotnet test backend/TakaLeaf.App.Tests before you push. Keep docs current as CLAUDE.md says."
+            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git checkout:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr create:*),Bash(gh issue view:*),Bash(gh run view:*),Bash(gh run list:*)"

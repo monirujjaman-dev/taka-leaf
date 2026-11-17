@@ -1,0 +1,45 @@
+# Checks that a pull request follows the branching model (docs/GIT-WORKFLOW.md) and labels it by
+# kind. "Branch policy" is one of the checks Auto merge waits for.
+name: PR policy
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: pr-policy-${{ github.event.pull_request.number || inputs.pr }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    name: Branch policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+      - name: Check the branch name and target, and label the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number || inputs.pr }}
+        run: |
+          read -r head base < <(gh pr view "$PR" -R "$REPO" --json headRefName,baseRefName --jq '"\(.headRefName) \(.baseRefName)"')
+          if ! kind=$(bash .github/scripts/branch-kind.sh "$head" "$base" 2>err.txt); then
+            msg=$(cat err.txt)
+            echo "::error::$msg"
+            gh pr comment "$PR" -R "$REPO" --body "**Branch policy:** $msg See [docs/GIT-WORKFLOW.md](../blob/develop/docs/GIT-WORKFLOW.md)." || true
+            exit 1
+          fi
+          echo "Kind: $kind ($head -> $base)"
+          gh pr edit "$PR" -R "$REPO" --add-label "type:$kind" || echo "::warning::Could not add label type:$kind"

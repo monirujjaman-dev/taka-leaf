@@ -1,0 +1,36 @@
+# The release agent. Every night (03:00 Asia/Dhaka) and on demand, if develop has changes that
+# main does not, opens or refreshes the release PR develop -> main with the list of changes and
+# starts CI on develop's head. Auto merge merges it when green; Dokploy then deploys main.
+# Repository variable AUTO_RELEASE=false stops the nightly run and holds release PRs until they
+# are labelled release:approved.
+name: Release train
+
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: release-train
+  cancel-in-progress: false
+
+jobs:
+  release-pr:
+    name: Open the release PR
+    if: github.event_name == 'workflow_dispatch' || vars.AUTO_RELEASE != 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Open or refresh the release PR
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_TOKEN || github.token }}
+          REPO: ${{ github.repository }}
+        run: bash .github/scripts/release-pr.sh

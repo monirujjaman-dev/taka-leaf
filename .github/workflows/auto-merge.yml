@@ -1,0 +1,45 @@
+# The merge agent (.github/scripts/auto-merge.sh). Runs whenever a check workflow finishes, and
+# hourly as a sweep. Merges ready PRs with the right method, tags releases, and opens sync PRs.
+# Turn it off with the repository variable AUTO_MERGE=false; hold one PR with no-auto-merge.
+name: Auto merge
+
+on:
+  workflow_run:
+    workflows: [CI, Claude review, PR policy, Android]
+    types: [completed]
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+  checks: read
+
+concurrency:
+  group: auto-merge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    name: Merge ready PRs
+    if: vars.AUTO_MERGE != 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 50
+      - name: Merge
+        env:
+          # AUTOMATION_TOKEN (optional fine-grained token) lets merges and bot PRs start workflows
+          # by themselves; without it the script starts the needed workflows itself.
+          GH_TOKEN: ${{ secrets.AUTOMATION_TOKEN || github.token }}
+          REPO: ${{ github.repository }}
+          AUTO_RELEASE: ${{ vars.AUTO_RELEASE || 'true' }}
+          BRANCH: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || '' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bash .github/scripts/auto-merge.sh "$BRANCH"

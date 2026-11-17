@@ -14,6 +14,7 @@ loans per person, budgets and reports.
 | [docs/UI-UX.md](docs/UI-UX.md) | Navigation, screens, flows, interaction and copy rules |
 | [docs/DEVELOPMENT-PLAN.md](docs/DEVELOPMENT-PLAN.md) | Milestones, status, risks |
 | [docs/TESTING-PLAN.md](docs/TESTING-PLAN.md) | Test levels, fixtures, case ids, release checklist |
+| [docs/GIT-WORKFLOW.md](docs/GIT-WORKFLOW.md) | Branching model (`develop`, `main`, work, hotfix), review/fix/merge/release agents, setup |
 | [CLAUDE.md](CLAUDE.md) | Notes for Claude Code |
 
 Version 1 is the backend and the web app. The Android app (offline, with sync) is version 2.
