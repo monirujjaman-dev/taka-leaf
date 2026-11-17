@@ -47,6 +47,7 @@ export function AddTransactionButton() {
 function Sidebar() {
   const [theme, toggleTheme] = useTheme();
   const { signOut } = useAuth();
+  const online = useOnline();
   return (
     <aside className="glass sticky top-5 hidden h-[calc(100vh-40px)] w-60 shrink-0 flex-col gap-1 rounded-[26px] px-3.5 py-5 lg:flex">
       <div className="px-2 pb-[18px]">
@@ -86,11 +87,12 @@ function Sidebar() {
           <Icon name="out" size={19} />
           Sign out
         </button>
+        {/* States the connection as it is, not as it usually is (the page also says it above). */}
         <p className="m-0 flex items-center gap-2.5 px-2.5 pt-2 text-[12px] font-semibold text-[var(--tl-muted)]">
-          <span className="flex text-[var(--tl-primary)]">
+          <span className={`flex ${online ? "text-[var(--tl-primary)]" : ""}`}>
             <Icon name="sync" size={17} />
           </span>
-          Connected to your server
+          {online ? "Connected to your server" : "Offline. Changes will not save."}
         </p>
       </div>
     </aside>

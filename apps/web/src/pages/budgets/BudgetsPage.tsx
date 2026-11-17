@@ -17,6 +17,7 @@ import { BudgetBar } from "./BudgetBar";
 
 
 function BudgetForm({ budget, taken, onClose }: { budget: Budget | null; taken: (string | null)[]; onClose: () => void }) {
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const categories = useCategories("Expense");
   const save = useSaveBudget();
   const remove = useDeleteBudget();
@@ -40,7 +41,7 @@ function BudgetForm({ budget, taken, onClose }: { budget: Budget | null; taken: 
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         {budget ? null : (
           <SelectField label="For" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} error={apiError?.field("categoryId")}>
-            <option value="">Choose…</option>
+            <option value="">Choose a category</option>
             {taken.includes(null) ? null : <option value="all">All spending</option>}
             <CategoryOptions categories={(categories.data ?? []).map((c) => ({ ...c, children: c.children.filter((x) => !taken.includes(x.id)) })).filter((c) => !taken.includes(c.id))} />
           </SelectField>
@@ -55,9 +56,15 @@ function BudgetForm({ budget, taken, onClose }: { budget: Budget | null; taken: 
         <ErrorNote>{apiError && Object.keys(apiError.fieldErrors).length === 0 ? apiError.message : messageOf(remove.error)}</ErrorNote>
         <div className="flex flex-wrap items-center justify-between gap-2">
           {budget ? (
-            <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => remove.mutateAsync(budget.id).then(onClose, () => {})}>
-              Remove budget
-            </Button>
+            confirmRemove ? (
+              <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutateAsync(budget.id).then(onClose, () => {})}>
+                Yes, remove
+              </Button>
+            ) : (
+              <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => setConfirmRemove(true)}>
+                Remove budget
+              </Button>
+            )
           ) : (
             <span />
           )}
@@ -70,6 +77,9 @@ function BudgetForm({ budget, taken, onClose }: { budget: Budget | null; taken: 
             </Button>
           </span>
         </div>
+        {budget && confirmRemove ? (
+          <p className="m-0 text-[13px] text-[var(--tl-muted)]">Your spending stays as it is. Only this monthly limit goes.</p>
+        ) : null}
       </form>
     </Modal>
   );

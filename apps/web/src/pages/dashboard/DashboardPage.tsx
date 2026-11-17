@@ -207,7 +207,7 @@ export function DashboardPage() {
             <ListCard>
               {d.recent.length === 0 ? (
                 <EmptyState title="No transactions yet">
-                  {hasWallets ? <Button onClick={() => sheet.open()}>Add your first one</Button> : null}
+                  {hasWallets ? <Button onClick={() => sheet.open()}>Add your first transaction</Button> : null}
                 </EmptyState>
               ) : (
                 <ul className="m-0 flex list-none flex-col p-0">

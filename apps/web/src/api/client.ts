@@ -60,7 +60,12 @@ async function toError(response: Response): Promise<ApiError> {
   const title = body.errors && firstField ? firstField : body.title;
   // The rate limiter answers with no body; say what it means rather than "Something went wrong (429)".
   if (response.status === 429 && !title) return new ApiError(429, BUSY_MESSAGE, {}, "rate-limited");
-  return new ApiError(response.status, title ?? `Something went wrong (${response.status}). Try again.`, fieldErrors, body.code);
+  if (title) return new ApiError(response.status, title, fieldErrors, body.code);
+  const fallback =
+    response.status >= 500
+      ? `TakaLeaf had a problem on its side. Try again in a moment. (Error ${response.status})`
+      : `That did not work. Try again, or reload the page if it keeps happening. (Error ${response.status})`;
+  return new ApiError(response.status, fallback, fieldErrors, body.code);
 }
 
 /** How long a call may hang on a poor mobile connection before the person is told. */

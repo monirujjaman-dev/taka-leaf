@@ -46,7 +46,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
     const found: Record<string, string> = {};
     const poisha = parseTaka(amount);
     const every = Number(interval);
-    if (poisha === null || poisha <= 0) found.amount = "Enter an amount above zero.";
+    if (poisha === null || poisha <= 0) found.amount = "Enter an amount above zero, like 1250 or 1250.50.";
     if (type !== "Income" && !fromWalletId) found.fromWalletId = "Choose the wallet the money leaves.";
     if (type !== "Expense" && !toWalletId) found.toWalletId = "Choose the wallet the money goes to.";
     if (!Number.isInteger(every) || every < 1 || every > 366) found.interval = "Use a whole number from 1 to 366.";
@@ -153,7 +153,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
               </Button>
               {confirmDelete ? (
                 <Button variant="danger" onClick={() => run("delete")} disabled={action.isPending}>
-                  Yes, stop it
+                  Yes, delete
                 </Button>
               ) : (
                 <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => setConfirmDelete(true)}>
@@ -173,7 +173,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
             </Button>
           </span>
         </div>
-        {rule && confirmDelete ? <p className="m-0 text-[13px] text-[var(--tl-muted)]">Transactions it already recorded stay in your history.</p> : null}
+        {rule && confirmDelete ? <p className="m-0 text-[13px] text-[var(--tl-muted)]">Transactions it already recorded stay in your history. To stop it for a while, use Pause instead.</p> : null}
       </form>
     </Modal>
   );

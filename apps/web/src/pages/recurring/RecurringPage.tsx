@@ -48,7 +48,7 @@ export function RecurringPage() {
       {due.length > 0 ? (
         <section className="glass mb-4 rounded-[22px] p-4" aria-labelledby="due-title">
           <h2 id="due-title" className="m-0 mb-3 text-base font-extrabold">
-            Waiting for you
+            Due to record
           </h2>
           <DueList rules={due} />
         </section>

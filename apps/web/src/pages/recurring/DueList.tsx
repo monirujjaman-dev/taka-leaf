@@ -22,7 +22,7 @@ function RecordForm({ rule, onClose }: { rule: RecurringRule; onClose: () => voi
   async function submit(event: FormEvent) {
     event.preventDefault();
     const poisha = parseTaka(amount);
-    if (poisha === null || poisha <= 0) return setProblem("Enter an amount above zero.");
+    if (poisha === null || poisha <= 0) return setProblem("Enter an amount above zero, like 1250 or 1250.50.");
     setProblem(null);
     await action.mutateAsync({ id: rule.id, action: "record", amount: poisha }).then(onClose, () => {});
   }

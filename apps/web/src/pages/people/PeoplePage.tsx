@@ -87,7 +87,11 @@ export function PeoplePage() {
             <>
               <Segmented label="Show" options={FILTERS} value={filter} onChange={setFilter} />
               <ListCard>
-                {shown.length === 0 ? <p className="m-0 py-4 text-center text-sm text-[var(--tl-muted)]">Nobody in this list.</p> : null}
+                {shown.length === 0 ? (
+                  <p className="m-0 py-4 text-center text-sm text-[var(--tl-muted)]">
+                    {filter === "owed" ? "Nobody owes you money right now." : filter === "owe" ? "You do not owe anyone right now." : "Nobody here yet."}
+                  </p>
+                ) : null}
                 <ul className="m-0 flex list-none flex-col p-0">
                   {shown.map((person) => (
                     <li key={person.id}>

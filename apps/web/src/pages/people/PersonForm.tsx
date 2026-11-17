@@ -14,6 +14,7 @@ export function PersonForm({ person, onClose, onCreated }: { person: Person | nu
   const navigate = useNavigate();
   const [name, setName] = useState(person?.name ?? "");
   const [note, setNote] = useState(person?.note ?? "");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const apiError = save.error instanceof ApiError ? save.error : null;
 
   async function submit(event: FormEvent) {
@@ -39,14 +40,19 @@ export function PersonForm({ person, onClose, onCreated }: { person: Person | nu
         <ErrorNote>{apiError && Object.keys(apiError.fieldErrors).length === 0 ? apiError.message : messageOf(remove.error)}</ErrorNote>
         <div className="flex flex-wrap items-center justify-between gap-2">
           {person ? (
-            <Button
-              variant="ghost"
-              className="text-expense dark:text-expense-dark"
-              disabled={remove.isPending}
-              onClick={() => remove.mutateAsync(person.id).then(() => navigate("/people", { replace: true }), () => {})}
-            >
-              Delete person
-            </Button>
+            confirmDelete ? (
+              <Button
+                variant="danger"
+                disabled={remove.isPending}
+                onClick={() => remove.mutateAsync(person.id).then(() => navigate("/people", { replace: true }), () => {})}
+              >
+                Yes, delete
+              </Button>
+            ) : (
+              <Button variant="ghost" className="text-expense dark:text-expense-dark" onClick={() => setConfirmDelete(true)}>
+                Delete person
+              </Button>
+            )
           ) : (
             <span />
           )}
@@ -59,6 +65,11 @@ export function PersonForm({ person, onClose, onCreated }: { person: Person | nu
             </Button>
           </span>
         </div>
+        {person && confirmDelete ? (
+          <p className="m-0 text-[13px] text-[var(--tl-muted)]">
+            This works only while no loans are recorded with {person.name}, so no history is lost.
+          </p>
+        ) : null}
       </form>
     </Modal>
   );

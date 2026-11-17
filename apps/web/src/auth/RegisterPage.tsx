@@ -50,7 +50,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create your account" intro="One account for TakaLeaf on the web, and on Android later.">
+    <AuthLayout title="Create your account" intro="One account for TakaLeaf on the web and in the Android app.">
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         <TextField
           label="Your name"

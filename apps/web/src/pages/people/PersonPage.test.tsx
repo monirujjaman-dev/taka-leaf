@@ -14,6 +14,26 @@ describe("a person's page", () => {
     setSession(null);
   });
 
+  it("deletes a person only after the confirmation, and says when it is possible", async () => {
+    const { calls } = fakeApi({
+      "POST /auth/refresh": { body: session() },
+      "GET /people/p1": { body: { person: { ...rafi, owesMe: 0, net: 0 }, loans: [] } },
+      "GET /wallets": { body: wallets },
+      "GET /people": { body: { people: [], totals: { owedToMe: 0, iOwe: 0 } } },
+      "DELETE /people/p1": { status: 204 },
+    });
+    renderApp("/people/p1");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Edit" }));
+    const dialog = await screen.findByRole("dialog", { name: "Edit Rafi" });
+    await userEvent.click(within(dialog).getByRole("button", { name: "Delete person" }));
+    expect(calls.some((c) => c.method === "DELETE")).toBe(false);
+    expect(within(dialog).getByText(/only while no loans are recorded with Rafi/)).toBeInTheDocument();
+
+    await userEvent.click(within(dialog).getByRole("button", { name: "Yes, delete" }));
+    await vi.waitFor(() => expect(calls.some((c) => c.method === "DELETE" && c.path === "/people/p1")).toBe(true));
+  });
+
   it("records a repayment and offers the whole amount owed", async () => {
     const { calls } = fakeApi({
       "POST /auth/refresh": { body: session() },

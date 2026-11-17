@@ -109,6 +109,13 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 - Error messages are full sentences that tell the person how to fix the problem: "Enter an amount
   above zero, like 1250 or 1250.50."
 - No jargon: "Mobile banking" rather than "MFS", and "Leave out of net balance" rather than "exclude".
+- Same word for the same thing: "Due to record" for repeating items waiting for the person (dashboard
+  and Recurring); "Delete" removes a record, "Pause" stops a repeat for a while, "Remove" takes off a
+  budget limit. Every destructive button asks "Yes, delete" / "Yes, remove" in place and, where it
+  helps, says the consequence underneath ("Your spending stays as it is. Only this monthly limit goes.").
+- Amount errors give an example: "Enter an amount above zero, like 1250 or 1250.50."
+- Errors without a server message say what happened and what to do; a status code only follows in
+  brackets ("TakaLeaf had a problem on its side. Try again in a moment. (Error 502)").
 
 ## 7. Responsive and accessibility
 
