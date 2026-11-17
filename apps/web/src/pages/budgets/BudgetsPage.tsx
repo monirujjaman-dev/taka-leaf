@@ -170,9 +170,9 @@ export function BudgetsPage() {
                   >
                     <IconTile icon={budget.categoryId ? "tag" : "target"} />
                     <span className="min-w-0 flex-1">
-                      <span className="flex justify-between gap-2 text-sm font-bold">
-                        <span className="truncate">{budget.name}</span>
-                        <span className="shrink-0">
+                      <span className="flex flex-wrap justify-between gap-x-2 text-body font-bold">
+                        <span className="min-w-0">{budget.name}</span>
+                        <span className="ml-auto shrink-0">
                           {formatBdt(budget.spent)} / {formatBdt(budget.amount)}
                         </span>
                       </span>

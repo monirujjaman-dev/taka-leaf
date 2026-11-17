@@ -7,7 +7,7 @@ import { Icon } from "../../ui/Icon";
 import { iconButtonClass } from "../../ui/Parts";
 import { Button, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
-import { dayLabel, scheduleLabel } from "../../ui/format";
+import { inlineDayLabel, scheduleLabel } from "../../ui/format";
 import { DueList, ruleTitle } from "./DueList";
 import { RecurringForm } from "./RecurringForm";
 
@@ -16,7 +16,7 @@ const TONE = { Income: "text-forest dark:text-income-dark", Expense: "text-expen
 function status(rule: RecurringRule): string {
   if (rule.nextDate === null) return "Ended";
   if (rule.paused) return "Paused";
-  return `Next ${dayLabel(rule.nextDate)}`;
+  return `Next ${inlineDayLabel(rule.nextDate)}`;
 }
 
 export function RecurringPage() {

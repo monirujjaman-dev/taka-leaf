@@ -56,14 +56,14 @@ function IncomeAndExpense({ report }: { report: Report }) {
         ["Expense", report.expense, "expense"],
       ].map(([label, amount, tone]) => (
         <div key={label as string} className="mb-3">
-          <div className="flex justify-between gap-2 text-sm font-bold">
+          <div className="flex justify-between gap-2 text-body font-bold">
             <span>{label}</span>
             <span>{formatBdt(amount as number)}</span>
           </div>
           <Bar share={(amount as number) / max} tone={tone as "income" | "expense"} />
         </div>
       ))}
-      <p className={`m-0 text-sm font-bold ${report.saved < 0 ? "text-expense dark:text-expense-dark" : "text-[var(--tl-primary)]"}`}>
+      <p className={`m-0 text-body font-bold ${report.saved < 0 ? "text-expense dark:text-expense-dark" : "text-[var(--tl-primary)]"}`}>
         {report.saved >= 0
           ? `Saved ${formatBdt(report.saved)}${report.savedPercent !== null ? ` · ${report.savedPercent}% of income` : ""}`
           : `Spent ${formatBdt(-report.saved)} more than came in`}
@@ -187,14 +187,14 @@ function MonthBudgets({ month }: { month: string }) {
         <h2 id="rb-title" className="m-0 text-base font-extrabold">
           Budgets
         </h2>
-        <Link to="/budgets" className="text-sm font-bold text-[var(--tl-primary)]">
+        <Link to="/budgets" className={`tap-area rounded-[6px] text-small font-bold text-[var(--tl-primary)] ${focusRing}`}>
           All
         </Link>
       </div>
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {list.map((budget) => (
           <li key={budget.id}>
-            <span className="text-sm font-semibold">{budget.name}</span>
+            <span className="text-body font-bold">{budget.name}</span>
             <BudgetBar budget={budget} />
           </li>
         ))}

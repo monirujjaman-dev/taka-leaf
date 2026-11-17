@@ -274,7 +274,7 @@ reading text is 15, supporting text 13.**
 | title (`text-base`) | 16px / 800 | Card titles, wallet and person names |
 | amount | 15–18px / 800, tabular | Amounts in rows, tiles and cards |
 | body (`text-body`) | 15px / 400 | Reading text: empty-state sentences, messages, inputs; row titles at 700 |
-| control (`text-sm`) | 14px / 700 | Buttons, navigation, segmented options, chips, pagination. Nothing else |
+| control (`text-sm`) | 14px / 700 | Buttons, navigation, segmented options, chips, pagination; in-page notes (error, success, offline) at 600. Nothing else |
 | small (`text-small`) | 13px | Field labels (700), hints, notes and metadata (400, muted), section headings (800 muted: "Today · 15 Nov") |
 | caption (`text-caption`) | 12px / 400–600 | The detail line under a row title, tile labels, badges ("Automatic", "This device") |
 | micro / tab (`text-micro`, `text-tab`) | 11px / 10px, 700 | Chart value labels and tab-bar labels only; never reading text |

@@ -239,7 +239,7 @@ export function TransactionsPage() {
 
         {data && !wide ? (
           <div className="glass flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[18px] px-4 py-3">
-            <span className="text-sm font-extrabold">{rangeLabel}</span>
+            <span className="text-body font-extrabold">{rangeLabel}</span>
             <span className="flex gap-3 text-small font-semibold text-[var(--tl-muted)]">
               <span>
                 In <b className="text-forest dark:text-income-dark">{formatBdt(data.totals.income)}</b>

@@ -186,10 +186,10 @@ export function DashboardPage() {
                 <li key={wallet.id} className="flex h-[52px] items-center gap-3">
                   <IconTile icon={walletIcon(wallet.type)} size={38} />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-bold">{wallet.name}</span>
+                    <span className="block truncate text-body font-bold">{wallet.name}</span>
                     <span className="block truncate text-caption text-[var(--tl-muted)]">{walletDetail(wallet)}</span>
                   </span>
-                  <span className={`text-sm font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
+                  <span className={`text-body font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
                     {formatBdt(wallet.balance)}
                   </span>
                 </li>
@@ -235,7 +235,7 @@ export function DashboardPage() {
               <ul className="m-0 flex list-none flex-col gap-3 p-0">
                 {budgets.data.budgets.slice(0, 4).map((budget) => (
                   <li key={budget.id}>
-                    <span className="text-sm font-bold">{budget.name}</span>
+                    <span className="text-body font-bold">{budget.name}</span>
                     <BudgetBar budget={budget} />
                   </li>
                 ))}

@@ -113,6 +113,10 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
   and Recurring); "Delete" removes a record, "Pause" stops a repeat for a while, "Remove" takes off a
   budget limit. Every destructive button asks "Yes, delete" / "Yes, remove" in place and, where it
   helps, says the consequence underneath ("Your spending stays as it is. Only this monthly limit goes.").
+- "Today", "Yesterday" and "Tomorrow" are capitalised only at the start of a line or heading;
+  inside a sentence they are lower case ("due today", "last used yesterday, 9:10 pm").
+- Long lists of things a person rarely scans (signed-in devices) show the five most recent with
+  "Show all N"; this device comes first.
 - Amount errors give an example: "Enter an amount above zero, like 1250 or 1250.50."
 - Errors without a server message say what happened and what to do; a status code only follows in
   brackets ("TakaLeaf had a problem on its side. Try again in a moment. (Error 502)").

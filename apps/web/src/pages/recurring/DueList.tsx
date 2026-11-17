@@ -6,7 +6,7 @@ import type { RecurringRule } from "../../api/types";
 import { Button } from "../../ui/Button";
 import { ErrorNote, messageOf } from "../../ui/Feedback";
 import { AmountField } from "../../ui/Field";
-import { dayLabel, toAmountText } from "../../ui/format";
+import { inlineDayLabel, toAmountText } from "../../ui/format";
 import { Modal } from "../../ui/Modal";
 
 export function ruleTitle(rule: RecurringRule): string {
@@ -31,7 +31,7 @@ function RecordForm({ rule, onClose }: { rule: RecurringRule; onClose: () => voi
     <Modal title={`Record ${ruleTitle(rule)}`} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         <p className="m-0 text-small text-[var(--tl-muted)]">
-          Due {dayLabel(rule.nextDate!)} · {rule.type === "Income" ? `into ${rule.toWalletName}` : `from ${rule.fromWalletName}`}
+          Due {inlineDayLabel(rule.nextDate!)} · {rule.type === "Income" ? `into ${rule.toWalletName}` : `from ${rule.fromWalletName}`}
         </p>
         <AmountField label="Amount (৳)" value={amount} onChange={(e) => setAmount(e.target.value)} error={problem ?? apiError?.field("amount")} />
         <ErrorNote>{apiError && !apiError.field("amount") ? apiError.message : null}</ErrorNote>
@@ -62,7 +62,7 @@ export function DueList({ rules }: { rules: RecurringRule[] }) {
             <span className="min-w-0 flex-1">
               <span className="block truncate text-body font-bold">{ruleTitle(rule)}</span>
               <span className="block text-small text-[var(--tl-muted)]">
-                {formatBdt(rule.amount)} · due {dayLabel(rule.nextDate!)}
+                {formatBdt(rule.amount)} · due {inlineDayLabel(rule.nextDate!)}
                 {rule.dueCount > 1 ? ` · ${rule.dueCount} dates waiting` : ""}
               </span>
             </span>

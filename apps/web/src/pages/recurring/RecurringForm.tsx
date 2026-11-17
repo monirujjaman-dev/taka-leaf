@@ -3,11 +3,12 @@ import { useState, type FormEvent } from "react";
 import { ApiError } from "../../api/client";
 import { useCategories, useRecurringAction, useSaveRecurring, useWallets } from "../../api/queries";
 import type { Frequency, RecurringRule, TransactionType } from "../../api/types";
-import { Button, focusRing } from "../../ui/Button";
+import { Button } from "../../ui/Button";
 import { ErrorNote, messageOf } from "../../ui/Feedback";
 import { AmountField, SelectField, TextField } from "../../ui/Field";
 import { localDate, toAmountText } from "../../ui/format";
 import { Modal } from "../../ui/Modal";
+import { Segmented } from "../../ui/Parts";
 import { CategoryOptions, pickableWallets, WalletOptions } from "../transactions/pickers";
 
 const TYPES: TransactionType[] = ["Expense", "Income", "Transfer"];
@@ -79,25 +80,16 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
   return (
     <Modal title={rule ? "Edit recurring" : "Add recurring"} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-        <div role="radiogroup" aria-label="Type" className="grid grid-cols-3 gap-1 rounded-[16px] bg-[var(--tl-chip)] p-1">
-          {TYPES.map((option) => (
-            <button
-              key={option}
-              type="button"
-              role="radio"
-              aria-checked={type === option}
-              onClick={() => {
-                setType(option);
-                setCategory("");
-              }}
-              className={`h-10 cursor-pointer rounded-[12px] text-sm font-bold ${focusRing} ${
-                type === option ? "bg-[var(--tl-surface)] text-[var(--tl-primary)] shadow-sm" : "text-[var(--tl-muted)]"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
+        {/* The same switch as the add sheet, so Expense · Income · Transfer looks and works alike. */}
+        <Segmented
+          label="Type"
+          options={TYPES.map((option) => ({ value: option, label: option }))}
+          value={type}
+          onChange={(option) => {
+            setType(option);
+            setCategory("");
+          }}
+        />
         <AmountField label="Amount (৳)" value={amount} onChange={(e) => setAmount(e.target.value)} error={errorFor("amount")} hint="You can change it each time you record." />
         <div className={`grid gap-4 ${type === "Transfer" ? "sm:grid-cols-2" : ""}`}>
           {type !== "Income" ? (

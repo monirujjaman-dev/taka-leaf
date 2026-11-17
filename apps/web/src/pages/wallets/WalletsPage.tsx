@@ -14,7 +14,7 @@ import { WalletForm } from "./WalletForm";
 /** The design's groups. Lent and Borrowed wallets belong to people and are summed under Loans. */
 const GROUPS: { title: string; types: WalletType[] }[] = [
   { title: "Cash and bank", types: ["Cash", "Bank"] },
-  { title: "MFS", types: ["Mfs"] },
+  { title: "Mobile banking", types: ["Mfs"] },
   { title: "Credit card", types: ["CreditCard"] },
 ];
 
