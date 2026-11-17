@@ -219,6 +219,16 @@ Key characteristics:
   is a flex row with 20 px padding and gap: a 240 px glass sidebar (radius 26) beside the content,
   whose header has a 26 px title, a month button and **Add transaction**. Content padding is 20 px
   on phones. Grids collapse to one column on phones. Nothing scrolls sideways at 390 px.
+- **Android** keeps the phone layout everywhere. Touch targets are at least 48 dp. Phones stay in
+  portrait. On tablets, foldables and wider windows (Android 16 ignores the portrait lock there),
+  screens keep a 600 dp column, centred, and the tab bar stays 448 dp wide, centred. The keyboard
+  pushes the content and the pinned Save row up, and the tab bar hides while the keyboard is open.
+  Amounts shrink to fit rather than cut off digits; at text size 1.3× and above the dashboard tiles
+  go one per row. Tab labels and number-pad digits grow with the text size only up to 1.3× and 1.4×,
+  which is what their bar and keys can hold. Colours come only from `packages/shared` themes:
+  the forest hero surfaces and the chosen segment use `hero` / `onHero` / `onHeroMuted` (forest in
+  both themes), danger buttons `expense` / `onExpense`, error notes `expenseTint`, near budgets
+  `budgetNear`.
 - **Motion** is minimal: colour and brightness transitions on hover and press (≈150 ms), with no
   entrance animations. `prefers-reduced-motion` turns transitions off.
 
@@ -371,6 +381,14 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   forest pill slides to the chosen option (200 ms). Buttons, number-pad keys, tabs and chips press
   to 0.97 at once and release over 160 ms (`press`); rows tint on press. Reduced motion keeps the
   fades and drops all movement. Nothing animates on its own except the loader.
+  On Android every pressable surface shows the system ripple in place of the web's hover and press
+  tints: the primary colour at 14% (sage at 18% in dark), or white at 24% on solid forest buttons
+  and chips (`ripple`, `rippleOnPrimary` in `packages/shared` themes). Ripples stay inside rounded
+  corners; header buttons and tabs use a round, borderless one. Buttons, chips, number-pad and PIN
+  keys and the Add button also press to 0.97 and release over 160 ms. The segmented pill slides
+  (200 ms, `cubic-bezier(0.22, 1, 0.36, 1)`), and the add sheet rises from the bottom (260 ms) while
+  other screens keep Android's own transition. With "Remove animations" on, the ripple still shows,
+  nothing scales or slides, and the add sheet fades in place. Values in `apps/mobile/src/ui/motion.ts`.
 - **Email**: a 600 px column on mint; the leaf mark (40 px PNG) and a live-text "TakaLeaf" wordmark
   above a white card (radius 20, 1 px line border, padding 40, 24 px on phones where the card goes
   edge to edge). Inside: a 24px/800 title, "Hi {name}," (or "Hello,"), 15px/24px body, one forest

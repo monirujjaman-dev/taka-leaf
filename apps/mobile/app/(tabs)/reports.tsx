@@ -47,10 +47,11 @@ export default function Reports() {
       </Card>
 
       <Card title={period === "Month" ? "Expense, last 6 months" : "Expense by month"}>
-        <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 6, height: 140 }} accessibilityLabel={data.trend.map((p) => `${shortMonthLabel(p.month)} ${formatBdt(p.expense)}`).join(", ")}>
+        <View accessible style={{ flexDirection: "row", alignItems: "flex-end", gap: 6, height: 140 }} accessibilityLabel={data.trend.map((p) => `${shortMonthLabel(p.month)} ${formatBdt(p.expense)}`).join(", ")}>
           {data.trend.map((p) => (
             <View key={p.month} style={{ flex: 1, alignItems: "center", gap: 4 }}>
-              <View style={{ width: "70%", height: Math.max(2, (p.expense * 110) / maxTrend), borderRadius: 6, backgroundColor: p.month === highlight ? c.expense : c.track }} />
+              {/* Muted bars still stand out from the card (3:1), and the chosen month is rust. */}
+              <View style={{ width: "70%", height: Math.max(2, (p.expense * 110) / maxTrend), borderRadius: 6, backgroundColor: p.month === highlight ? c.expense : c.muted }} />
               <Text style={{ color: c.muted, fontSize: 11 }}>{shortMonthLabel(p.month).slice(0, 3)}</Text>
             </View>
           ))}
@@ -86,7 +87,7 @@ function CategoryCard({ title, totals, whole, tone, month }: { title: string; to
         const key = t.categoryId ?? "none";
         return (
           <View key={key} style={{ gap: 6 }}>
-            <Pressable accessibilityRole="button" accessibilityState={{ expanded: open === key }} onPress={() => setOpen(open === key ? null : key)} style={{ flexDirection: "row", gap: 8, minHeight: 44, alignItems: "center" }}>
+            <Pressable accessibilityRole="button" accessibilityState={{ expanded: open === key }} onPress={() => setOpen(open === key ? null : key)} android_ripple={{ color: c.ripple }} style={{ flexDirection: "row", gap: 8, minHeight: 48, alignItems: "center", marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 12, overflow: "hidden" }}>
               <Text numberOfLines={1} style={{ flex: 1, color: c.text, fontWeight: "700" }}>
                 {t.name} · {whole ? Math.round((t.amount * 100) / whole) : 0}%
               </Text>
@@ -102,7 +103,7 @@ function CategoryCard({ title, totals, whole, tone, month }: { title: string; to
                   </View>
                 ))}
                 {t.categoryId && month ? (
-                  <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/history", params: { categoryId: t.categoryId!, month } })} style={{ minHeight: 44, justifyContent: "center" }}>
+                  <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/history", params: { categoryId: t.categoryId!, month } })} style={{ minHeight: 48, justifyContent: "center" }}>
                     <Text style={{ color: c.primary, fontWeight: "700" }}>See these transactions</Text>
                   </Pressable>
                 ) : null}

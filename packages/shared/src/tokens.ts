@@ -32,6 +32,22 @@ export interface ThemeColors {
   expense: string;
   track: string;
   tabActive: string;
+  /** Android press ripple on glass, rows and chips: the primary colour, lightly. */
+  ripple: string;
+  /** Android press ripple on a solid primary button. */
+  rippleOnPrimary: string;
+  /** The forest hero surface (balance card, budget card, sign-in band, chosen segment): forest in both themes. */
+  hero: string;
+  /** Figures and titles on the hero. */
+  onHero: string;
+  /** Labels on the hero ("Net balance", "Assets"): mint, 4.8:1 on forest. */
+  onHeroMuted: string;
+  /** Text on a solid expense (danger) button. */
+  onExpense: string;
+  /** The 10% expense tint behind an error note. */
+  expenseTint: string;
+  /** A budget at 80% or more (progress bars only). */
+  budgetNear: string;
 }
 
 export const themes: Record<"light" | "dark", ThemeColors> = {
@@ -49,6 +65,14 @@ export const themes: Record<"light" | "dark", ThemeColors> = {
     expense: palette.expense,
     track: "rgba(11,59,36,0.08)",
     tabActive: palette.forest,
+    ripple: "rgba(15,122,68,0.14)",
+    rippleOnPrimary: "rgba(255,255,255,0.24)",
+    hero: palette.forest,
+    onHero: "#FFFFFF",
+    onHeroMuted: palette.mint,
+    onExpense: "#FFFFFF",
+    expenseTint: "rgba(168,65,42,0.1)",
+    budgetNear: palette.amber,
   },
   dark: {
     background: palette.night,
@@ -64,6 +88,14 @@ export const themes: Record<"light" | "dark", ThemeColors> = {
     expense: palette.expenseDark,
     track: "rgba(255,255,255,0.1)",
     tabActive: palette.sage,
+    ripple: "rgba(131,207,162,0.18)",
+    rippleOnPrimary: "rgba(11,59,36,0.18)",
+    hero: palette.forest,
+    onHero: "#FFFFFF",
+    onHeroMuted: palette.mint,
+    onExpense: palette.night,
+    expenseTint: "rgba(240,153,127,0.12)",
+    budgetNear: palette.amber,
   },
 };
 

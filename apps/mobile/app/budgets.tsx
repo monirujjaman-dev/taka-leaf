@@ -29,16 +29,16 @@ export default function Budgets() {
         <HeaderButton icon="chevron-right" label="Next month" onPress={() => setMonth(shiftMonth(month, 1))} />
       </View>
       {total ? (
-        <View style={{ borderRadius: 26, padding: 20, gap: 8, overflow: "hidden", backgroundColor: "#0F7A44" }}>
+        <View style={{ borderRadius: 26, padding: 20, gap: 8, overflow: "hidden", backgroundColor: c.hero }}>
           <LeafWatermark />
-          <Text style={{ color: "#D7EFE0", fontWeight: "700" }}>Spent this month</Text>
-          <Text style={{ color: "#FFFFFF", fontSize: 26, fontWeight: "800" }}>
-            {formatBdt(total.spent)} <Text style={{ fontSize: 15, color: "#D7EFE0" }}>of {formatBdt(total.amount)}</Text>
+          <Text style={{ color: c.onHeroMuted, fontWeight: "700" }}>Spent this month</Text>
+          <Text style={{ color: c.onHero, fontSize: 26, fontWeight: "800" }}>
+            {formatBdt(total.spent)} <Text style={{ fontSize: 15, color: c.onHeroMuted }}>of {formatBdt(total.amount)}</Text>
           </Text>
           <View style={{ height: 8, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.25)" }}>
-            <View style={{ height: 8, borderRadius: 4, width: `${Math.min(100, total.percent)}%`, backgroundColor: "#FFFFFF" }} />
+            <View style={{ height: 8, borderRadius: 4, width: `${Math.min(100, total.percent)}%`, backgroundColor: c.onHero }} />
           </View>
-          <Text style={{ color: "#D7EFE0" }}>
+          <Text style={{ color: c.onHeroMuted }}>
             {total.remaining >= 0 ? `${formatBdt(total.remaining)} left` : `Over by ${formatBdt(-total.remaining)}`}
             {daysLeft !== null ? ` · ${daysLeft} days to go` : ""}
           </Text>
