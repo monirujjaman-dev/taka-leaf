@@ -1,4 +1,5 @@
 import NetInfo from "@react-native-community/netinfo";
+import { useIsFocused } from "expo-router";
 import { addDatabaseChangeListener } from "expo-sqlite";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppState } from "react-native";
@@ -156,9 +157,17 @@ export function useApp(): AppContextValue {
   return value;
 }
 
-/** Re-reads SQLite whenever the data changes. */
+/**
+ * Re-reads SQLite whenever the data changes, but only on the screen in front. Tabs and screens
+ * under the current one stay mounted, and re-reading all of them on every save or sync cost about
+ * 20 ms with five years of data; a screen behind keeps what it showed and catches up when it comes
+ * back to the front.
+ */
 export function useData<T>(read: () => T, deps: unknown[] = []): T {
   const { version } = useApp();
+  const focused = useIsFocused();
+  const seen = useRef(version);
+  if (focused) seen.current = version;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(read, [version, ...deps]);
+  return useMemo(read, [seen.current, ...deps]);
 }

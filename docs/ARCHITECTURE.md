@@ -322,7 +322,9 @@ apps/mobile/
 ```
 
 Screens read SQLite through `useData(read, deps)`, which re-runs on every database change (expo-sqlite
-change listener), so a sync or a save refreshes what is on screen. Sync runs a few seconds after a
+change listener), so a sync or a save refreshes what is on screen. Only the screen in front re-reads;
+tabs and screens underneath catch up when they come back to the front. Wallet balances sum from
+covering indexes on `transactions` (`from_wallet_id` / `to_wallet_id`, `deleted_at`, `amount`). Sync runs a few seconds after a
 save, when the app comes to the front (if the last sync is over two minutes old or changes wait),
 when the connection returns (NetInfo), in the background task, and on the Sync button; failures retry
 after 30 s, 1, 2, 5 and 15 minutes. Automatic recurring rules are recorded by the server only; the
