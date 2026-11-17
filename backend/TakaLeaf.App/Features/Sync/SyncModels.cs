@@ -59,6 +59,28 @@ public sealed record TransactionRow(
     string? Note,
     DateTimeOffset UpdatedAt,
     DateTimeOffset? DeletedAt,
+    long ServerSeq = 0,
+    Guid? LoanId = null,
+    int? LoanEmi = null,
+    LoanPart? LoanPart = null);
+
+public sealed record LoanRow(
+    Guid Id,
+    LoanType Type,
+    string Name,
+    string? Lender,
+    Guid WalletId,
+    Guid PayFromWalletId,
+    long Principal,
+    int RatePoints,
+    int Months,
+    long Emi,
+    DateOnly FirstDueDate,
+    int PaidBefore,
+    bool AutoRecord,
+    DateOnly? ClosedOn,
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? DeletedAt,
     long ServerSeq = 0);
 
 public sealed record BudgetRow(
@@ -99,14 +121,15 @@ public sealed record PullResponse(
     List<PersonRow> People,
     List<TransactionRow> Transactions,
     List<BudgetRow> Budgets,
-    List<RecurringRuleRow> RecurringRules);
+    List<RecurringRuleRow> RecurringRules,
+    List<LoanRow> Loans);
 
 /// <param name="Protocol">The sync version the app speaks; see <see cref="SyncRules.Protocol"/>.</param>
 /// <param name="Changes">Oldest first. A change to a row the server already has replaces all of its fields.</param>
 public sealed record PushRequest(int? Protocol, List<PushChange>? Changes);
 
 /// <param name="MutationId">Made by the phone for each change, echoed in the result.</param>
-/// <param name="Table">wallets, categories, people, transactions, budgets or recurringRules.</param>
+/// <param name="Table">wallets, categories, people, transactions, budgets, recurringRules or loans.</param>
 /// <param name="Row">The whole row; DeletedAt set means delete it.</param>
 public sealed record PushChange(Guid MutationId, string? Table, System.Text.Json.JsonElement Row);
 
@@ -167,7 +190,11 @@ internal static class SyncRules
 
     public static TransactionRow ToRow(Transaction t) => new(
         t.Id, t.Type, t.Amount, t.FromWalletId, t.ToWalletId, t.CategoryId, t.PersonId, t.FeeOfId, t.RecurringRuleId,
-        t.RecurringDate, t.OccurredAt, t.Note, t.UpdatedAt, t.DeletedAt, t.ServerSeq);
+        t.RecurringDate, t.OccurredAt, t.Note, t.UpdatedAt, t.DeletedAt, t.ServerSeq, t.LoanId, t.LoanEmi, t.LoanPart);
+
+    public static LoanRow ToRow(Loan l) => new(
+        l.Id, l.Type, l.Name, l.Lender, l.WalletId, l.PayFromWalletId, l.Principal, l.RatePoints, l.Months, l.Emi, l.FirstDueDate,
+        l.PaidBefore, l.AutoRecord, l.ClosedOn, l.UpdatedAt, l.DeletedAt, l.ServerSeq);
 
     public static BudgetRow ToRow(Budget b) => new(b.Id, b.CategoryId, b.Amount, b.UpdatedAt, b.DeletedAt, b.ServerSeq);
 

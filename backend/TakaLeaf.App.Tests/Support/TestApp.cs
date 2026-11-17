@@ -47,6 +47,7 @@ public sealed class TestApp : WebApplicationFactory<Program>
         {
             ["RateLimits:AuthPerMinute"] = "100000",
             ["Recurring:Enabled"] = "false",
+            ["Loans:Enabled"] = "false",
             ["Outbox:Enabled"] = "false",
         }));
 

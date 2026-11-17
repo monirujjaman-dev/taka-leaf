@@ -24,7 +24,8 @@ public sealed record TransactionDto(
     long? Fee,
     DateTimeOffset OccurredAt,
     string? Note,
-    Guid? RecurringRuleId);
+    Guid? RecurringRuleId,
+    Guid? LoanId = null);
 
 /// <summary>
 /// Adding and editing take the same fields; an edit replaces all of them.
@@ -76,6 +77,11 @@ internal static class TransactionRules
         if (transaction.PersonId is not null)
         {
             return Results.Problem(title: "Loans and repayments are changed from People.", statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (transaction.LoanId is not null)
+        {
+            return Results.Problem(title: "This is part of a bank loan or card EMI. Change it from Loans.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         return null;
@@ -254,7 +260,8 @@ internal static class TransactionRules
             fees.TryGetValue(t.Id, out var fee) ? fee : null,
             t.OccurredAt,
             t.Note,
-            t.RecurringRuleId)).ToList();
+            t.RecurringRuleId,
+            t.LoanId)).ToList();
     }
 
     private static string? NameOf(Dictionary<Guid, string> names, Guid? id) =>
@@ -272,6 +279,11 @@ internal static class TransactionRules
         if (wallet.Type is WalletType.Lent or WalletType.Borrowed)
         {
             return ValidationErrors.For(field, "Lending and borrowing are recorded from People.");
+        }
+
+        if (wallet.Type == WalletType.Loan)
+        {
+            return ValidationErrors.For(field, "Loan payments are recorded from Loans.");
         }
 
         return wallet.Archived && id != current

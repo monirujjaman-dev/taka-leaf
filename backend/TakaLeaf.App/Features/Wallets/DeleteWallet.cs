@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Data;
+using TakaLeaf.App.Data.Entities;
 
 namespace TakaLeaf.App.Features.Wallets;
 
@@ -29,6 +30,11 @@ public static class DeleteWallet
         if (wallet is null)
         {
             return NotFound.Problem("Wallet");
+        }
+
+        if (wallet.Type == WalletType.Loan)
+        {
+            return ValidationErrors.For("type", "This wallet belongs to a loan. Change it from Loans.");
         }
 
         if (WalletRules.IsPersonWallet(wallet.Type))

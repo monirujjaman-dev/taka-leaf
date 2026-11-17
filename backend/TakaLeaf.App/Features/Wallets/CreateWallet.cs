@@ -32,7 +32,7 @@ public static class CreateWallet
         AppDbContext db,
         CancellationToken cancellationToken)
     {
-        if (request.Type is not { } type || WalletRules.IsPersonWallet(type))
+        if (request.Type is not { } type || !Enum.IsDefined(type) || WalletRules.IsPersonWallet(type) || type == WalletType.Loan)
         {
             return ValidationErrors.For("type", "Choose Cash, Bank, CreditCard or Mfs.");
         }

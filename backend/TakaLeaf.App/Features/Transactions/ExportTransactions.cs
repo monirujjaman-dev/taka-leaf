@@ -64,7 +64,7 @@ public static class ExportTransactions
                 Wallet(t.ToWalletId),
                 Category(t.CategoryId),
                 t.Note ?? "",
-                t.FeeOfId is not null ? "Transfer fee" : t.PersonId is not null ? "Loan" : t.RecurringRuleId is not null ? "Recurring" : "",
+                t.FeeOfId is not null ? "Transfer fee" : t.PersonId is not null ? "Loan" : t.LoanId is not null ? "Bank loan or card EMI" : t.RecurringRuleId is not null ? "Recurring" : "",
             ]);
         }
 

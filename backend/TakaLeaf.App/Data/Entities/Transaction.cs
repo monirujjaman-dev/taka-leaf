@@ -31,6 +31,15 @@ public sealed class Transaction : SyncedEntity
 
     /// <summary>For a recurring transaction: the local date it was due, so the same date is never recorded twice.</summary>
     public DateOnly? RecurringDate { get; set; }
+
+    /// <summary>The bank loan or card EMI this row belongs to; such rows change only through Loans.</summary>
+    public Guid? LoanId { get; set; }
+
+    /// <summary>Which EMI (1 = the first) a payment row pays; null for extra payments and the loan's own rows.</summary>
+    public int? LoanEmi { get; set; }
+
+    /// <summary>What the row is to its loan.</summary>
+    public LoanPart? LoanPart { get; set; }
     public DateTimeOffset OccurredAt { get; set; }
     public string? Note { get; set; }
 }

@@ -12,6 +12,9 @@ public enum WalletType
 
     /// <summary>Money the user owes a person. One per person.</summary>
     Borrowed,
+
+    /// <summary>What is left to pay on a bank loan or credit card EMI. One per loan, made with it.</summary>
+    Loan,
 }
 
 public sealed class Wallet : SyncedEntity

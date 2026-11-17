@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Data;
+using TakaLeaf.App.Data.Entities;
 
 namespace TakaLeaf.App.Features.Wallets;
 
@@ -39,6 +40,11 @@ public static class UpdateWallet
             return NotFound.Problem("Wallet");
         }
 
+        if (wallet.Type == WalletType.Loan)
+        {
+            return ValidationErrors.For("type", "This wallet belongs to a loan. Change it from Loans.");
+        }
+
         if (WalletRules.IsPersonWallet(wallet.Type))
         {
             return ValidationErrors.For("type", "A lent or borrowed wallet is changed from People.");
@@ -61,6 +67,6 @@ public static class UpdateWallet
         wallet.SortOrder = request.SortOrder ?? wallet.SortOrder;
         await db.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok(WalletRules.ToDto(wallet, await WalletRules.BalanceOfAsync(db, wallet, cancellationToken)));
+        return Results.Ok(await WalletRules.DtoAsync(db, wallet, cancellationToken));
     }
 }

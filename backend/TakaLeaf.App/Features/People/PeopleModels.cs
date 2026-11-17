@@ -227,5 +227,5 @@ internal static class PeopleRules
 
 internal static class WalletRulesForLoans
 {
-    public static bool IsPersonWallet(Wallet wallet) => wallet.PersonId is not null || wallet.Type is WalletType.Lent or WalletType.Borrowed;
+    public static bool IsPersonWallet(Wallet wallet) => wallet.PersonId is not null || wallet.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan;
 }
