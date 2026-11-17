@@ -7,7 +7,7 @@
 #
 # Does: default branch develop; squash + merge commits, no rebase; auto-delete head branches;
 # GitHub Actions may open PRs (release and sync PRs); the ruleset protecting main and develop;
-# the Claude token secret if you paste one. The Claude GitHub App itself is installed in the
+# the Claude token secret if you paste one; deletes branches whose PR was merged. The Claude GitHub App itself is installed in the
 # browser: https://github.com/apps/claude (or /install-github-app in Claude Code, which does both).
 set -euo pipefail
 
@@ -73,10 +73,15 @@ else
 fi
 
 echo "5/5 Clean up merged branches"
+owner="${REPO%%/*}"
 for b in $(gh api "$R/branches" --paginate --jq '.[].name'); do
   case "$b" in main|develop) continue ;; esac
-  if [ "$(gh api "$R/compare/develop...$b" --jq .ahead_by)" = 0 ]; then
-    gh api -X DELETE "$R/git/refs/heads/$b" && echo "   deleted $b (nothing that develop lacks)"
+  # Squash merges leave the branch "ahead", so look for a merged PR instead, or nothing new.
+  # Only trust the merged PR if the branch tip is the commit it merged: a reused name may hold new work.
+  merged_sha=$(gh api "$R/pulls?state=closed&head=$owner:$b&per_page=1" --jq '.[0] | select(.merged_at) | .head.sha // empty')
+  tip=$(gh api "$R/git/ref/heads/$b" --jq .object.sha)
+  if { [ -n "$merged_sha" ] && [ "$merged_sha" = "$tip" ]; } || [ "$(gh api "$R/compare/develop...$b" --jq .ahead_by)" = 0 ]; then
+    gh api -X DELETE "$R/git/refs/heads/$b" && echo "   deleted $b"
   fi
 done
 
