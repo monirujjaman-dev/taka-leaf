@@ -130,10 +130,11 @@ used on few surfaces, with a plain translucent fallback on slower phones.
 
 ## 9. Loading
 
-One loader everywhere (design option E, "Extruded leaf"): the 3D leaf badge sways while the app
+One loader everywhere (design option A, "Leaf assembly"): the four pieces of the leaf float apart in
+3D and lock together while the app
 starts ("Opening TakaLeaf…", full screen, shown by `index.html` before the script loads and by the
 Android app while its database opens) and, small, while a page or a server check loads. It is a
-`status` / `progressbar` with its label read aloud; with reduced motion it stays still and fades.
+`status` / `progressbar` with its label read aloud; with reduced motion it stays assembled and fades.
 
 ## 10. Emails
 

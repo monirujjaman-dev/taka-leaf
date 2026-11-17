@@ -22,14 +22,31 @@ export interface LeafColors {
   left: [string, string];
   stem: string;
   right: string;
-  /** The extruded sides of the 3D loader. */
-  depth: string;
 }
 
 export const LEAF_COLORS: Record<"light" | "dark", LeafColors> = {
-  light: { body: ["#86D36B", "#2FA24F", "#0F7A44"], left: ["#0F7A44", "#45B25A"], stem: "#0B6A3A", right: "#0E8048", depth: "#0B5E35" },
-  dark: { body: ["#FFFFFF", "#DDF3E4", "#B5E2C4"], left: ["#A9DDBB", "#E4F6EA"], stem: "#86CDA0", right: "#9AD7B0", depth: "#0F5C36" },
+  light: { body: ["#86D36B", "#2FA24F", "#0F7A44"], left: ["#0F7A44", "#45B25A"], stem: "#0B6A3A", right: "#0E8048" },
+  dark: { body: ["#FFFFFF", "#DDF3E4", "#B5E2C4"], left: ["#A9DDBB", "#E4F6EA"], stem: "#86CDA0", right: "#9AD7B0" },
 };
 
-/** The loader's motion (design option E "Extruded leaf"): one sway cycle and its tilt range. */
-export const LOADER_MOTION = { cycleMs: 2600, tiltX: [16, 8], turnY: [-38, 38], layers: 14 } as const;
+/**
+ * The loader's motion (design option A, "Leaf assembly"). In a box of `box` px, the four pieces
+ * float apart in an isometric view (scene rotateX `tiltX`, rotateZ `turnZ`), each lifted by z and
+ * shifted by x/y; they then turn face-on and lock together. Times are fractions of one cycle.
+ */
+export const LOADER_MOTION = {
+  cycleMs: 3200,
+  box: 150,
+  tiltX: 58,
+  turnZ: -38,
+  /** Apart until `apart`, together from `together` to `holdUntil`, then apart again by the end. */
+  apart: 0.18,
+  together: 0.5,
+  holdUntil: 0.84,
+  pieces: {
+    left: { x: -26, y: -14, z: 110, delayMs: 0 },
+    stem: { x: 0, y: 26, z: 40, delayMs: 60 },
+    right: { x: 22, y: -20, z: 150, delayMs: 120 },
+    body: { x: 4, y: 0, z: 75, delayMs: 30 },
+  },
+} as const;

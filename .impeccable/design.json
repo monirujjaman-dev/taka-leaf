@@ -211,8 +211,8 @@
     },
     {
       "name": "Loader",
-      "description": "Option E \"Extruded leaf\": the leaf mark as a 14-slice 3D badge that sways every 2.6 s over a soft shadow; 130 px at start-up, 44 px in pages; still and fading with reduced motion.",
-      "css": ".ds-loader{perspective:700px;display:flex;flex-direction:column;align-items:center;font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif}.ds-loader-solid{width:130px;height:130px;transform-style:preserve-3d;animation:ds-sway 2.6s cubic-bezier(.45,0,.55,1) infinite}@keyframes ds-sway{0%,100%{transform:rotateX(16deg) rotateY(-38deg)}50%{transform:rotateX(8deg) rotateY(38deg)}}@media (prefers-reduced-motion:reduce){.ds-loader-solid{animation:none;transform:rotateX(12deg) rotateY(-24deg)}}"
+      "description": "Option A \"Leaf assembly\": the four pieces of the leaf mark float apart in an isometric view, then turn face-on and lock together (3.2 s cycle) over a shadow that tightens; 150 px at start-up, 44 px in pages; assembled and fading with reduced motion.",
+      "css": ".ds-loader{perspective:900px;display:flex;flex-direction:column;align-items:center;font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif}.ds-loader-scene{position:relative;width:150px;height:150px;transform-style:preserve-3d;animation:ds-turn 3.2s cubic-bezier(.65,0,.35,1) infinite}.ds-loader-piece{position:absolute;inset:0;animation:ds-fly 3.2s cubic-bezier(.65,0,.35,1) infinite}@keyframes ds-turn{0%,18%,100%{transform:rotateX(58deg) rotateZ(-38deg)}50%,84%{transform:none}}@keyframes ds-fly{0%,18%,100%{transform:translate3d(var(--x),var(--y),var(--z))}50%,84%{transform:none}}@media (prefers-reduced-motion:reduce){.ds-loader-scene,.ds-loader-piece{animation:none;transform:none}}"
     }
   ],
   "narrative": {

@@ -42,7 +42,6 @@
   --tl-leaf-l1: #45b25a;
   --tl-leaf-stem: #0b6a3a;
   --tl-leaf-right: #0e8048;
-  --tl-leaf-depth: #0b5e35;
   --tl-loader-shadow: rgb(11 59 36 / 0.35);
 }
 
@@ -67,7 +66,6 @@
   --tl-leaf-l1: #e4f6ea;
   --tl-leaf-stem: #86cda0;
   --tl-leaf-right: #9ad7b0;
-  --tl-leaf-depth: #0f5c36;
   --tl-loader-shadow: rgb(0 0 0 / 0.6);
 }
 
@@ -106,43 +104,70 @@ body {
   }
 }
 
-/* The loader (ui/AppLoader.tsx and the start-up copy in index.html): option E, "Extruded leaf". */
+/* The loader (ui/AppLoader.tsx and the start-up copy in index.html): option A, "Leaf assembly".
+   Timing matches LOADER_MOTION in packages/shared: apart until 18%, together 50%-84%. */
 .tl-loader {
-  perspective: 700px;
+  perspective: 900px;
 }
-.tl-loader-solid {
+.tl-loader-scene {
   position: relative;
   transform-style: preserve-3d;
-  animation: tl-sway 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: tl-turn 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
-.tl-loader-solid > * {
+.tl-loader-piece {
   position: absolute;
   inset: 0;
+  transform-style: preserve-3d;
+  animation: tl-fly 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 .tl-loader-shadow {
   border-radius: 50%;
   background: radial-gradient(closest-side, var(--tl-loader-shadow), transparent);
-  animation: tl-shadow 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: tl-shadow 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 .tl-loader-bar {
   animation: tl-bar 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
-@keyframes tl-sway {
+@keyframes tl-turn {
   0%,
-  100% {
-    transform: rotateX(16deg) rotateY(-38deg);
+  18% {
+    transform: rotateX(58deg) rotateZ(-38deg);
   }
-  50% {
-    transform: rotateX(8deg) rotateY(38deg);
+  50%,
+  84% {
+    transform: rotateX(0deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(58deg) rotateZ(-38deg);
+  }
+}
+@keyframes tl-fly {
+  0%,
+  18% {
+    transform: translate3d(var(--x), var(--y), var(--z));
+  }
+  50%,
+  84% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(var(--x), var(--y), var(--z));
   }
 }
 @keyframes tl-shadow {
   0%,
-  100% {
-    transform: translateX(10%) scaleX(0.9);
+  18% {
+    transform: scale(1.25);
+    opacity: 0.35;
   }
-  50% {
-    transform: translateX(-10%) scaleX(0.9);
+  50%,
+  84% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0.35;
   }
 }
 @keyframes tl-bar {
@@ -162,10 +187,10 @@ body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tl-loader-solid {
-    transform: rotateX(12deg) rotateY(-24deg);
+  .tl-loader-scene {
     animation: tl-calm 1.8s ease-in-out infinite alternate;
   }
+  .tl-loader-piece,
   .tl-loader-shadow,
   .tl-loader-bar {
     animation: none;
