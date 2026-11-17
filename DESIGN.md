@@ -389,6 +389,13 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   (200 ms, `cubic-bezier(0.22, 1, 0.36, 1)`), and the add sheet rises from the bottom (260 ms) while
   other screens keep Android's own transition. With "Remove animations" on, the ripple still shows,
   nothing scales or slides, and the add sheet fades in place. Values in `apps/mobile/src/ui/motion.ts`.
+- **Loan pieces** (Loans pages, web and Android): a **status pill** (caption 12px/700, pill radius,
+  1 px border and text in one colour: rust for "2 days late", muted for "Due in 3 days", sage for
+  "Closed"; the words carry the meaning, never the colour alone); a **repaid bar** (the budget bar
+  in sage, with "18 of 60 EMIs paid" left and "30% repaid" right in caption muted, read out as one
+  sentence); the **hero** "Left to pay" amount in expense colour at 28px/800 with two-up facts
+  (13px muted label over 15px/700 tabular amount). Schedule rows dim what is upcoming or paid
+  before, and use a check, clock or empty circle icon for Paid, Due and Upcoming.
 - **Email**: a 600 px column on mint; the leaf mark (40 px PNG) and a live-text "TakaLeaf" wordmark
   above a white card (radius 20, 1 px line border, padding 40, 24 px on phones where the card goes
   edge to edge). Inside: a 24px/800 title, "Hi {name}," (or "Hello,"), 15px/24px body, one forest
