@@ -157,7 +157,6 @@ export function BudgetsPage() {
                     type="button"
                     onClick={() => setEditing(budget)}
                     className={`-mx-1.5 flex w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
-                    aria-label={`${budget.name}: ${budget.percent}% used. Edit`}
                   >
                     <IconTile icon={budget.categoryId ? "tag" : "target"} />
                     <span className="min-w-0 flex-1">
@@ -169,6 +168,8 @@ export function BudgetsPage() {
                       </span>
                       <BudgetBar budget={budget} />
                     </span>
+                    {/* The name keeps what was spent and what is left; this only adds the action. */}
+                    <span className="sr-only">, edit</span>
                   </button>
                 </li>
               ))}

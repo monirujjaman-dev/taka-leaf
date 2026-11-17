@@ -25,6 +25,8 @@ export class ApiError extends Error {
 }
 
 const NETWORK_MESSAGE = "Could not reach TakaLeaf. Check your internet connection and try again.";
+const BUSY_MESSAGE = "Too many requests from this network right now. Wait a minute, then try again.";
+const SERVER_MESSAGE = "TakaLeaf could not check your session just now. Try again in a moment.";
 
 let accessToken: string | null = null;
 let refreshing: Promise<AuthUser | null> | null = null;
@@ -56,6 +58,8 @@ async function toError(response: Response): Promise<ApiError> {
 
   const firstField = Object.values(fieldErrors)[0];
   const title = body.errors && firstField ? firstField : body.title;
+  // The rate limiter answers with no body; say what it means rather than "Something went wrong (429)".
+  if (response.status === 429 && !title) return new ApiError(429, BUSY_MESSAGE, {}, "rate-limited");
   return new ApiError(response.status, title ?? `Something went wrong (${response.status}). Try again.`, fieldErrors, body.code);
 }
 
@@ -107,13 +111,25 @@ async function doRefresh(): Promise<AuthUser | null> {
       await wait(400);
       continue;
     }
+    // "Could not check" is not "signed out": a busy or failing server, like a lost connection
+    // (which rawFetch throws), leaves the session alone so the person can try again.
+    if (response.status === 429) throw await toError(response);
+    if (response.status >= 500) throw new ApiError(response.status, SERVER_MESSAGE);
     break;
   }
   setSession(null);
   return null;
 }
 
-/** Restores or renews the session from the refresh cookie. Concurrent callers share one request. */
+/** True when the session could not be checked (busy, server or network trouble), as opposed to ended. */
+export function isTransient(error: unknown): error is ApiError {
+  return error instanceof ApiError && (error.status === 0 || error.status === 429 || error.status >= 500);
+}
+
+/**
+ * Restores or renews the session from the refresh cookie. Concurrent callers share one request.
+ * Resolves with null when the session has ended; rejects (see isTransient) when it could not be checked.
+ */
 export function refreshSession(): Promise<AuthUser | null> {
   refreshing ??= doRefresh().finally(() => {
     refreshing = null;

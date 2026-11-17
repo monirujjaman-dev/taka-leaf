@@ -32,7 +32,6 @@ function WalletRow({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
       <button
         type="button"
         onClick={onOpen}
-        aria-label={`Edit ${wallet.name}`}
         className={`-mx-1.5 flex h-14 w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
       >
         <IconTile icon={walletIcon(wallet.type)} />
@@ -43,6 +42,8 @@ function WalletRow({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
         <span className={`shrink-0 text-[15px] font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
           {formatBdt(wallet.balance)}
         </span>
+        {/* Read as "Cash, Cash, ৳8,500.00, edit": the balance stays in the button's name. */}
+        <span className="sr-only">, edit</span>
         <Chevron />
       </button>
     </li>

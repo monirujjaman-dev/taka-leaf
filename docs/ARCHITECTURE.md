@@ -194,8 +194,11 @@ src/test/       fakeApi (fetch stand-in), renderApp
 
 - **Server data** lives only in TanStack Query. After a change, every money query (dashboard,
   wallets, transactions, people, budgets, recurring) is invalidated together.
-- **Silent refresh:** a 401 triggers one shared refresh request and a single retry. If that fails,
-  the app signs out. Requests give up after 30 seconds.
+- **Silent refresh:** a 401 triggers one shared refresh request and a single retry. The app signs out
+  only when the refresh says the session has ended (400/401/403). When it could not be checked
+  (429 from the per-IP auth limit, a 5xx, no connection), the session is kept: at start-up the person
+  sees "Your account could not be opened" with Try again; mid-session the screen's own error offers
+  it. Requests give up after 30 seconds.
 - **Start-up and loading:** each page is its own chunk, loaded through `app/routes.ts`; a new page
   goes there, not straight into `App.tsx`. The build (`vite.config.ts`) keeps everything the shell
   needs in one `core` chunk and code that several pages share in one `pages` chunk, so a phone makes

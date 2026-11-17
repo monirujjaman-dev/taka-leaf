@@ -183,7 +183,7 @@ function AccountCard() {
           <span className="block truncate text-[13px] text-[var(--tl-muted)]">{user.email}</span>
         </span>
         {editing ? null : (
-          <Button variant="secondary" onClick={start} aria-label={user.name ? "Change your name" : "Add your name"}>
+          <Button variant="secondary" onClick={start} aria-label={user.name ? "Edit your name" : "Add your name"}>
             {user.name ? "Edit" : "Add"}
           </Button>
         )}
@@ -254,8 +254,9 @@ export function SettingsPage() {
         <ListCard label="Preferences">
           <ul className="m-0 flex list-none flex-col p-0">
             <li>
-              <button type="button" onClick={toggleTheme} className={rowClass} aria-label={`Theme: ${theme === "light" ? "Light" : "Dark"}. Switch to ${theme === "light" ? "dark" : "light"}`}>
+              <button type="button" onClick={toggleTheme} className={rowClass}>
                 <RowText icon={theme === "light" ? "sun" : "moon"} label="Theme" value={theme === "light" ? "Light" : "Dark"} />
+                <span className="sr-only">, switch to {theme === "light" ? "dark" : "light"}</span>
               </button>
             </li>
             <li>

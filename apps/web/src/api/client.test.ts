@@ -97,3 +97,31 @@ describe("api client timeouts", () => {
     expect((error as ApiError).message).toMatch(/may or may not have saved\. Check before trying again\./);
   });
 });
+
+describe("api client when the session cannot be checked", () => {
+  beforeEach(() => setSession(session("a@example.com", "old-token")));
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    setSession(null);
+  });
+
+  it("keeps the person signed in when the refresh is rate limited", async () => {
+    fakeApi({ "GET /wallets": signedOut, "POST /auth/refresh": { status: 429 } });
+    const listener = vi.fn();
+    const stop = onSignedOut(listener);
+    const error = await api("/wallets").catch((e: unknown) => e);
+    stop();
+    expect((error as ApiError).message).toBe("Too many requests from this network right now. Wait a minute, then try again.");
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("keeps the person signed in when the server fails", async () => {
+    fakeApi({ "GET /wallets": signedOut, "POST /auth/refresh": { status: 503 } });
+    const listener = vi.fn();
+    const stop = onSignedOut(listener);
+    const error = await api("/wallets").catch((e: unknown) => e);
+    stop();
+    expect((error as ApiError).message).toBe("TakaLeaf could not check your session just now. Try again in a moment.");
+    expect(listener).not.toHaveBeenCalled();
+  });
+});

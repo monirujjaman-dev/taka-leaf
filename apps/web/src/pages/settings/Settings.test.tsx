@@ -64,7 +64,7 @@ describe("settings and account", () => {
 
     const account = await screen.findByRole("region", { name: "Account" });
     expect(within(account).getByText("Monir Hossain")).toBeInTheDocument();
-    await userEvent.click(within(account).getByRole("button", { name: "Change your name" }));
+    await userEvent.click(within(account).getByRole("button", { name: "Edit your name" }));
     const field = within(account).getByLabelText("Your name");
     await userEvent.clear(field);
     await userEvent.click(within(account).getByRole("button", { name: "Save name" }));

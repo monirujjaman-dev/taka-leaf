@@ -115,6 +115,8 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 - Checked at 390 × 844 and 1440 × 900 in both themes, with no sideways scrolling. Grids drop to one
   column and long names truncate. Amounts are never cut off: they stay on one line where they fit and
   wrap only when a very large figure cannot.
+- A row that opens an editor keeps what it shows as its name (name, detail, amount) and adds a hidden
+  ", edit"; an `aria-label` would replace the amount. Any label starts with the button's visible text.
 - Every input has a visible label. Errors are linked with `aria-describedby`, alerts use
   `role="alert"`, and status messages use `role="status"`.
 - Dialogs use `role="dialog"` with `aria-modal` and a title, and switches use `role="radio"` /

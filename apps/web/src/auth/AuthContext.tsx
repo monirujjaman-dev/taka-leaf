@@ -1,9 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { api, onSignedOut, refreshSession, setSession, takePrimedSession } from "../api/client";
+import { api, ApiError, isTransient, onSignedOut, refreshSession, setSession, takePrimedSession } from "../api/client";
 import type { AuthResponse, AuthUser } from "../api/types";
 
-type AuthState = { status: "loading" } | { status: "signedOut" } | { status: "signedIn"; user: AuthUser };
+type AuthState =
+  | { status: "loading" }
+  | { status: "signedOut" }
+  | { status: "signedIn"; user: AuthUser }
+  /** The session could not be checked (busy server, no connection); it may well still be valid. */
+  | { status: "unavailable"; error: ApiError };
 
 interface AuthValue {
   state: AuthState;
@@ -11,7 +16,12 @@ interface AuthValue {
   signOut: () => Promise<void>;
   /** After Settings changes the name: keeps the signed-in user in step without a reload. */
   updateUser: (user: AuthUser) => void;
+  /** Checks the session again after it could not be checked. */
+  retry: () => void;
 }
+
+const settle = (user: AuthUser | null): AuthState => (user ? { status: "signedIn", user } : { status: "signedOut" });
+const failed = (error: unknown): AuthState => (isTransient(error) ? { status: "unavailable", error } : { status: "signedOut" });
 
 const AuthContext = createContext<AuthValue | null>(null);
 
@@ -24,8 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // A returning visitor still has a refresh cookie: pick the session back up (main.tsx has
     // usually started this already).
     (takePrimedSession() ?? refreshSession())
-      .then((user) => active && setState(user ? { status: "signedIn", user } : { status: "signedOut" }))
-      .catch(() => active && setState({ status: "signedOut" }));
+      .then((user) => active && setState(settle(user)))
+      .catch((error: unknown) => active && setState(failed(error)));
     const stop = onSignedOut(() => {
       queryClient.clear();
       setState({ status: "signedOut" });
@@ -53,7 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const updateUser = useCallback((user: AuthUser) => setState({ status: "signedIn", user }), []);
-  const value = useMemo(() => ({ state, signIn, signOut, updateUser }), [state, signIn, signOut, updateUser]);
+  const retry = useCallback(() => {
+    setState({ status: "loading" });
+    refreshSession().then(
+      (user) => setState(settle(user)),
+      (error: unknown) => setState(failed(error)),
+    );
+  }, []);
+  const value = useMemo(() => ({ state, signIn, signOut, updateUser, retry }), [state, signIn, signOut, updateUser, retry]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

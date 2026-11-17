@@ -1,9 +1,13 @@
 import { Suspense } from "react";
-import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
+import { Link, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 import { useAuth } from "../auth/AuthContext";
+import { linkClass } from "../auth/AuthLayout";
+import { Logo } from "../shared/Logo";
+import { Button, focusRing } from "../ui/Button";
 import { AppShell } from "../layout/AppShell";
 import { AppLoader } from "../ui/AppLoader";
 import { PageBoundary } from "../ui/PageBoundary";
+import { useTheme } from "./theme";
 import {
   BudgetsPage,
   CategoriesPage,
@@ -30,16 +34,42 @@ function Starting() {
   );
 }
 
+/**
+ * The session could not be checked: a busy server or no connection, not a signed-out person. They keep
+ * their session and can try again; signing in again is there if they would rather.
+ */
+function SessionUnavailable({ message, from }: { message: string; from: string }) {
+  const { retry } = useAuth();
+  const [theme] = useTheme();
+  return (
+    <main className="grid min-h-screen place-items-center px-5">
+      <div role="alert" className="flex max-w-sm flex-col items-center gap-3 text-center">
+        <Logo theme={theme} size={36} />
+        <h1 className="m-0 mt-4 text-xl font-extrabold tracking-tight">Your account could not be opened</h1>
+        <p className="m-0 text-[15px] text-[var(--tl-muted)]">{message} You are still signed in.</p>
+        <Button className="mt-2 min-w-40" onClick={retry}>
+          Try again
+        </Button>
+        <Link to="/sign-in" state={{ from }} className={`${linkClass} ${focusRing} mt-1 inline-flex min-h-11 items-center rounded-[6px]`}>
+          Sign in again
+        </Link>
+      </div>
+    </main>
+  );
+}
+
 /** Signed-in pages: a signed-out visitor is sent to sign in, and comes back here afterwards. */
 function RequireSignIn() {
   const { state } = useAuth();
   const location = useLocation();
   if (state.status === "loading") return <Starting />;
+  if (state.status === "unavailable") return <SessionUnavailable message={state.error.message} from={location.pathname + location.search} />;
   if (state.status === "signedOut") return <Navigate to="/sign-in" replace state={{ from: location.pathname + location.search }} />;
   return <Outlet />;
 }
 
-/** Sign-in and register pages: a signed-in visitor goes straight to the dashboard. */
+/** Sign-in and register pages: a signed-in visitor goes straight to the dashboard. Someone whose
+ * session could not be checked came here to sign in, so they get the form. */
 function SignedOutOnly() {
   const { state } = useAuth();
   if (state.status === "loading") return <Starting />;
