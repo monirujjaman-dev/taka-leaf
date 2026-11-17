@@ -12,6 +12,7 @@ import { db } from "../src/db/client";
 import { AppProvider, useApp } from "../src/state/AppState";
 import { AppLoader } from "../src/ui/AppLoader";
 import { LockGate } from "../src/ui/LockGate";
+import { useReduceMotion } from "../src/ui/motion";
 import { useColors } from "../src/ui/theme";
 
 void SplashScreen.preventAutoHideAsync();
@@ -57,6 +58,7 @@ function Gate() {
   const { signedOut } = useApp();
   const segments = useSegments();
   const inAuth = segments[0] === "(auth)";
+  const reduceMotion = useReduceMotion();
 
   useEffect(() => {
     if (signedOut && !inAuth) router.replace("/sign-in");
@@ -69,7 +71,13 @@ function Gate() {
 
   return (
     <LockGate>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+        {/*
+          The add sheet rises from the bottom edge, where the Add button is, as on the web; every
+          other screen keeps Android's own transition. With "Remove animations" it fades in place.
+        */}
+        <Stack.Screen name="transaction" options={{ animation: reduceMotion ? "fade" : "slide_from_bottom", animationDuration: 260 }} />
+      </Stack>
     </LockGate>
   );
 }
