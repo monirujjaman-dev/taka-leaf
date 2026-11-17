@@ -156,5 +156,8 @@ export function Bar({ share, over = false }: { share: number; over?: boolean }) 
   );
 }
 
-const WALLET_ICON: Record<string, IconName> = { Cash: "cash", Mfs: "phone", Bank: "bank", CreditCard: "card", Lent: "moneyOut", Borrowed: "moneyIn" };
+const WALLET_ICON: Record<string, IconName> = { Cash: "cash", Mfs: "phone", Bank: "bank", CreditCard: "card", Lent: "moneyOut", Borrowed: "moneyIn", Loan: "loan" };
+
+/** The user's own wallets: not a person's Lent or Borrowed wallet, not a loan's. */
+export const isOwnWallet = (wallet: { personId: string | null; type: string }) => wallet.personId === null && wallet.type !== "Loan";
 export const walletIcon = (type: string): IconName => WALLET_ICON[type] ?? "wallet";

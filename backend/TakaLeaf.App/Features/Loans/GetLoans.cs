@@ -19,8 +19,8 @@ public static class GetLoans
 
     public static RouteGroupBuilder MapGetLoans(this RouteGroupBuilder group)
     {
-        group.MapGet("/", List).WithName("GetLoans");
-        group.MapGet("/{id:guid}", Detail).WithName("GetLoan");
+        group.MapGet("/", List).WithName("GetBankLoans");
+        group.MapGet("/{id:guid}", Detail).WithName("GetBankLoan");
         return group;
     }
 

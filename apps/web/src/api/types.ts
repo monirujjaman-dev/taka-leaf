@@ -18,7 +18,7 @@ export interface MessageResponse {
   message: string;
 }
 
-export type WalletType = "Cash" | "Bank" | "CreditCard" | "Mfs" | "Lent" | "Borrowed";
+export type WalletType = "Cash" | "Bank" | "CreditCard" | "Mfs" | "Lent" | "Borrowed" | "Loan";
 
 export interface Wallet {
   id: string;
@@ -72,6 +72,8 @@ export interface Transaction {
   occurredAt: string;
   note: string | null;
   recurringRuleId?: string | null;
+  /** Set on rows that belong to a bank loan or card EMI; they change only from Loans. */
+  loanId?: string | null;
 }
 
 export interface TransactionInput {
@@ -239,4 +241,116 @@ export interface Report {
   spending: CategoryTotal[];
   earning: CategoryTotal[];
   trend: { month: string; income: number; expense: number }[];
+}
+
+// Bank loans and credit card EMIs (Features/Loans). Named BankLoan: Loan is a person's loan above.
+
+export type BankLoanType = "Bank" | "CardEmi";
+
+export interface NextEmi {
+  number: number;
+  dueDate: string;
+  principal: number;
+  interest: number;
+  total: number;
+  overdue: boolean;
+}
+
+export interface BankLoan {
+  id: string;
+  type: BankLoanType;
+  name: string;
+  lender: string | null;
+  walletId: string;
+  payFromWalletId: string;
+  payFromWalletName: string | null;
+  principal: number;
+  /** Hundredths of a percent a year: 950 = 9.5 %. */
+  ratePoints: number;
+  months: number;
+  emi: number;
+  firstDueDate: string;
+  paidBefore: number;
+  autoRecord: boolean;
+  closedOn: string | null;
+  outstanding: number;
+  paid: number;
+  left: number;
+  closed: boolean;
+  next: NextEmi | null;
+  endsOn: string | null;
+  interestPaid: number;
+  interestLeft: number;
+}
+
+export interface DueEmi {
+  loanId: string;
+  name: string;
+  type: BankLoanType;
+  number: number;
+  dueDate: string;
+  total: number;
+  payFromWalletName: string | null;
+  overdue: boolean;
+}
+
+export interface BankLoanList {
+  summary: { outstanding: number; bank: number; cardEmi: number; upcoming: DueEmi[] };
+  loans: BankLoan[];
+}
+
+export type ScheduleStatus = "Paid" | "PaidBefore" | "Due" | "Upcoming";
+
+export interface ScheduleRow {
+  number: number;
+  dueDate: string;
+  status: ScheduleStatus;
+  principal: number;
+  interest: number;
+  total: number;
+  balanceAfter: number | null;
+  paidAt: string | null;
+  paidFrom: string | null;
+}
+
+export interface CardLimit {
+  cardId: string;
+  cardName: string;
+  limit: number | null;
+  spent: number;
+  held: number;
+  available: number | null;
+}
+
+export interface BankLoanDetail {
+  loan: BankLoan;
+  schedule: ScheduleRow[];
+  activity: Transaction[];
+  card: CardLimit | null;
+}
+
+export interface AddBankLoanInput {
+  type: BankLoanType;
+  name: string;
+  lender: string | null;
+  payFromWalletId: string;
+  principal: number;
+  ratePoints: number;
+  months: number;
+  emi: number | null;
+  firstDueDate: string;
+  paidBefore: number;
+  autoRecord: boolean;
+  receivedInWalletId: string | null;
+  processingFee: number | null;
+  purchaseCategoryId: string | null;
+}
+
+export interface UpdateBankLoanInput {
+  name: string;
+  lender: string | null;
+  payFromWalletId: string;
+  ratePoints: number;
+  emi: number;
+  autoRecord: boolean;
 }

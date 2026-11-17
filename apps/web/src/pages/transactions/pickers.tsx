@@ -1,8 +1,9 @@
+import { isOwnWallet } from "../../ui/Parts";
 import type { Category, Wallet } from "../../api/types";
 
 /** Wallets a person can pick: their own money wallets, not loan wallets, archived only if already chosen. */
 export function pickableWallets(wallets: Wallet[], keep: (string | null | undefined)[] = []): Wallet[] {
-  return wallets.filter((w) => w.personId === null && (!w.archived || keep.includes(w.id)));
+  return wallets.filter((w) => isOwnWallet(w) && (!w.archived || keep.includes(w.id)));
 }
 
 export function WalletOptions({ wallets }: { wallets: Wallet[] }) {

@@ -102,6 +102,7 @@ export const WALLET_TYPE_LABEL: Record<WalletType, string> = {
   Mfs: "Mobile banking",
   Lent: "Lent",
   Borrowed: "Borrowed",
+  Loan: "Loan",
 };
 
 const UNIT = { Daily: "day", Weekly: "week", Monthly: "month", Yearly: "year" } as const;

@@ -20,10 +20,15 @@ import type {
   Wallet,
   WalletList,
   WalletType,
+  AddBankLoanInput,
+  BankLoan,
+  BankLoanDetail,
+  BankLoanList,
+  UpdateBankLoanInput,
 } from "./types";
 
 /** Anything that changes money touches these, so they are refreshed together after a change. */
-const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"], ["reports"]] as const;
+const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"], ["reports"], ["loans"]] as const;
 
 function useInvalidateMoney() {
   const client = useQueryClient();
@@ -312,4 +317,62 @@ export function useAndroidApp() {
     staleTime: Infinity,
     retry: false,
   });
+}
+
+// Bank loans and credit card EMIs
+
+export const bankLoansQuery = () => queryOptions({ queryKey: ["loans"], queryFn: ({ signal }) => api<BankLoanList>("/loans", { signal }) });
+
+export function useBankLoans() {
+  return useQuery(bankLoansQuery());
+}
+
+export function useBankLoan(id: string) {
+  return useQuery({ queryKey: ["loans", id], queryFn: ({ signal }) => api<BankLoanDetail>(`/loans/${id}`, { signal }) });
+}
+
+export function useAddBankLoan() {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: (input: AddBankLoanInput) => api<BankLoan>("/loans", { method: "POST", body: input }), onSuccess: invalidate });
+}
+
+export function useUpdateBankLoan(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: (input: UpdateBankLoanInput) => api<BankLoan>(`/loans/${id}`, { method: "PUT", body: input }), onSuccess: invalidate });
+}
+
+export function useDeleteBankLoan() {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: (id: string) => api(`/loans/${id}`, { method: "DELETE" }), onSuccess: invalidate });
+}
+
+export function usePayEmi(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (input: { walletId: string; amount: number | null; lateFee: number | null; occurredAt: string }) =>
+      api<BankLoan>(`/loans/${id}/pay`, { method: "POST", body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function usePayExtra(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (input: { walletId: string; amount: number; occurredAt: string }) => api<BankLoan>(`/loans/${id}/extra`, { method: "POST", body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSettleLoan(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (input: { walletId: string; charge: number | null; chargePoints: number | null; occurredAt: string }) =>
+      api<BankLoan>(`/loans/${id}/settle`, { method: "POST", body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUndoEmi(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: () => api(`/loans/${id}/emis/last`, { method: "DELETE" }), onSuccess: invalidate });
 }

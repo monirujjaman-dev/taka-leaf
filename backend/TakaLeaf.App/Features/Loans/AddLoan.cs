@@ -16,7 +16,7 @@ public static class AddLoan
 {
     public static RouteGroupBuilder MapAddLoan(this RouteGroupBuilder group)
     {
-        group.MapPost("/", Handle).WithName("AddLoan");
+        group.MapPost("/", Handle).WithName("AddBankLoan");
         return group;
     }
 

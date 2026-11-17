@@ -13,7 +13,7 @@ import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/F
 import { Icon } from "../../ui/Icon";
 import { MonthPicker } from "../../ui/MonthPicker";
 import { useWide } from "../../ui/useWide";
-import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatGrid, StatTile, walletIcon } from "../../ui/Parts";
+import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatGrid, StatTile, walletIcon, isOwnWallet } from "../../ui/Parts";
 import { localMonth, monthLabel, WALLET_TYPE_LABEL } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetBar";
 import { DueList } from "../recurring/DueList";
@@ -59,7 +59,7 @@ export function DashboardPage() {
   // One h1 either way: the phone header shows the logo, the wide one the title.
   const wide = useWide();
 
-  const own = (wallets.data?.wallets ?? []).filter((w) => w.personId === null && !w.archived);
+  const own = (wallets.data?.wallets ?? []).filter((w) => isOwnWallet(w) && !w.archived);
   const hasWallets = own.length > 0;
   const d = dashboard.data;
 

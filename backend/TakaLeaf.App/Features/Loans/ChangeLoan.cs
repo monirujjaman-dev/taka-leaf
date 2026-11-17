@@ -15,8 +15,8 @@ public static class ChangeLoan
 {
     public static RouteGroupBuilder MapChangeLoan(this RouteGroupBuilder group)
     {
-        group.MapPut("/{id:guid}", Update).WithName("UpdateLoan");
-        group.MapDelete("/{id:guid}", Delete).WithName("DeleteLoan");
+        group.MapPut("/{id:guid}", Update).WithName("UpdateBankLoan");
+        group.MapDelete("/{id:guid}", Delete).WithName("DeleteBankLoan");
         return group;
     }
 
