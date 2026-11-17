@@ -1,5 +1,9 @@
 import Constants from "expo-constants";
-import type { CheckResult } from "../db/store";
+
+export interface CheckResult {
+  ok: boolean;
+  detail: string;
+}
 
 /** The owner's server, filled in for them (app.json extra.defaultServerUrl); they can change it. */
 export const DEFAULT_SERVER_URL: string = (Constants.expoConfig?.extra?.defaultServerUrl as string | undefined) ?? "";

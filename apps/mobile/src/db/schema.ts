@@ -1,29 +1,159 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 /**
- * A1 tables: enough to prove that SQLite keeps data across restarts, that migrations run on the
- * phone, and that a background task can write. The money tables (wallets, transactions, outbox,
- * sync_state) arrive in A2.
+ * The phone's copy of the account, mirroring the server's synced tables (docs/ARCHITECTURE.md §4).
+ * Ids are Guid v7 strings, made on the phone for new rows. Amounts are integer poisha. Times are
+ * UTC ISO strings ("2026-11-17T06:00:00.000Z"); local dates are "yyyy-MM-dd". Rows are never
+ * removed by the app: deletedAt marks them, as on the server, and every query skips them.
  */
 
-/** Small key/value settings kept on the phone, e.g. the server address. */
+const synced = {
+  updatedAt: text("updated_at").notNull(),
+  deletedAt: text("deleted_at"),
+};
+
+export const WALLET_TYPES = ["Cash", "Bank", "CreditCard", "Mfs", "Lent", "Borrowed"] as const;
+export const TRANSACTION_TYPES = ["Income", "Expense", "Transfer"] as const;
+export const CATEGORY_KINDS = ["Income", "Expense"] as const;
+export const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Yearly"] as const;
+
+/** Small key/value settings: server address, sync cursor, last sync, app lock... */
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
 });
 
-/** Notes typed on the setup screen; they must survive closing the app. */
-export const probeNotes = sqliteTable("probe_notes", {
+export const wallets = sqliteTable("wallets", {
+  id: text("id").primaryKey(),
+  type: text("type", { enum: WALLET_TYPES }).notNull(),
+  name: text("name").notNull(),
+  openingBalance: integer("opening_balance").notNull(),
+  creditLimit: integer("credit_limit"),
+  personId: text("person_id"),
+  icon: text("icon"),
+  color: text("color"),
+  archived: integer("archived", { mode: "boolean" }).notNull(),
+  excludedFromTotal: integer("excluded_from_total", { mode: "boolean" }).notNull(),
+  sortOrder: integer("sort_order").notNull(),
+  ...synced,
+});
+
+export const categories = sqliteTable("categories", {
+  id: text("id").primaryKey(),
+  kind: text("kind", { enum: CATEGORY_KINDS }).notNull(),
+  name: text("name").notNull(),
+  parentId: text("parent_id"),
+  icon: text("icon"),
+  color: text("color"),
+  archived: integer("archived", { mode: "boolean" }).notNull(),
+  sortOrder: integer("sort_order").notNull(),
+  ...synced,
+});
+
+export const people = sqliteTable("people", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  note: text("note"),
+  ...synced,
+});
+
+export const transactions = sqliteTable(
+  "transactions",
+  {
+    id: text("id").primaryKey(),
+    type: text("type", { enum: TRANSACTION_TYPES }).notNull(),
+    amount: integer("amount").notNull(),
+    fromWalletId: text("from_wallet_id"),
+    toWalletId: text("to_wallet_id"),
+    categoryId: text("category_id"),
+    personId: text("person_id"),
+    feeOfId: text("fee_of_id"),
+    recurringRuleId: text("recurring_rule_id"),
+    recurringDate: text("recurring_date"),
+    occurredAt: text("occurred_at").notNull(),
+    note: text("note"),
+    ...synced,
+  },
+  (t) => [
+    index("transactions_occurred_at").on(t.occurredAt),
+    index("transactions_from_wallet").on(t.fromWalletId),
+    index("transactions_to_wallet").on(t.toWalletId),
+    index("transactions_category").on(t.categoryId),
+    index("transactions_fee_of").on(t.feeOfId),
+    index("transactions_person").on(t.personId),
+  ],
+);
+
+export const budgets = sqliteTable("budgets", {
+  id: text("id").primaryKey(),
+  categoryId: text("category_id"),
+  amount: integer("amount").notNull(),
+  ...synced,
+});
+
+export const recurringRules = sqliteTable("recurring_rules", {
+  id: text("id").primaryKey(),
+  type: text("type", { enum: TRANSACTION_TYPES }).notNull(),
+  amount: integer("amount").notNull(),
+  fromWalletId: text("from_wallet_id"),
+  toWalletId: text("to_wallet_id"),
+  categoryId: text("category_id"),
+  note: text("note"),
+  frequency: text("frequency", { enum: FREQUENCIES }).notNull(),
+  interval: integer("interval").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date"),
+  occurrences: integer("occurrences").notNull(),
+  nextDate: text("next_date").notNull(),
+  autoRecord: integer("auto_record", { mode: "boolean" }).notNull(),
+  paused: integer("paused", { mode: "boolean" }).notNull(),
+  ...synced,
+});
+
+/** Changes waiting to be pushed, oldest first. Written in the same SQLite transaction as the row. */
+export const outbox = sqliteTable(
+  "outbox",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    mutationId: text("mutation_id").notNull().unique(),
+    tableName: text("table_name").notNull(),
+    rowId: text("row_id").notNull(),
+    payload: text("payload").notNull(),
+    createdAt: text("created_at").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+  },
+  (t) => [index("outbox_row").on(t.tableName, t.rowId)],
+);
+
+/** Changes the server refused, with its reason, so the person can see what did not save. */
+export const syncRejects = sqliteTable("sync_rejects", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  text: text("text").notNull(),
+  tableName: text("table_name").notNull(),
+  rowId: text("row_id").notNull(),
+  reason: text("reason").notNull(),
+  payload: text("payload").notNull(),
   createdAt: text("created_at").notNull(),
 });
 
-/** Each server check, from the screen or from the background task. */
-export const healthChecks = sqliteTable("health_checks", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  source: text("source", { enum: ["app", "background"] }).notNull(),
-  ok: integer("ok", { mode: "boolean" }).notNull(),
-  detail: text("detail").notNull(),
-  checkedAt: text("checked_at").notNull(),
-});
+export type WalletRow = typeof wallets.$inferSelect;
+export type CategoryRow = typeof categories.$inferSelect;
+export type PersonRow = typeof people.$inferSelect;
+export type TransactionRow = typeof transactions.$inferSelect;
+export type BudgetRow = typeof budgets.$inferSelect;
+export type RecurringRuleRow = typeof recurringRules.$inferSelect;
+export type WalletType = (typeof WALLET_TYPES)[number];
+export type TransactionType = (typeof TRANSACTION_TYPES)[number];
+export type CategoryKind = (typeof CATEGORY_KINDS)[number];
+export type Frequency = (typeof FREQUENCIES)[number];
+
+/** The synced tables by their sync name (the server's `table` in push and the keys of a pull page). */
+export const SYNCED_TABLES = {
+  wallets,
+  categories,
+  people,
+  transactions,
+  budgets,
+  recurringRules,
+} as const;
+
+export type SyncedTableName = keyof typeof SYNCED_TABLES;

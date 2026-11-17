@@ -1,14 +1,17 @@
 import "../src/background";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import { Stack } from "expo-router";
+import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import migrations from "../drizzle/migrations";
+import { registerSyncTask } from "../src/background";
 import { db } from "../src/db/client";
+import { AppProvider, useApp } from "../src/state/AppState";
 import { AppLoader } from "../src/ui/AppLoader";
+import { LockGate } from "../src/ui/LockGate";
 import { useColors } from "../src/ui/theme";
 
 void SplashScreen.preventAutoHideAsync();
@@ -40,8 +43,33 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
+      <AppProvider>
+        <StatusBar style="auto" />
+        <Gate />
+      </AppProvider>
     </SafeAreaProvider>
+  );
+}
+
+/** Signed out → the sign-in screens; signed in → the app. Local data and the outbox stay either way. */
+function Gate() {
+  const colors = useColors();
+  const { signedOut } = useApp();
+  const segments = useSegments();
+  const inAuth = segments[0] === "(auth)";
+
+  useEffect(() => {
+    if (signedOut && !inAuth) router.replace("/sign-in");
+    else if (!signedOut && inAuth) router.replace("/");
+  }, [signedOut, inAuth]);
+
+  useEffect(() => {
+    if (!signedOut) void registerSyncTask();
+  }, [signedOut]);
+
+  return (
+    <LockGate>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
+    </LockGate>
   );
 }
