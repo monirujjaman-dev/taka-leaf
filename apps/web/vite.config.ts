@@ -1,11 +1,19 @@
 /// <reference types="vitest/config" />
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
+
+/** Where the site lives. Link previews (Open Graph) need absolute addresses; set SITE_URL to build for another domain. */
+export const SITE_URL = (process.env.SITE_URL ?? "https://takaleaf.monirujjaman.dev").replace(/\/+$/, "");
+
+/** Fills %SITE_URL% in index.html. */
+function siteUrl(): Plugin {
+  return { name: "takaleaf-site-url", transformIndexHtml: (html) => html.replaceAll("%SITE_URL%", SITE_URL) };
+}
 
 // The backend runs on http://localhost:5080 in development; /api is proxied to it.
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), siteUrl()],
   server: {
     port: 5173,
     proxy: {
