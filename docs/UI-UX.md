@@ -84,7 +84,8 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 ## 5. Interaction rules
 
 - **Forms are sheets**: a bottom sheet on phones and a centred dialog on wider screens. Escape or the
-  backdrop closes them, the first field gets focus, and focus returns afterwards.
+  backdrop closes them, the first field gets focus, Tab stays inside, the page behind neither scrolls
+  nor takes focus, and focus returns afterwards.
 - **Validate first, then trust the server**: obvious mistakes are caught before sending. Server field
   errors appear beside the field they name, and other errors in one alert above the buttons.
 - **Destructive actions confirm in place**: "Delete" turns into "Yes, delete" with "Keep" beside it.
@@ -94,6 +95,10 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 - **Times are local** (Asia/Dhaka) everywhere: "Today", "Yesterday", "9:10 am".
 - **Lists** show newest first, grouped by day, with paging rather than infinite scroll.
 - **Loading** shows a short "Loading…" line. **Errors** say what happened and what to do, in plain words.
+  Data that failed to load offers "Try again". A call that hangs is given up after 30 seconds; a save
+  that timed out says it may or may not have saved, so it is checked rather than sent twice.
+- **Offline**: when the browser loses its connection, a note above the page says so in words until it
+  comes back.
 - **Filters live in the address**, so a filtered view survives a refresh and can be bookmarked.
 
 ## 6. Copy
@@ -108,12 +113,13 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
 ## 7. Responsive and accessibility
 
 - Checked at 390 × 844 and 1440 × 900 in both themes, with no sideways scrolling. Grids drop to one
-  column, long names truncate, and amounts never wrap.
+  column and long names truncate. Amounts are never cut off: they stay on one line where they fit and
+  wrap only when a very large figure cannot.
 - Every input has a visible label. Errors are linked with `aria-describedby`, alerts use
   `role="alert"`, and status messages use `role="status"`.
 - Dialogs use `role="dialog"` with `aria-modal` and a title, and switches use `role="radio"` /
   `tab` with selected states.
-- Focus rings are visible on every control. Buttons, fields, chips, arrows and the dialog close
+- A "Skip to content" link is the first stop for the keyboard. Focus rings are visible on every control. Buttons, fields, chips, arrows and the dialog close
   button are at least 44 px tall.
 - Text contrast is at least 4.5:1 in both themes: axe (WCAG 2.2 AA) runs on every main screen, light
   and dark, desktop and phone, in CI. Measured examples: ink on mint 11.2:1, muted on white 6.1:1,

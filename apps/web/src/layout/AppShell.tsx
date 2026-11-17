@@ -7,6 +7,7 @@ import { Backdrop } from "../ui/Backdrop";
 import { focusRing } from "../ui/Button";
 import { Icon, type IconName } from "../ui/Icon";
 import { iconButtonClass } from "../ui/Parts";
+import { useOnline } from "../ui/useOnline";
 import { TransactionSheetProvider, useTransactionSheet } from "./TransactionSheet";
 
 /** The sidebar on wide screens, in the design's order. Phones reach most of these from More. */
@@ -135,14 +136,38 @@ function TabBar() {
 }
 
 /** Signed-in layout: a 240 px glass sidebar beside the page on wide screens, a floating tab bar on phones. */
+/** Said once, in words, when the browser loses its connection; saves would fail until it returns. */
+function OfflineNote() {
+  const online = useOnline();
+  return (
+    <div role="status" aria-live="polite">
+      {online ? null : (
+        <p className="m-0 mb-3 flex items-center gap-2.5 rounded-[14px] bg-[var(--tl-chip)] px-3.5 py-3 text-sm font-semibold text-[var(--tl-text)] lg:mb-5">
+          <span aria-hidden="true" className="flex shrink-0 text-[var(--tl-primary)]">
+            <Icon name="sync" size={18} />
+          </span>
+          You are offline. What you see may be out of date, and changes will not save until you reconnect.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function AppShell() {
   return (
     <TransactionSheetProvider>
       <div className="relative min-h-screen">
+        <a
+          href="#main"
+          className={`sr-only z-50 rounded-[14px] bg-forest px-4 py-3 text-sm font-bold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4 ${focusRing}`}
+        >
+          Skip to content
+        </a>
         <Backdrop />
         <div className="flex gap-5 lg:p-5">
           <Sidebar />
-          <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 lg:px-0 lg:pb-5 lg:pt-0">
+          <main id="main" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 outline-none lg:px-0 lg:pb-5 lg:pt-0">
+            <OfflineNote />
             <Outlet />
           </main>
         </div>

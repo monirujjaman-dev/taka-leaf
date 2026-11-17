@@ -5,7 +5,7 @@ import { useWallets } from "../../api/queries";
 import type { Wallet, WalletType } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { Chevron, IconTile, iconButtonClass, ListCard, SectionHeading, StatTile, walletIcon } from "../../ui/Parts";
 import { WALLET_TYPE_LABEL } from "../../ui/format";
@@ -88,7 +88,7 @@ export function WalletsPage() {
       </PageHeader>
 
       {wallets.isPending ? <Loading /> : null}
-      {wallets.error ? <ErrorNote>{messageOf(wallets.error)}</ErrorNote> : null}
+      <LoadError query={wallets} />
 
       {wallets.data ? (
         <div className="flex flex-col gap-3">

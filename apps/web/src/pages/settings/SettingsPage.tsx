@@ -9,7 +9,7 @@ import { PASSWORD_HINT, PasswordField } from "../../auth/PasswordField";
 import { Link } from "react-router";
 import { PageHeader } from "../../layout/AppShell";
 import { Button } from "../../ui/Button";
-import { ErrorNote, Loading, SuccessNote, messageOf } from "../../ui/Feedback";
+import { ErrorNote, Loading, SuccessNote, messageOf, LoadError } from "../../ui/Feedback";
 import { TextField } from "../../ui/Field";
 import { dayLabel, localDate, timeLabel } from "../../ui/format";
 import { useTheme } from "../../app/theme";
@@ -91,7 +91,7 @@ function Devices() {
         ) : null}
       </div>
       {sessions.isPending ? <Loading /> : null}
-      <ErrorNote>{messageOf(sessions.error ?? signOut.error)}</ErrorNote>
+      {sessions.error ? <LoadError query={sessions} /> : <ErrorNote>{messageOf(signOut.error)}</ErrorNote>}
       <ul className="m-0 flex list-none flex-col gap-2 p-0">
         {(sessions.data ?? []).map((session) => (
           <li key={session.id} className="flex flex-wrap items-center gap-3 rounded-[16px] bg-[var(--tl-chip)] px-3 py-2.5">

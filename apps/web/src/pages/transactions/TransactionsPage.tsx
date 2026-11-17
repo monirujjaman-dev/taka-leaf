@@ -7,7 +7,7 @@ import type { Transaction } from "../../api/types";
 import { AddTransactionButton, PageHeader } from "../../layout/AppShell";
 import { useOpenTransaction } from "../../layout/TransactionSheet";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { TextField } from "../../ui/Field";
 import { Icon } from "../../ui/Icon";
 import { MonthPicker } from "../../ui/MonthPicker";
@@ -253,7 +253,7 @@ export function TransactionsPage() {
       </section>
 
       {list.isPending ? <Loading /> : null}
-      {list.error ? <ErrorNote>{messageOf(list.error)}</ErrorNote> : null}
+      <LoadError query={list} />
       {data && data.items.length === 0 ? (
         <section className="glass rounded-[22px]">
           <EmptyState title="Nothing matches these filters">

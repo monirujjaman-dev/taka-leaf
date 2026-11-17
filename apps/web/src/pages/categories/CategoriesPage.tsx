@@ -6,7 +6,7 @@ import { PageHeader } from "../../layout/AppShell";
 import { Icon } from "../../ui/Icon";
 import { IconTile, iconButtonClass, ListCard, Segmented } from "../../ui/Parts";
 import { Button, focusRing } from "../../ui/Button";
-import { ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { SelectField, TextField } from "../../ui/Field";
 import { Modal } from "../../ui/Modal";
 
@@ -174,7 +174,7 @@ export function CategoriesPage() {
         />
 
         {categories.isPending ? <Loading /> : null}
-        {categories.error ? <ErrorNote>{messageOf(categories.error)}</ErrorNote> : null}
+        <LoadError query={categories} />
 
         {(categories.data ?? []).length > 0 ? (
           <ListCard>

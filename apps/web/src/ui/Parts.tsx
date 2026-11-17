@@ -23,8 +23,9 @@ export function StatTile({ icon, tone, label, value }: { icon: IconName; tone?: 
     <div className="glass flex min-w-0 items-center gap-2 rounded-[18px] px-3 py-3 sm:gap-2.5 sm:px-3.5">
       <IconTile icon={icon} tone={tone} size={36} />
       <div className="min-w-0">
-        <p className="m-0 truncate text-[12px] font-semibold text-[var(--tl-muted)]">{label}</p>
-        <p className="m-0 truncate text-[15px] font-extrabold tracking-tight sm:text-base">{value}</p>
+        <p className="m-0 text-[12px] font-semibold leading-snug text-[var(--tl-muted)]">{label}</p>
+        {/* Never cut off: a large amount wraps rather than losing digits behind an ellipsis. */}
+        <p className="m-0 text-[15px] font-extrabold leading-snug tracking-tight [overflow-wrap:anywhere] sm:text-base">{value}</p>
       </div>
     </div>
   );

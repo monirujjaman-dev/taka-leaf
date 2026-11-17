@@ -9,7 +9,7 @@ import { AddTransactionButton, PageHeader } from "../../layout/AppShell";
 import { useOpenTransaction, useTransactionSheet } from "../../layout/TransactionSheet";
 import { Logo } from "../../shared/Logo";
 import { Button, buttonClass, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { MonthPicker } from "../../ui/MonthPicker";
 import { useWide } from "../../ui/useWide";
@@ -72,7 +72,7 @@ export function DashboardPage() {
       )}
 
       {dashboard.isPending ? <Loading /> : null}
-      {dashboard.error ? <ErrorNote>{messageOf(dashboard.error)}</ErrorNote> : null}
+      <LoadError query={dashboard} />
 
       {wallets.isSuccess && !hasWallets ? (
         <section className="glass mb-3 rounded-[22px] lg:mb-5">
@@ -96,7 +96,7 @@ export function DashboardPage() {
             <LeafWatermark />
             <div className="relative">
               <p className="m-0 text-[13px] font-semibold text-mint">Net balance</p>
-              <p className="m-0 mt-1 text-[34px] font-extrabold leading-tight tracking-[-0.8px]">{formatBdt(d.netBalance)}</p>
+              <p className="m-0 mt-1 text-[34px] font-extrabold leading-tight tracking-[-0.8px] [overflow-wrap:anywhere]">{formatBdt(d.netBalance)}</p>
             </div>
             <div className="relative mt-3 flex gap-8">
               <div>
@@ -146,7 +146,7 @@ export function DashboardPage() {
                   <li key={wallet.id} className="shrink-0">
                     <Link
                       to={`/transactions?walletId=${wallet.id}&from=2000-01-01`}
-                      className={`glass flex h-[84px] w-32 flex-col justify-between rounded-[18px] p-3 ${focusRing}`}
+                      className={`glass flex h-[84px] w-max min-w-32 max-w-56 flex-col justify-between rounded-[18px] p-3 ${focusRing}`}
                     >
                       <span className="flex items-center gap-1.5 text-[13px] font-bold">
                         <span className="flex text-[var(--tl-primary)]">
@@ -154,7 +154,7 @@ export function DashboardPage() {
                         </span>
                         <span className="truncate">{wallet.name}</span>
                       </span>
-                      <span className={`truncate text-[15px] font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
+                      <span className={`whitespace-nowrap text-[15px] font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
                         {formatBdt(wallet.balance)}
                       </span>
                     </Link>

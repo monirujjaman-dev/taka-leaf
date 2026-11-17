@@ -5,7 +5,7 @@ import { useBudgets, useCategories, useDeleteBudget, useSaveBudget } from "../..
 import type { Budget } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { AmountField, SelectField } from "../../ui/Field";
 import { lastDayOf, localDate, localMonth, monthLabel, toAmountText } from "../../ui/format";
 import { Icon } from "../../ui/Icon";
@@ -139,7 +139,7 @@ export function BudgetsPage() {
         </div>
 
         {budgets.isPending ? <Loading /> : null}
-        {budgets.error ? <ErrorNote>{messageOf(budgets.error)}</ErrorNote> : null}
+        <LoadError query={budgets} />
         {budgets.isSuccess && list.length === 0 ? (
           <section className="glass rounded-[22px]">
             <EmptyState title="No budgets yet">
@@ -157,7 +157,7 @@ export function BudgetsPage() {
           >
             <LeafWatermark />
             <p className="relative m-0 text-[13px] font-semibold text-mint">{monthLabel(month).split(" ")[0]} budget</p>
-            <p className="relative m-0 mt-1 text-[28px] font-extrabold tracking-[-0.5px]">
+            <p className="relative m-0 mt-1 text-[28px] font-extrabold tracking-[-0.5px] [overflow-wrap:anywhere]">
               {formatBdt(total.spent)} <span className="text-[15px] font-semibold text-mint">of {formatBdt(total.amount)}</span>
             </p>
             <div className="relative mt-3.5 h-2 overflow-hidden rounded-[4px] bg-white/25" aria-hidden="true">

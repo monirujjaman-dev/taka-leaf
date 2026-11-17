@@ -6,7 +6,7 @@ import { PageHeader } from "../../layout/AppShell";
 import { Icon } from "../../ui/Icon";
 import { iconButtonClass } from "../../ui/Parts";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { dayLabel, scheduleLabel } from "../../ui/format";
 import { DueList, ruleTitle } from "./DueList";
 import { RecurringForm } from "./RecurringForm";
@@ -43,7 +43,7 @@ export function RecurringPage() {
       <p className="mb-3 mt-0 text-sm text-[var(--tl-muted)] lg:-mt-3 lg:mb-5">Rent, salary, subscriptions — anything that repeats.</p>
 
       {rules.isPending ? <Loading /> : null}
-      {rules.error ? <ErrorNote>{messageOf(rules.error)}</ErrorNote> : null}
+      <LoadError query={rules} />
 
       {due.length > 0 ? (
         <section className="glass mb-4 rounded-[22px] p-4" aria-labelledby="due-title">

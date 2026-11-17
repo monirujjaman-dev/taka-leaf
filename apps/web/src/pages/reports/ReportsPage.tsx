@@ -6,7 +6,7 @@ import type { CategoryTotal, Report, ReportPeriod } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Segmented } from "../../ui/Parts";
 import { focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { compactTaka, localMonth, monthLabel, shortMonth } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetsPage";
@@ -234,7 +234,7 @@ export function ReportsPage() {
       </PageHeader>
 
       {report.isPending ? <Loading /> : null}
-      {report.error ? <ErrorNote>{messageOf(report.error)}</ErrorNote> : null}
+      <LoadError query={report} />
 
       {report.data ? (
         report.data.income === 0 && report.data.expense === 0 && report.data.trend.every((t) => t.expense === 0) ? (

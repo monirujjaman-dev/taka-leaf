@@ -286,6 +286,9 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 - **Chip**: 44 px, radius 14, chip tint, 13–14px/700 text. Used for MFS name shortcuts, "All of
   it", sub-categories and "+ Sub-category".
 - **Empty state**: centred bold title, one muted sentence, and at most one primary action.
+- **Error note**: expense text on a 10% expense tint, radius 14. When data failed to load it also holds
+  a 44 px "Try again" button outlined in the same colour ("Trying…" while it reloads). The offline note
+  is the same shape on the chip tint, in body text.
 - **Icons**: line icons on a 24 px grid with a 1.8 stroke and round caps, drawn in-house
   (`ui/Icon.tsx`).
 - **Loader** (design option A, "Leaf assembly"): the four pieces of the leaf mark float apart in an

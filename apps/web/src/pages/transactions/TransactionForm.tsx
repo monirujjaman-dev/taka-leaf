@@ -4,7 +4,7 @@ import { ApiError } from "../../api/client";
 import { useCategories, useDeleteTransaction, useSaveTransaction, useTransaction, useWallets } from "../../api/queries";
 import type { Category, Transaction, TransactionInput, TransactionType } from "../../api/types";
 import { Button, focusRing } from "../../ui/Button";
-import { ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { AmountField } from "../../ui/Field";
 import { Icon, type IconName } from "../../ui/Icon";
 import { Segmented } from "../../ui/Parts";
@@ -37,7 +37,7 @@ export function TransactionForm({ id, onClose }: { id: string | null; onClose: (
   if (error) {
     return (
       <Modal sheet title="Edit transaction" onClose={onClose}>
-        <ErrorNote>{messageOf(error)}</ErrorNote>
+        <LoadError query={existing.error ? existing : parent} />
       </Modal>
     );
   }
@@ -138,8 +138,12 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
             <label htmlFor={amountId} className="text-[13px] font-semibold text-[var(--tl-muted)]">
               Amount (৳)
             </label>
-            <div className={`flex items-baseline justify-center gap-1 ${tone}`}>
-              <span aria-hidden="true" className="text-[32px] font-extrabold">
+            <div
+              className={`flex max-w-full items-baseline justify-center gap-1 rounded-[16px] px-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--tl-primary)] ${tone}`}
+              // Long amounts step down in size so every digit stays in view on a phone.
+              style={{ fontSize: `${Math.max(28, Math.min(48, Math.floor((48 * 10) / Math.max(amount.length, 10))))}px` }}
+            >
+              <span aria-hidden="true" className="text-[0.67em] font-extrabold">
                 ৳
               </span>
               <input
@@ -153,7 +157,7 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
                 aria-invalid={Boolean(errorFor("amount"))}
                 aria-describedby={errorFor("amount") ? `${amountId}-error` : undefined}
                 style={{ width: `${Math.max(amount.length, 1) * 0.62 + 0.4}em` }}
-                className="max-w-[80vw] bg-transparent text-center text-[48px] font-extrabold leading-tight tracking-[-1px] outline-none placeholder:text-current placeholder:opacity-40"
+                className="max-w-[80vw] bg-transparent text-center text-[1em] font-extrabold leading-tight tracking-[-1px] outline-none placeholder:text-current placeholder:opacity-40"
               />
             </div>
             {errorFor("amount") ? (
@@ -170,9 +174,15 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
               maxLength={500}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add a note"
-              className={`glass mt-2 h-10 w-full max-w-72 rounded-[12px] px-3 text-center text-sm outline-none placeholder:text-[var(--tl-muted)] ${focusRing}`}
+              aria-invalid={Boolean(errorFor("note"))}
+              aria-describedby={errorFor("note") ? `${noteId}-error` : undefined}
+              className={`glass mt-2 h-11 w-full max-w-72 rounded-[12px] px-3 text-center text-sm outline-none placeholder:text-[var(--tl-muted)] ${focusRing}`}
             />
-            {errorFor("note") ? <p className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">{errorFor("note")}</p> : null}
+            {errorFor("note") ? (
+              <p id={`${noteId}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+                {errorFor("note")}
+              </p>
+            ) : null}
           </div>
 
           {type !== "Transfer" && quick.length > 0 ? (
@@ -352,10 +362,15 @@ function TimeRow({ value, onChange, error }: { value: string; onChange: (value: 
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
           className="h-full min-w-0 flex-1 bg-transparent text-right text-sm font-semibold text-[var(--tl-muted)] outline-none"
         />
       </div>
-      {error ? <p className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">{error}</p> : null}
+      {error ? (
+        <p id={`${id}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

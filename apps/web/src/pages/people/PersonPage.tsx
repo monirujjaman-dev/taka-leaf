@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router";
 import { usePerson } from "../../api/queries";
 import type { Loan, LoanKind } from "../../api/types";
 import { Button, focusRing } from "../../ui/Button";
-import { EmptyState, ErrorNote, Loading, messageOf } from "../../ui/Feedback";
+import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/Feedback";
 import { Icon } from "../../ui/Icon";
 import { iconButtonClass } from "../../ui/Parts";
 import { dayLabel, localDate, timeLabel } from "../../ui/format";
@@ -29,7 +29,7 @@ export function PersonPage() {
   const [editing, setEditing] = useState(false);
 
   if (detail.isPending) return <Loading />;
-  if (detail.error) return <ErrorNote>{messageOf(detail.error)}</ErrorNote>;
+  if (detail.error) return <LoadError query={detail} />;
   const { person, loans } = detail.data;
 
   const canGetBack = person.owesMe > 0;
@@ -45,8 +45,8 @@ export function PersonPage() {
           {person.name.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <h1 className="m-0 truncate text-xl font-extrabold tracking-tight lg:text-[26px]">{person.name}</h1>
-          {person.note ? <p className="m-0 truncate text-[13px] text-[var(--tl-muted)]">{person.note}</p> : null}
+          <h1 className="m-0 text-xl font-extrabold tracking-tight [overflow-wrap:anywhere] lg:text-[26px]">{person.name}</h1>
+          {person.note ? <p className="m-0 line-clamp-2 text-[13px] text-[var(--tl-muted)]">{person.note}</p> : null}
         </div>
         <Button variant="secondary" onClick={() => setEditing(true)}>
           Edit

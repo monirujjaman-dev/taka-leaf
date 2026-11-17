@@ -59,10 +59,30 @@ async function toError(response: Response): Promise<ApiError> {
   return new ApiError(response.status, title ?? `Something went wrong (${response.status}). Try again.`, fieldErrors, body.code);
 }
 
+/** How long a call may hang on a poor mobile connection before the person is told. */
+export const REQUEST_TIMEOUT_MS = 30_000;
+const SLOW_READ_MESSAGE = "TakaLeaf took too long to answer. Check your connection and try again.";
+// A save that timed out may still have reached the server, so trying again blindly could record it twice.
+const SLOW_WRITE_MESSAGE = "TakaLeaf took too long to answer, so this may or may not have saved. Check before trying again.";
+
+/** The caller's signal plus a timeout, where the browser supports combining them. */
+function withTimeout(signal: AbortSignal | null | undefined): { signal?: AbortSignal; timeout?: AbortSignal } {
+  if (typeof AbortSignal.timeout !== "function") return { signal: signal ?? undefined };
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  if (!signal) return { signal: timeout, timeout };
+  if (typeof AbortSignal.any !== "function") return { signal };
+  return { signal: AbortSignal.any([signal, timeout]), timeout };
+}
+
 async function rawFetch(path: string, init: RequestInit): Promise<Response> {
+  const { signal, timeout } = withTimeout(init.signal);
   try {
-    return await fetch(`/api${path}`, { credentials: "same-origin", ...init });
+    return await fetch(`/api${path}`, { credentials: "same-origin", ...init, signal });
   } catch (error) {
+    if (timeout?.aborted) {
+      const write = (init.method ?? "GET") !== "GET" && !path.startsWith("/auth/refresh");
+      throw new ApiError(0, write ? SLOW_WRITE_MESSAGE : SLOW_READ_MESSAGE, {}, "timeout");
+    }
     if (error instanceof DOMException && error.name === "AbortError") throw error;
     throw new ApiError(0, NETWORK_MESSAGE);
   }
