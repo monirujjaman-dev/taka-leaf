@@ -93,7 +93,7 @@ export function PersonPage() {
                 <button
                   type="button"
                   onClick={() => setForm({ kind: loan.kind, loan })}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-[16px] px-2 py-2.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+                  className={`flex w-full cursor-pointer items-center gap-3 rounded-[16px] px-2 py-2.5 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-body font-bold">{LOAN_LABEL[loan.kind](person.name)}</span>

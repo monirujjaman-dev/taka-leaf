@@ -10,6 +10,7 @@ import { Icon, type IconName } from "../ui/Icon";
 import { iconButtonClass } from "../ui/Parts";
 import { Loading } from "../ui/Feedback";
 import { PageBoundary } from "../ui/PageBoundary";
+import { StartupProvider } from "../ui/startup";
 import { useOnline } from "../ui/useOnline";
 import { TransactionSheetProvider, useTransactionSheet } from "./TransactionSheet";
 
@@ -36,7 +37,7 @@ export function AddTransactionButton() {
     <button
       type="button"
       onClick={() => sheet.open()}
-      className={`hidden h-11 cursor-pointer items-center gap-1.5 rounded-[14px] bg-forest px-4 text-sm font-extrabold text-white hover:bg-forest-hover dark:bg-sage dark:text-ink dark:hover:bg-sage-hover lg:inline-flex ${focusRing}`}
+      className={`press hidden h-11 cursor-pointer items-center gap-1.5 rounded-[14px] bg-forest px-4 text-sm font-extrabold text-white hover:bg-forest-hover dark:bg-sage dark:text-ink dark:hover:bg-sage-hover lg:inline-flex ${focusRing}`}
     >
       <Icon name="plus" size={18} />
       Add transaction
@@ -61,7 +62,7 @@ function Sidebar() {
             end={item.to === "/"}
             className={({ isActive }) =>
               `flex h-11 items-center gap-3 rounded-[14px] px-3 text-sm font-bold ${focusRing} ${
-                isActive ? "bg-forest text-white" : "text-[var(--tl-muted)] hover:bg-[var(--tl-chip)] hover:text-[var(--tl-text)]"
+                isActive ? "bg-forest text-white" : "text-[var(--tl-muted)] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] hover:text-[var(--tl-text)]"
               }`
             }
           >
@@ -74,7 +75,7 @@ function Sidebar() {
         <button
           type="button"
           onClick={toggleTheme}
-          className={`flex h-11 cursor-pointer items-center gap-3 rounded-[14px] px-3 text-sm font-bold text-[var(--tl-muted)] hover:bg-[var(--tl-chip)] ${focusRing}`}
+          className={`flex h-11 cursor-pointer items-center gap-3 rounded-[14px] px-3 text-sm font-bold text-[var(--tl-muted)] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
         >
           <Icon name={theme === "light" ? "moon" : "sun"} size={19} />
           {theme === "light" ? "Dark theme" : "Light theme"}
@@ -82,7 +83,7 @@ function Sidebar() {
         <button
           type="button"
           onClick={() => void signOut()}
-          className={`flex h-11 cursor-pointer items-center gap-3 rounded-[14px] px-3 text-sm font-bold text-[var(--tl-muted)] hover:bg-[var(--tl-chip)] ${focusRing}`}
+          className={`flex h-11 cursor-pointer items-center gap-3 rounded-[14px] px-3 text-sm font-bold text-[var(--tl-muted)] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
         >
           <Icon name="out" size={19} />
           Sign out
@@ -104,7 +105,7 @@ function Tab({ to, label, icon, active }: { to: string; label: string; icon: Ico
     <Link
       to={to}
       aria-current={active ? "page" : undefined}
-      className={`flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-tab font-bold ${focusRing} ${
+      className={`press flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-tab font-bold ${focusRing} ${
         active ? "text-[var(--tl-nav-active)]" : "text-[var(--tl-muted)]"
       }`}
     >
@@ -130,7 +131,7 @@ function TabBar() {
         type="button"
         aria-label="Add transaction"
         onClick={() => sheet.open()}
-        className={`grid h-14 w-14 cursor-pointer place-items-center rounded-[20px] bg-forest text-white shadow-float ${focusRing}`}
+        className={`press grid h-14 w-14 cursor-pointer place-items-center rounded-[20px] bg-forest text-white shadow-float ${focusRing}`}
       >
         <Icon name="plus" size={26} />
       </button>
@@ -163,29 +164,31 @@ export function AppShell() {
   // Once the first page is up, fetch the others and the add sheet in the background.
   useEffect(prefetchSignedInPages, []);
   return (
-    <TransactionSheetProvider>
-      <div className="relative min-h-screen">
-        <a
-          href="#main"
-          className={`sr-only z-50 rounded-[14px] bg-forest px-4 py-3 text-sm font-bold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4 ${focusRing}`}
-        >
-          Skip to content
-        </a>
-        <Backdrop />
-        <div className="flex gap-5 lg:p-5">
-          <Sidebar />
-          <main id="main" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 outline-none lg:px-0 lg:pb-5 lg:pt-0">
-            <OfflineNote />
-            <PageBoundary resetKey={pathname}>
-              <Suspense fallback={<Loading />}>
-                <Outlet />
-              </Suspense>
-            </PageBoundary>
-          </main>
+    <StartupProvider>
+      <TransactionSheetProvider>
+        <div className="relative min-h-screen">
+          <a
+            href="#main"
+            className={`sr-only z-50 rounded-[14px] bg-forest px-4 py-3 text-sm font-bold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4 ${focusRing}`}
+          >
+            Skip to content
+          </a>
+          <Backdrop />
+          <div className="flex gap-5 lg:p-5">
+            <Sidebar />
+            <main id="main" tabIndex={-1} className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-5 pb-28 pt-5 outline-none lg:px-0 lg:pb-5 lg:pt-0">
+              <OfflineNote />
+              <PageBoundary resetKey={pathname}>
+                <Suspense fallback={<Loading />}>
+                  <Outlet />
+                </Suspense>
+              </PageBoundary>
+            </main>
+          </div>
+          <TabBar />
         </div>
-        <TabBar />
-      </div>
-    </TransactionSheetProvider>
+      </TransactionSheetProvider>
+    </StartupProvider>
   );
 }
 

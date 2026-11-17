@@ -1,5 +1,6 @@
 import { AppLoader } from "./AppLoader";
 import type { ReactNode } from "react";
+import { useStartupLoading } from "./startup";
 import { focusRing } from "./Button";
 
 const errorTone = "rounded-[14px] bg-expense/10 px-3.5 py-3 text-sm font-semibold text-expense dark:bg-expense-dark/15 dark:text-expense-dark";
@@ -48,8 +49,20 @@ export function SuccessNote({ children }: { children: ReactNode }) {
   );
 }
 
-/** In-page loading: the small swaying leaf with a short line under it. */
+/**
+ * In-page loading: the small leaf with a short line under it, shown only after 350 ms. During
+ * start-up it is instead the full-screen "Opening TakaLeaf…" loader, continued on the same clock,
+ * so opening the app is one loader and then the finished page.
+ */
 export function Loading({ label = "Loading…" }: { label?: string }) {
+  const startup = useStartupLoading();
+  if (startup) {
+    return (
+      <div className="fixed inset-0 z-40 grid place-items-center bg-[var(--tl-bg)]">
+        <AppLoader label="Opening TakaLeaf…" bar />
+      </div>
+    );
+  }
   return <AppLoader size={44} label={label} className="py-6" />;
 }
 

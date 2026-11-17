@@ -94,7 +94,9 @@ Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the
   positive "amount owed".
 - **Times are local** (Asia/Dhaka) everywhere: "Today", "Yesterday", "9:10 am".
 - **Lists** show newest first, grouped by day, with paging rather than infinite scroll.
-- **Loading** shows a short "Loading…" line. **Errors** say what happened and what to do, in plain words.
+- **Loading**: opening the app shows one "Opening TakaLeaf…" loader until the first page is ready.
+  Inside the app a small "Loading…" appears only after 350 ms, so quick loads show nothing.
+  **Errors** say what happened and what to do, in plain words.
   Data that failed to load offers "Try again". A call that hangs is given up after 30 seconds; a save
   that timed out says it may or may not have saved, so it is checked rather than sent twice.
 - **Offline**: when the browser loses its connection, a note above the page says so in words until it

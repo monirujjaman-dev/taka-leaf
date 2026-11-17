@@ -296,7 +296,7 @@ export function TransactionsPage() {
                     t.type === "Transfer" ? `${t.fromWalletName} → ${t.toWalletName}` : t.type === "Income" ? t.toWalletName : t.fromWalletName;
                   const category = t.type === "Transfer" ? "Transfer" : t.personId ? "Loan" : (t.categoryName ?? "No category");
                   return (
-                    <tr key={t.id} className="relative text-sm hover:bg-[var(--tl-chip)]">
+                    <tr key={t.id} className="relative text-sm hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)]">
                       <td className="h-[52px] whitespace-nowrap border-b border-[var(--tl-glass-border)] px-3 text-[var(--tl-muted)]">
                         {shortDate(t.occurredAt)}
                       </td>

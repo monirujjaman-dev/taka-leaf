@@ -16,7 +16,7 @@ function YearSwitcher({ year, onChange }: { year: number; onChange: (year: numbe
   const current = Number(localMonth().slice(0, 4));
   return (
     <div className="glass inline-flex items-center gap-1 rounded-[14px] p-1">
-      <button type="button" aria-label="Previous year" onClick={() => onChange(year - 1)} className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] ${focusRing}`}>
+      <button type="button" aria-label="Previous year" onClick={() => onChange(year - 1)} className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}>
         <Icon name="left" size={18} />
       </button>
       <span className="min-w-20 text-center text-sm font-bold" aria-live="polite">
@@ -27,7 +27,7 @@ function YearSwitcher({ year, onChange }: { year: number; onChange: (year: numbe
         aria-label="Next year"
         disabled={year >= current}
         onClick={() => onChange(year + 1)}
-        className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
+        className={`grid h-11 w-11 cursor-pointer place-items-center rounded-[10px] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] disabled:cursor-not-allowed disabled:opacity-30 ${focusRing}`}
       >
         <Icon name="right" size={18} />
       </button>
@@ -135,7 +135,7 @@ function ByCategory({ title, rows, total, report, type }: { title: string; rows:
                   type="button"
                   aria-expanded={expanded}
                   onClick={() => setOpen(expanded ? null : key)}
-                  className={`w-full cursor-pointer rounded-[14px] px-2 py-2 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+                  className={`w-full cursor-pointer rounded-[14px] px-2 py-2 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                 >
                   <span className="flex items-baseline justify-between gap-3 text-sm">
                     <span className="flex min-w-0 items-center gap-1 font-bold">
@@ -154,7 +154,7 @@ function ByCategory({ title, rows, total, report, type }: { title: string; rows:
                       <li key={child.categoryId ?? "none"}>
                         <Link
                           to={link(child.categoryId)}
-                          className={`flex justify-between gap-3 rounded-[10px] px-2 py-1.5 text-small hover:bg-[var(--tl-chip)] ${focusRing}`}
+                          className={`flex justify-between gap-3 rounded-[10px] px-2 py-1.5 text-small hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                         >
                           <span className="truncate">{child.name}</span>
                           <span className="shrink-0 font-bold">{formatBdt(child.amount)}</span>
