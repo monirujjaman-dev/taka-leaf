@@ -110,17 +110,29 @@ workflow adds the migration to that branch (never on `develop` or `main`). One m
 
 ## 7. One-time setup (owner)
 
+Run once on your own computer, with the GitHub CLI signed in as the owner:
+
+```bash
+bash .github/scripts/setup-repo.sh
+```
+
+It sets: default branch `develop`; squash and merge commits allowed, rebase off; auto-delete head
+branches; **Allow GitHub Actions to create and approve pull requests** (release and sync PRs); the
+ruleset **Protect main and develop** (PR required, the three CI checks required, no force-push, no
+deletion; repository admins can bypass in an emergency); the `CLAUDE_CODE_OAUTH_TOKEN` secret if
+you paste one (`claude setup-token`); and deletes branches that develop already contains.
+
+Then, in the browser:
+
 | Step | Where | Why |
 | --- | --- | --- |
-| Install the Claude GitHub App and add the token: in Claude Code run `/install-github-app`, or install https://github.com/apps/claude and save `claude setup-token` output as secret `CLAUDE_CODE_OAUTH_TOKEN` | repo → Settings → Secrets and variables → Actions | Claude review, fixer, assistant. Pushes by the app start CI again |
-| Tick **Allow GitHub Actions to create and approve pull requests** | Settings → Actions → General → Workflow permissions | Release and sync PRs |
-| Optional: fine-grained token (this repo; Contents, Pull requests, Workflows: read and write) as secret `AUTOMATION_TOKEN` | Secrets | Merges and bot PRs then start workflows by themselves (otherwise Auto merge starts them) |
+| Install the Claude GitHub App on `taka-leaf` (or run `/install-github-app` in Claude Code, which also saves the token) | https://github.com/apps/claude | Claude review, fixer, assistant; its pushes start CI again |
+| Optional: fine-grained token (this repo; Contents, Pull requests, Workflows: read and write) as secret `AUTOMATION_TOKEN` | Settings → Secrets and variables → Actions | Merges and bot PRs then start workflows by themselves (otherwise Auto merge starts them) |
 | Optional variables: `AUTO_MERGE`, `AUTO_RELEASE`, `AUTO_FIX` (`false` to stop), `MAX_FIX_ROUNDS`, `CLAUDE_REVIEW_MODEL`, `CLAUDE_FIX_MODEL` (default `opus`) | Settings → Secrets and variables → Actions → Variables | Tuning |
 | Dokploy app branch stays `main` | Dokploy | Production follows main only |
 
-Repository settings already applied: default branch `develop`; squash and merge commits allowed,
-rebase off; auto-delete head branches; rulesets on `main` and `develop` (PR required, the three CI
-checks required, no force-push, no deletion; the owner can bypass in an emergency).
+Claude Code cloud sessions can push branches and open PRs but cannot change repository settings,
+rulesets or secrets; that is why this step is the owner's.
 
 ## 8. Rules of thumb
 
