@@ -62,7 +62,7 @@ normal transaction in the form, a transfer fee on its transfer, and a loan on it
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |
 | Add / edit recurring | Type switch, amount, wallets, category, note, repeat every N unit, first and last date, record automatically, pause/resume, delete | |
 | Categories | Expense · Income switch; one row per parent with its sub-categories listed underneath, opening to sub-category chips, "+ Sub-category" and "Edit"; rename, archive; in the edit sheet, merge into another category or delete (confirm in place) | Archived shown dimmed / struck through; a parent with sub-categories asks to sort those first |
-| Settings | Account card (leaf avatar, name or "Add your name", email, Edit to change the name); (phones) links to Wallets, People and loans, Budgets, Recurring, Categories; rows for Theme, Change password, Export to CSV, Signed-in devices, Sign out; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices) | Success message after password change |
+| Settings | Account card (leaf avatar, name or "Add your name", email, Edit to change the name); (phones) links to Wallets, People and loans, Budgets, Recurring, Categories; rows for Theme, Change password, Export to CSV, Signed-in devices, Get the Android app (when the server offers it), Sign out; **Signed-in devices** (device name, last used, "This device", Sign out, Sign out all other devices) | Success message after password change |
 
 Still to design and build (see the [development plan](DEVELOPMENT-PLAN.md)): the Android screens (number-pad entry, sync status, app lock).
 

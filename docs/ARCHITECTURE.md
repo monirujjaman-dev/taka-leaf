@@ -137,6 +137,7 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Area | Endpoints |
 | --- | --- |
 | Health | `GET /health`: API up, database up/down |
+| App | `GET /app/android` (signed in): `{ downloadUrl }` from `App:AndroidDownloadUrl`, 404 when empty or not https |
 | Auth | `POST /auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/refresh`, `/logout`, `/forgot-password`, `/reset-password`, `/change-password`; `GET /auth/me`, `PUT /auth/me` (name); register takes `name`, and every user in an auth response has `name`; `GET /auth/sessions`, `DELETE /auth/sessions/{id}`, `POST /auth/sessions/sign-out-others` |
 | Wallets | `GET/POST /wallets`, `GET/PUT/DELETE /wallets/{id}`, `POST /wallets/{id}/archive`, `/unarchive` |
 | Categories | `GET/POST /categories`, `PUT/DELETE /categories/{id}`, `POST /{id}/archive`, `/unarchive`, `/merge` |
@@ -284,7 +285,11 @@ backend is already prepared for it: client-made Guid v7 ids, `UpdatedAt`, soft d
 on every user table, and refresh tokens in the response body for `client: "mobile"`.
 
 The app is in `apps/mobile/`: Expo SDK 58, React Native 0.88, Expo Router, TypeScript strict,
-Android 7.0 (API 24) and newer, package `com.takaleaf.app`. The `Android` workflow builds an APK.
+Android 7.0 (API 24) and newer, package `com.takaleaf.app`. The `Android` workflow builds an APK
+(version code = run number) and, on `main`, publishes it as the latest GitHub Release
+(`android-v<version>-build.<n>`, `takaleaf.apk` + checksum). The web app links to
+`releases/latest/download/takaleaf.apk` from Settings (More on phones), after sign-in. The app fills in the
+production server, `https://takaleaf.monirujjaman.dev` (`app.json` `extra.defaultServerUrl`).
 
 ```text
 apps/mobile/

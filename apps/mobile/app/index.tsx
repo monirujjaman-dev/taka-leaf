@@ -4,7 +4,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { checkHealth, normaliseServerUrl } from "../src/api/health";
+import { checkHealth, DEFAULT_SERVER_URL, normaliseServerUrl } from "../src/api/health";
 import { registerHealthTask, runHealthTaskNow, type BackgroundState } from "../src/background";
 import { SERVER_URL_KEY } from "../src/backgroundCheck";
 import { db } from "../src/db/client";
@@ -29,7 +29,7 @@ export default function SetupScreen() {
   const notes = useLiveQuery(db.select().from(probeNotes).orderBy(desc(probeNotes.id)));
   const checks = useLiveQuery(db.select().from(healthChecks).orderBy(desc(healthChecks.id)).limit(8));
   const [note, setNote] = useState("");
-  const [server, setServer] = useState(() => getSetting(db, SERVER_URL_KEY) ?? "");
+  const [server, setServer] = useState(() => getSetting(db, SERVER_URL_KEY) ?? DEFAULT_SERVER_URL);
   const [serverError, setServerError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const [background, setBackground] = useState<BackgroundState | "starting">("starting");
