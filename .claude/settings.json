@@ -34,16 +34,16 @@
       "Bash(gh pr checkout *)",
       "Bash(gh release list *)",
       "Bash(gh release view *)",
-      "Bash(bash .github/scripts/branch-kind.sh *)"
-    ],
-    "ask": [
+      "Bash(bash .github/scripts/branch-kind.sh *)",
       "Bash(git push *)",
-      "Bash(gh pr merge *)",
       "Bash(gh api *)",
       "Bash(gh pr create *)",
       "Bash(gh pr edit *)",
       "Bash(gh pr comment *)",
       "Bash(gh workflow run *)"
+    ],
+    "ask": [
+      "Bash(gh pr merge *)"
     ],
     "deny": [
       "Read(./.env)",
