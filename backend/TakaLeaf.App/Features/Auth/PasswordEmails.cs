@@ -1,6 +1,7 @@
 using System.Globalization;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Common.Email;
+using TakaLeaf.App.Common.Outbox;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 
@@ -9,11 +10,10 @@ namespace TakaLeaf.App.Features.Auth;
 /// <summary>Writes and sends the emails used by ForgotPassword and ChangePassword.</summary>
 public sealed class PasswordEmails(
     AppDbContext db,
-    IEmailSender sender,
+    OutboxWriter outbox,
     EmailTemplates templates,
     LocalCalendar calendar,
-    TimeProvider clock,
-    ILogger<PasswordEmails> logger)
+    TimeProvider clock)
 {
     public static readonly TimeSpan ResetLinkLifetime = TimeSpan.FromMinutes(30);
 
@@ -30,7 +30,6 @@ public sealed class PasswordEmails(
             CreatedAt = now,
             ExpiresAt = now + ResetLinkLifetime,
         });
-        await db.SaveChangesAsync(cancellationToken);
 
         var message = templates.Render(
             "reset-password",
@@ -66,15 +65,13 @@ public sealed class PasswordEmails(
     private string When(DateTimeOffset moment) =>
         calendar.ToLocal(moment).ToString("d MMM yyyy, h:mm tt", CultureInfo.InvariantCulture) + " (Dhaka time)";
 
+    /// <summary>
+    /// Writes the email to the outbox and saves it with everything else this request changed, so
+    /// the email goes out if and only if the change is kept. The outbox worker sends and retries it.
+    /// </summary>
     private async Task SendAsync(EmailMessage message, CancellationToken cancellationToken)
     {
-        try
-        {
-            await sender.SendAsync(message, cancellationToken);
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            logger.LogError(exception, "Could not send the email \"{Subject}\"", message.Subject);
-        }
+        outbox.AddEmail(message);
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

@@ -11,6 +11,7 @@ using Serilog;
 using TakaLeaf.App.Common;
 using TakaLeaf.App.Common.Email;
 using TakaLeaf.App.Common.Logging;
+using TakaLeaf.App.Common.Outbox;
 using TakaLeaf.App.Common.Web;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
@@ -111,6 +112,12 @@ try
     builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
     builder.Services.AddScoped<TokenIssuer>();
     builder.Services.AddSingleton<EmailTemplates>();
+    builder.Services.Configure<OutboxOptions>(builder.Configuration.GetSection(OutboxOptions.Section));
+    builder.Services.AddSingleton<OutboxSignal>();
+    builder.Services.AddScoped<OutboxWriter>();
+    builder.Services.AddScoped<OutboxProcessor>();
+    builder.Services.AddScoped<IOutboxHandler, EmailOutboxHandler>();
+    builder.Services.AddHostedService<OutboxWorker>();
     builder.Services.AddScoped<VerificationEmails>();
     builder.Services.AddScoped<PasswordEmails>();
 

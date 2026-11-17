@@ -6,16 +6,38 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Serilog.Core;
 using TakaLeaf.App.Common.Email;
+using TakaLeaf.App.Common.Outbox;
 
 namespace TakaLeaf.App.Tests.Support;
 
 /// <summary>
-/// The app as the tests run it: a real PostgreSQL, emails captured in memory instead of sent,
+/// The app as the tests run it: a real PostgreSQL, emails captured in memory instead of sent
+/// (through the outbox, delivered when a test reads them),
 /// log events captured for checking, and the sign-in rate limit raised so tests do not trip over each other.
 /// </summary>
 public sealed class TestApp : WebApplicationFactory<Program>
 {
+    public TestApp()
+    {
+        Emails.Deliver = DeliverOutboxAsync;
+    }
+
     public FakeEmailSender Emails { get; } = new();
+
+    public ScriptedOutboxHandler OutboxHandler { get; } = new();
+
+    /// <summary>Runs the outbox until nothing is due (the background worker is off in tests).</summary>
+    public async Task DeliverOutboxAsync()
+    {
+        while (true)
+        {
+            await using var scope = Services.CreateAsyncScope();
+            if (await scope.ServiceProvider.GetRequiredService<OutboxProcessor>().ProcessDueAsync(CancellationToken.None) == 0)
+            {
+                return;
+            }
+        }
+    }
 
     public CapturedLogs Logs { get; } = new();
 
@@ -25,6 +47,7 @@ public sealed class TestApp : WebApplicationFactory<Program>
         {
             ["RateLimits:AuthPerMinute"] = "100000",
             ["Recurring:Enabled"] = "false",
+            ["Outbox:Enabled"] = "false",
         }));
 
         builder.ConfigureTestServices(services =>
@@ -32,6 +55,7 @@ public sealed class TestApp : WebApplicationFactory<Program>
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
             services.AddSingleton<ILogEventSink>(Logs);
+            services.AddSingleton<IOutboxHandler>(OutboxHandler);
         });
     }
 }

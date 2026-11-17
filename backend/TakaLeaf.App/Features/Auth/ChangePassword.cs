@@ -74,7 +74,7 @@ public static class ChangePassword
             link.UsedAt = now;
         }
 
-        await db.SaveChangesAsync(cancellationToken);
+        // Saves the new password, the sign-outs and the notice email together.
         await emails.SendPasswordChangedAsync(user, cancellationToken);
         return Results.Ok(new MessageResponse("Your password is changed. You stay signed in here; other devices are signed out."));
     }
