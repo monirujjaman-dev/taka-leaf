@@ -53,7 +53,7 @@ Automated at the backend integration level unless marked; ★ cases also run end
 | --- | --- | --- |
 | A-1★ | Register with a valid email and password | Verification email sent; sign-in refused until the link is opened |
 | A-2 | Register an existing email | Same response; no second account; nothing reveals the account exists |
-| A-3 | Password under 10 characters or a common one | Refused with a clear message |
+| A-3 | Password under 8 characters or a common one | Refused with a clear message |
 | A-4★ | Sign in with the right password | Access and refresh tokens issued |
 | A-5 | Five wrong passwords | Locked 15 minutes, even with the right password |
 | A-6 | Refresh token used twice | Second use refused and the session ended |
