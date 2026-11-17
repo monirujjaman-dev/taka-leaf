@@ -264,6 +264,8 @@ After the save `OutboxSignal` wakes `OutboxWorker`, which also polls every `Outb
   `DataProtection:CertificatePath`. `DataProtection:PreviousCertificatePaths` lets old certificates
   still decrypt existing keys after a change. Both are optional; without them the framework defaults
   apply (`Common/DataProtectionSetup.cs`).
+- **Link previews:** `index.html` carries Open Graph and X card tags with absolute URLs built from
+  `SITE_URL` (Vite plugin in `vite.config.ts`; Docker build arg, default `https://takaleaf.monirujjaman.dev`).
 - **Production:** a single Docker image (see `Dockerfile`). Migrations run on start. The health
   endpoint is `/api/health`. Backups are daily `pg_dump` to S3 through Dokploy.
 
@@ -286,7 +288,8 @@ on every user table, and refresh tokens in the response body for `client: "mobil
 
 The app is in `apps/mobile/`: Expo SDK 58, React Native 0.88, Expo Router, TypeScript strict,
 Android 7.0 (API 24) and newer, package `com.takaleaf.app`. The `Android` workflow builds an APK
-(version code = run number) and, on `main`, publishes it as the latest GitHub Release
+(version code = run number), opens the same release build on an Android 16 emulator
+(`apps/mobile/scripts/smoke-test.sh`: fails on a crash or a JS error) and, on `main`, publishes it as the latest GitHub Release
 (`android-v<version>-build.<n>`, `takaleaf.apk` + checksum). The web app links to
 `releases/latest/download/takaleaf.apk` from Settings (More on phones), after sign-in. The app fills in the
 production server, `https://takaleaf.monirujjaman.dev` (`app.json` `extra.defaultServerUrl`).

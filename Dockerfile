@@ -13,7 +13,9 @@ RUN pnpm install --frozen-lockfile
 COPY packages/shared packages/shared
 COPY contract contract
 COPY apps/web apps/web
-RUN pnpm --filter @takaleaf/web build
+# Link previews (Open Graph) need the public address; build with --build-arg SITE_URL=https://… for another domain.
+ARG SITE_URL=https://takaleaf.monirujjaman.dev
+RUN SITE_URL=$SITE_URL pnpm --filter @takaleaf/web build
 
 # 2. API
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS api

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#07301D"/><stop offset="0.55" stop-color="#0B5A33"/><stop offset="1" stop-color="#0F7A44"/></linearGradient>
+<radialGradient id="glow" cx="0.78" cy="0.3" r="0.55"><stop offset="0" stop-color="#3FB37A" stop-opacity="0.45"/><stop offset="1" stop-color="#3FB37A" stop-opacity="0"/></radialGradient>
+<filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#021A0E" flood-opacity="0.45"/></filter>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<rect width="1200" height="630" fill="url(#glow)"/>
+<g opacity="0.07" transform="translate(830 250) scale(4.2)"><defs><linearGradient id="tllb" gradientUnits="userSpaceOnUse" x1="700" y1="90" x2="330" y2="720"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.45" stop-color="#DDF3E4"/><stop offset="1" stop-color="#B5E2C4"/></linearGradient><linearGradient id="tlll" gradientUnits="userSpaceOnUse" x1="95" y1="305" x2="430" y2="130"><stop offset="0" stop-color="#A9DDBB"/><stop offset="1" stop-color="#E4F6EA"/></linearGradient></defs><g transform="translate(-11.28 -10.58) scale(0.176)"><path d="M95 305 C98 215 180 112 285 110 C335 109 375 118 405 128 C370 158 345 208 318 250 C290 290 235 303 95 305Z" fill="url(#tlll)"/><path d="M448 305 C385 345 366 410 362 480 C358 560 366 650 378 720 C420 650 446 560 448 470Z" fill="#86CDA0"/><path d="M715 82 C650 200 540 262 448 305 C520 310 600 305 650 270 C700 230 715 150 715 82Z" fill="#9AD7B0"/><path d="M715 82 C640 95 560 100 500 115 C420 135 340 215 300 310 C265 400 268 520 300 610 C320 665 350 700 378 720 C366 650 358 560 362 480 C366 410 385 345 448 305 C540 262 650 200 715 82Z" fill="url(#tllb)"/></g></g>
+
+<g transform="translate(72 64)">
+  <g transform="scale(0.6)"><defs><linearGradient id="tllb" gradientUnits="userSpaceOnUse" x1="700" y1="90" x2="330" y2="720"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.45" stop-color="#DDF3E4"/><stop offset="1" stop-color="#B5E2C4"/></linearGradient><linearGradient id="tlll" gradientUnits="userSpaceOnUse" x1="95" y1="305" x2="430" y2="130"><stop offset="0" stop-color="#A9DDBB"/><stop offset="1" stop-color="#E4F6EA"/></linearGradient></defs><g transform="translate(-11.28 -10.58) scale(0.176)"><path d="M95 305 C98 215 180 112 285 110 C335 109 375 118 405 128 C370 158 345 208 318 250 C290 290 235 303 95 305Z" fill="url(#tlll)"/><path d="M448 305 C385 345 366 410 362 480 C358 560 366 650 378 720 C420 650 446 560 448 470Z" fill="#86CDA0"/><path d="M715 82 C650 200 540 262 448 305 C520 310 600 305 650 270 C700 230 715 150 715 82Z" fill="#9AD7B0"/><path d="M715 82 C640 95 560 100 500 115 C420 135 340 215 300 310 C265 400 268 520 300 610 C320 665 350 700 378 720 C366 650 358 560 362 480 C366 410 385 345 448 305 C540 262 650 200 715 82Z" fill="url(#tllb)"/></g></g>
+  <text x="84" y="48" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">TakaLeaf</text>
+</g>
+<text x="72" y="262" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="76" font-weight="800" fill="#FFFFFF" letter-spacing="-2">Your Money.</text>
+<text x="72" y="350" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="76" font-weight="800" fill="#9AD7B0" letter-spacing="-2">Your Control.</text>
+<text x="72" y="418" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="27" font-weight="500" fill="#D7EFE0">Track income, expenses, wallets and loans</text>
+<text x="72" y="456" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="27" font-weight="500" fill="#D7EFE0">in Taka. On the web and Android, offline too.</text>
+<g transform="translate(72 520)" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="20" font-weight="700">
+  <rect width="176" height="46" rx="23" fill="#FFFFFF"/><text x="88" y="30" text-anchor="middle" fill="#0F7A44">Get started</text>
+  <text x="204" y="30" fill="#B5E2C4">takaleaf.monirujjaman.dev</text>
+</g>
+
+<g filter="url(#sh)">
+<rect x="724" y="92" width="404" height="446" rx="30" fill="#F7FBF8"/>
+</g>
+<g transform="translate(756 124)">
+  <text x="0" y="20" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="16" font-weight="600" fill="#5B6F63">Total balance</text>
+  <text x="0" y="70" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="44" font-weight="800" fill="#10241A" letter-spacing="-1" style="font-variant-numeric:tabular-nums"><tspan font-family="Noto Sans Bengali">৳</tspan>1,25,000.00</text>
+  <rect x="0" y="94" width="160" height="58" rx="16" fill="#E3F4EA"/>
+  <text x="14" y="117" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="13" font-weight="700" fill="#0F7A44">Income</text>
+  <text x="14" y="140" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="800" fill="#0F7A44"><tspan font-family="Noto Sans Bengali">৳</tspan>85,000.00</text>
+  <rect x="172" y="94" width="168" height="58" rx="16" fill="#FBE9E4"/>
+  <text x="186" y="117" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="13" font-weight="700" fill="#A8412A">Expense</text>
+  <text x="186" y="140" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="800" fill="#A8412A"><tspan font-family="Noto Sans Bengali">৳</tspan>42,350.00</text>
+  <line x1="0" y1="178" x2="340" y2="178" stroke="#E1EAE4" stroke-width="2"/>
+</g>
+<g transform="translate(756 322)">
+<rect width="44" height="44" rx="14" fill="#E3F4EA"/>
+<text x="22" y="29" text-anchor="middle" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="20" font-weight="800" fill="#0F7A44">+</text>
+<text x="60" y="19" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="700" fill="#10241A">Salary</text>
+<text x="60" y="40" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="14" font-weight="500" fill="#5B6F63">Bank · Today</text>
+<text x="328" y="29" text-anchor="end" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="800" fill="#0F7A44" style="font-variant-numeric:tabular-nums">+<tspan font-family="Noto Sans Bengali">৳</tspan>85,000.00</text>
+</g>
+<g transform="translate(756 386)">
+<rect width="44" height="44" rx="14" fill="#FBE9E4"/>
+<text x="22" y="29" text-anchor="middle" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="20" font-weight="800" fill="#A8412A">−</text>
+<text x="60" y="19" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="700" fill="#10241A">Groceries</text>
+<text x="60" y="40" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="14" font-weight="500" fill="#5B6F63">bKash · Today</text>
+<text x="328" y="29" text-anchor="end" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="800" fill="#A8412A" style="font-variant-numeric:tabular-nums">−<tspan font-family="Noto Sans Bengali">৳</tspan>3,240.00</text>
+</g>
+<g transform="translate(756 450)">
+<rect width="44" height="44" rx="14" fill="#EEF1EF"/>
+<text x="22" y="29" text-anchor="middle" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="20" font-weight="800" fill="#33473B">⇄</text>
+<text x="60" y="19" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="700" fill="#10241A">To savings</text>
+<text x="60" y="40" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="14" font-weight="500" fill="#5B6F63">Transfer · Yesterday</text>
+<text x="328" y="29" text-anchor="end" font-family="Inter, Noto Sans Bengali, sans-serif" font-size="18" font-weight="800" fill="#33473B" style="font-variant-numeric:tabular-nums"><tspan font-family="Noto Sans Bengali">৳</tspan>10,000.00</text>
+</g>
+</svg>

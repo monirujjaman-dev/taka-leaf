@@ -328,3 +328,12 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 - Don't add confetti, streaks, mascots or scolding alarm states.
 - Don't add a second accent colour; leaf and amber are for progress only.
 - Don't use browser `alert`/`confirm`; confirm in place ("Yes, delete" / "Keep").
+
+## Link preview (Open Graph)
+
+Shared links show a 1200×630 card (`apps/web/public/og-image.png`, source `brand/social/og-image.svg`,
+rendered with `rsvg-convert -w 1200 -h 630`): forest gradient, the leaf mark and wordmark, "Your Money."
+in white and "Your Control." in mint (`#9AD7B0`), a two-line description, a "Get started" pill and the
+address, and on the right a light balance card (total, income and expense pills, three transactions).
+Keep text out of the outer 60 px. When the image changes, bump `?v=` in `index.html` so Facebook, X and
+WhatsApp fetch it again. Under 300 KB, or WhatsApp shows no image.
