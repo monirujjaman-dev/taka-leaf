@@ -5,7 +5,11 @@ import { primeSession } from "./api/client";
 import { App } from "./app/App";
 import { createQueryClient, Providers } from "./app/Providers";
 import { prefetchRouteData, preloadRoute } from "./app/routes";
+import { adoptBootLoader } from "./ui/loaderClock";
 import "./index.css";
+
+// The start-up loader in index.html is about to be replaced; React's copy continues its phase.
+adoptBootLoader();
 
 // Start-up work that does not need React: restore the session, fetch the page's code and, once
 // signed in, the page's data, all at the same time instead of one after another.

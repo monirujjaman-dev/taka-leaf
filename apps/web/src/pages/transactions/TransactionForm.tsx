@@ -195,7 +195,7 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
                     type="button"
                     aria-pressed={on}
                     onClick={() => setCategory(on ? "" : c.id)}
-                    className={`h-11 shrink-0 cursor-pointer rounded-[14px] border px-3.5 text-sm font-bold ${focusRing} ${
+                    className={`press h-11 shrink-0 cursor-pointer rounded-[14px] border px-3.5 text-sm font-bold ${focusRing} ${
                       on ? "border-forest bg-mint text-forest dark:border-sage dark:bg-sage/15 dark:text-sage" : "glass"
                     }`}
                   >
@@ -255,7 +255,7 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
                 type="button"
                 onClick={() => press(key)}
                 aria-label={key === "back" ? "Delete last digit" : key === "." ? "Decimal point" : undefined}
-                className={`glass grid h-12 cursor-pointer place-items-center rounded-[14px] text-xl font-bold ${focusRing}`}
+                className={`press glass grid h-12 cursor-pointer place-items-center rounded-[14px] text-xl font-bold ${focusRing}`}
               >
                 {key === "back" ? <Icon name="backspace" size={22} /> : key}
               </button>

@@ -32,7 +32,7 @@ function WalletRow({ wallet, onOpen }: { wallet: Wallet; onOpen: () => void }) {
       <button
         type="button"
         onClick={onOpen}
-        className={`-mx-1.5 flex min-h-14 w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+        className={`-mx-1.5 flex min-h-14 w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
       >
         <IconTile icon={walletIcon(wallet.type)} />
         <span className="min-w-0 flex-1">
@@ -141,7 +141,7 @@ export function WalletsPage() {
                         <li key={row.label}>
                           <Link
                             to="/people"
-                            className={`-mx-1.5 flex min-h-14 items-center py-1.5 gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] ${focusRing}`}
+                            className={`-mx-1.5 flex min-h-14 items-center py-1.5 gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                           >
                             <IconTile icon={row.icon} tone={row.label === "Borrowed" ? "expense" : "primary"} />
                             <span className="min-w-0 flex-1">

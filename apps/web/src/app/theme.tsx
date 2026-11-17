@@ -23,7 +23,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => readStored() ?? systemTheme());
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
+    const switching = root.dataset.theme !== undefined && root.dataset.theme !== theme;
+    // A switch flips every colour at once: hold transitions off for that frame (index.css), or
+    // buttons and fields would fade at their own speed while the rest of the page snaps.
+    if (switching) root.setAttribute("data-theme-switching", "");
+    root.dataset.theme = theme;
+    if (switching) {
+      void root.offsetHeight;
+      requestAnimationFrame(() => root.removeAttribute("data-theme-switching"));
+    }
   }, [theme]);
 
   const toggle = useCallback(() => {

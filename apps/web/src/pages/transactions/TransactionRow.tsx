@@ -57,7 +57,7 @@ export function TransactionRow({
       <button
         type="button"
         onClick={() => onOpen(transaction)}
-        className={`-mx-1.5 flex min-h-14 w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+        className={`-mx-1.5 flex min-h-14 w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
       >
         <IconTile icon={icon} tone={transaction.type === "Expense" ? "expense" : "primary"} />
         <span className="min-w-0 flex-1">

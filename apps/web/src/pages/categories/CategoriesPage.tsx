@@ -134,7 +134,7 @@ function CategoryForm({ editing, all, onClose }: { editing: Editing; all: Catego
   );
 }
 
-const chip = `inline-flex h-11 cursor-pointer items-center rounded-[14px] px-3.5 text-small font-bold ${focusRing}`;
+const chip = `press inline-flex h-11 cursor-pointer items-center rounded-[14px] px-3.5 text-small font-bold ${focusRing}`;
 
 export function CategoriesPage() {
   const [kind, setKind] = useState<CategoryKind>("Expense");
@@ -187,7 +187,7 @@ export function CategoriesPage() {
                       type="button"
                       aria-expanded={expanded}
                       onClick={() => setOpen(expanded ? null : parent.id)}
-                      className={`-mx-1.5 flex min-h-[62px] w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+                      className={`-mx-1.5 flex min-h-[62px] w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                     >
                       <IconTile icon="tag" />
                       <span className="min-w-0 flex-1">
@@ -228,7 +228,7 @@ export function CategoriesPage() {
                         <button
                           type="button"
                           onClick={() => setEditing({ category: parent, kind, parentId: null })}
-                          className={`${chip} text-[var(--tl-primary)] hover:bg-[var(--tl-chip)]`}
+                          className={`${chip} text-[var(--tl-primary)] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)]`}
                         >
                           Edit {parent.name}
                         </button>

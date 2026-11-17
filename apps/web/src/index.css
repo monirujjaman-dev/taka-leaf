@@ -162,6 +162,75 @@ body {
   }
 }
 
+/* Taps act at once: no double-tap zoom wait, and fast number-pad taps never zoom the page. */
+button,
+a,
+[role="button"],
+input,
+select,
+label {
+  touch-action: manipulation;
+}
+
+/* Press feedback: in at 0 ms on :active, back out over 160 ms, so the press always feels immediate. */
+@utility press {
+  transition-property: transform, color, background-color, border-color, opacity, box-shadow;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: 0ms;
+  }
+}
+
+/* Switching theme changes every colour at once; without this, controls with colour transitions
+   would fade at their own speed while the rest of the page snaps. */
+[data-theme-switching] *,
+[data-theme-switching] *::before,
+[data-theme-switching] *::after {
+  transition: none !important;
+}
+
+/*
+ * Dialogs (ui/Modal.tsx). Phones: the sheet rises from the bottom edge, where Add and the rows that
+ * open it are. Wider screens: the dialog grows from 0.96 and fades in. The backdrop shares the
+ * panel's timing. Entry needs no script (@starting-style); the exit is played by Modal on a copy.
+ */
+.tl-dialog {
+  transition:
+    transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 260ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.tl-backdrop {
+  transition: opacity 260ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@starting-style {
+  .tl-dialog {
+    transform: translateY(100%);
+  }
+  .tl-backdrop {
+    opacity: 0;
+  }
+}
+/* Replacing another dialog, or the exit copy: no entrance. */
+[data-instant] .tl-dialog,
+[data-instant] .tl-backdrop {
+  transition: none;
+}
+@media (min-width: 640px) {
+  .tl-dialog,
+  .tl-backdrop {
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @starting-style {
+    .tl-dialog {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+}
+
 /* A 44 × 44 px touch area around a control that looks smaller (a text link, a 36 px segment),
    without changing its size or the layout. The element must not clip its overflow. */
 @utility tap-area {
@@ -268,6 +337,36 @@ body {
   .tl-loader-bar {
     animation: none;
   }
+}
+
+/* In-page loaders (ui/Feedback Loading) stay invisible for 350 ms, then fade in: a quick load shows
+   nothing rather than two frames of scattered pieces. Keep in step with LOADER_SHOW_AFTER_MS. */
+.tl-loader-delayed {
+  animation: tl-appear 160ms cubic-bezier(0.22, 1, 0.36, 1) 350ms both;
+}
+@keyframes tl-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The sliding bar under the start-up loader, drawn the same by index.html and React. */
+.tl-boot-bar {
+  margin-top: 12px;
+  width: 120px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--tl-track);
+}
+.tl-boot-bar .tl-loader-bar {
+  width: 40%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--tl-primary);
 }
 
 /* The start-up copy in index.html, replaced when React renders. */

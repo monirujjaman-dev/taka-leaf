@@ -360,6 +360,17 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   reduced motion the mark stays assembled and only fades between 55% and 100%. Geometry, colours
   and timing: `LEAF_PATHS`, `LEAF_COLORS`, `LOADER_MOTION` in `packages/shared`. Android turns each
   lift into the in-plane shift that looks the same, since React Native has no 3D layering.
+  Start-up is one loader: every full-size loader runs on one clock (`ui/loaderClock.ts`), so React
+  continues the `index.html` copy's phase, and until the first page has painted, a page's loading
+  continues it full screen (`ui/startup.tsx`). After start-up the 44 px loader stays invisible for
+  350 ms, then fades in from the assembled mark, so a quick load shows nothing.
+- **Motion**: only where it explains a change. Dialogs rise from the bottom edge on phones (260 ms,
+  `cubic-bezier(0.32, 0.72, 0, 1)`) and grow from 0.96 with a fade on wider screens (200 ms,
+  `cubic-bezier(0.22, 1, 0.36, 1)`); the backdrop fades with them; closing plays the reverse faster
+  (200 / 150 ms), and a dialog that replaces another appears in place. The segmented control's
+  forest pill slides to the chosen option (200 ms). Buttons, number-pad keys, tabs and chips press
+  to 0.97 at once and release over 160 ms (`press`); rows tint on press. Reduced motion keeps the
+  fades and drops all movement. Nothing animates on its own except the loader.
 - **Email**: a 600 px column on mint; the leaf mark (40 px PNG) and a live-text "TakaLeaf" wordmark
   above a white card (radius 20, 1 px line border, padding 40, 24 px on phones where the card goes
   edge to edge). Inside: a 24px/800 title, "Hi {name}," (or "Hello,"), 15px/24px body, one forest

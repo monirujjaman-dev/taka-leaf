@@ -166,7 +166,7 @@ export function BudgetsPage() {
                   <button
                     type="button"
                     onClick={() => setEditing(budget)}
-                    className={`-mx-1.5 flex w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
+                    className={`-mx-1.5 flex w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 py-2.5 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                   >
                     <IconTile icon={budget.categoryId ? "tag" : "target"} />
                     <span className="min-w-0 flex-1">

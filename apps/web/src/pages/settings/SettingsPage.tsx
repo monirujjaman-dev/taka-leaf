@@ -136,7 +136,7 @@ const MORE: { to: string; label: string; icon: IconName }[] = [
   { to: "/categories", label: "Categories", icon: "tag" },
 ];
 
-const rowClass = `-mx-1.5 flex min-h-[54px] w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`;
+const rowClass = `-mx-1.5 flex min-h-[54px] w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`;
 
 function RowText({ icon, label, value, danger = false }: { icon: IconName; label: string; value?: string; danger?: boolean }) {
   return (
