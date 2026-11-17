@@ -24,7 +24,7 @@ function MergeOrDelete({ category, all, onDone }: { category: Category; all: Cat
 
   if (category.children.length > 0) {
     return (
-      <p className="m-0 text-[13px] text-[var(--tl-muted)]">
+      <p className="m-0 text-small text-[var(--tl-muted)]">
         To merge or delete {category.name}, first merge or delete its sub-categories.
       </p>
     );
@@ -122,7 +122,7 @@ function CategoryForm({ editing, all, onClose }: { editing: Editing; all: Catego
           </span>
         </div>
         {category && !category.archived ? (
-          <p className="m-0 text-[13px] text-[var(--tl-muted)]">Archiving hides it from new entries; past transactions keep it.</p>
+          <p className="m-0 text-small text-[var(--tl-muted)]">Archiving hides it from new entries; past transactions keep it.</p>
         ) : null}
       </form>
       {category ? (
@@ -134,7 +134,7 @@ function CategoryForm({ editing, all, onClose }: { editing: Editing; all: Catego
   );
 }
 
-const chip = `inline-flex h-11 cursor-pointer items-center rounded-[14px] px-3.5 text-[13px] font-bold ${focusRing}`;
+const chip = `inline-flex h-11 cursor-pointer items-center rounded-[14px] px-3.5 text-small font-bold ${focusRing}`;
 
 export function CategoriesPage() {
   const [kind, setKind] = useState<CategoryKind>("Expense");
@@ -191,11 +191,11 @@ export function CategoriesPage() {
                     >
                       <IconTile icon="tag" />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] font-bold">
+                        <span className="block truncate text-body font-bold">
                           {parent.name}
-                          {parent.archived ? <span className="ml-2 text-[12px] font-bold text-[var(--tl-muted)]">Archived</span> : null}
+                          {parent.archived ? <span className="ml-2 text-caption font-bold text-[var(--tl-muted)]">Archived</span> : null}
                         </span>
-                        <span className="block truncate text-[12px] text-[var(--tl-muted)]">
+                        <span className="block truncate text-caption text-[var(--tl-muted)]">
                           {parent.children.length > 0 ? parent.children.map((c) => c.name).join(", ") : "No sub-categories"}
                         </span>
                       </span>

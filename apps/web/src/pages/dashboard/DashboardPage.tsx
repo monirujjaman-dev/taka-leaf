@@ -13,13 +13,13 @@ import { EmptyState, ErrorNote, Loading, messageOf, LoadError } from "../../ui/F
 import { Icon } from "../../ui/Icon";
 import { MonthPicker } from "../../ui/MonthPicker";
 import { useWide } from "../../ui/useWide";
-import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatTile, walletIcon } from "../../ui/Parts";
+import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatGrid, StatTile, walletIcon } from "../../ui/Parts";
 import { localMonth, monthLabel, WALLET_TYPE_LABEL } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetBar";
 import { DueList } from "../recurring/DueList";
 import { TransactionRow } from "../transactions/TransactionRow";
 
-const linkClass = `tap-area text-[13px] font-bold text-[var(--tl-primary)] ${focusRing} rounded-[6px]`;
+const linkClass = `tap-area text-small font-bold text-[var(--tl-primary)] ${focusRing} rounded-[6px]`;
 
 function walletDetail(wallet: Wallet): string {
   if (wallet.type === "CreditCard" && wallet.availableCredit !== null) return `${formatBdt(wallet.availableCredit)} left`;
@@ -32,15 +32,18 @@ function PhoneHeader({ month, onMonth }: { month: string; onMonth: (m: string) =
   const client = useQueryClient();
   const fetching = useIsFetching() > 0;
   return (
-    <div className="mb-2 flex h-14 items-center gap-2.5">
+    <div className="mb-2 flex min-h-14 flex-wrap items-center gap-x-2.5 gap-y-2">
       <h1 className="sr-only">Dashboard</h1>
       <span className="flex-1">
         <Logo theme={theme} size={30} />
       </span>
-      <MonthPicker month={month} onChange={onMonth} short />
-      <button type="button" aria-label="Refresh" aria-busy={fetching} onClick={() => void client.invalidateQueries()} className={iconButtonClass}>
-        <Icon name="sync" size={20} className={fetching ? "motion-safe:animate-spin motion-reduce:opacity-50" : ""} />
-      </button>
+      {/* The month and refresh move together when the row is too narrow (320 px, larger text). */}
+      <span className="flex shrink-0 items-center gap-2.5">
+        <MonthPicker month={month} onChange={onMonth} short />
+        <button type="button" aria-label="Refresh" aria-busy={fetching} onClick={() => void client.invalidateQueries()} className={iconButtonClass}>
+          <Icon name="sync" size={20} className={fetching ? "motion-safe:animate-spin motion-reduce:opacity-50" : ""} />
+        </button>
+      </span>
     </div>
   );
 }
@@ -77,7 +80,7 @@ export function DashboardPage() {
       {wallets.isSuccess && !hasWallets ? (
         <section className="glass mb-3 rounded-[22px] lg:mb-5">
           <EmptyState title="Start by adding your wallets">
-            <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">
+            <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">
               Add the places your money lives — cash in hand, a bank account, bKash or Nagad — with what each holds today.
             </p>
             <Link to="/wallets?add=1" className={`${buttonClass()} mt-1`}>
@@ -91,31 +94,31 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-5">
           <section
             aria-label="Net balance"
-            className="relative flex min-h-[148px] flex-col justify-between overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-hero lg:min-h-[168px]"
+            className="@container relative flex min-h-[148px] flex-col justify-between overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-hero lg:min-h-[168px]"
           >
             <LeafWatermark />
             <div className="relative">
-              <p className="m-0 text-[13px] font-semibold text-mint">Net balance</p>
-              <p className="m-0 mt-1 text-[34px] font-extrabold leading-tight tracking-[-0.8px] [overflow-wrap:anywhere]">{formatBdt(d.netBalance)}</p>
+              <p className="m-0 text-small font-semibold text-mint">Net balance</p>
+              <p className="m-0 mt-1 text-[length:min(var(--text-display),13cqi)] font-extrabold leading-tight tracking-[-0.025em] [overflow-wrap:anywhere]">{formatBdt(d.netBalance)}</p>
             </div>
-            <div className="relative mt-3 flex gap-8">
+            <div className="relative mt-3 flex flex-wrap gap-x-8 gap-y-2">
               <div>
-                <p className="m-0 text-[12px] font-semibold text-mint">Assets</p>
-                <p className="m-0 text-[15px] font-bold">{formatBdt(d.assets)}</p>
+                <p className="m-0 text-caption font-semibold text-mint">Assets</p>
+                <p className="m-0 text-body font-bold">{formatBdt(d.assets)}</p>
               </div>
               <div>
-                <p className="m-0 text-[12px] font-semibold text-mint">Liabilities</p>
-                <p className="m-0 text-[15px] font-bold">{formatBdt(d.liabilities)}</p>
+                <p className="m-0 text-caption font-semibold text-mint">Liabilities</p>
+                <p className="m-0 text-body font-bold">{formatBdt(d.liabilities)}</p>
               </div>
             </div>
           </section>
 
-          <div className="grid grid-cols-2 gap-2.5 lg:gap-3">
+          <StatGrid label="Summary">
             <StatTile icon="moneyIn" label="Income" value={formatBdt(d.income)} />
             <StatTile icon="moneyOut" tone="expense" label="Expense" value={formatBdt(d.expense)} />
             <StatTile icon="people" label="Owed to me" value={formatBdt(d.owedToMe)} />
             <StatTile icon="people" tone="expense" label="I owe" value={formatBdt(d.iOwe)} />
-          </div>
+          </StatGrid>
 
           {due.data && due.data.length > 0 ? (
             <section className="glass rounded-[22px] p-4 lg:col-span-2" aria-labelledby="due-title">
@@ -134,7 +137,7 @@ export function DashboardPage() {
           {hasWallets ? (
             <section aria-labelledby="wallets-strip" className="lg:hidden">
               <div className="mb-2 mt-1 flex items-center justify-between">
-                <h2 id="wallets-strip" className="m-0 text-[15px] font-extrabold">
+                <h2 id="wallets-strip" className="m-0 text-body font-extrabold">
                   Wallets
                 </h2>
                 <Link to="/wallets" className={linkClass}>
@@ -148,13 +151,13 @@ export function DashboardPage() {
                       to={`/transactions?walletId=${wallet.id}&from=2000-01-01`}
                       className={`glass flex h-[84px] w-max min-w-32 max-w-56 flex-col justify-between rounded-[18px] p-3 ${focusRing}`}
                     >
-                      <span className="flex items-center gap-1.5 text-[13px] font-bold">
+                      <span className="flex items-center gap-1.5 text-small font-bold">
                         <span className="flex text-[var(--tl-primary)]">
                           <Icon name={walletIcon(wallet.type)} size={16} />
                         </span>
                         <span className="truncate">{wallet.name}</span>
                       </span>
-                      <span className={`whitespace-nowrap text-[15px] font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
+                      <span className={`whitespace-nowrap text-body font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
                         {formatBdt(wallet.balance)}
                       </span>
                     </Link>
@@ -177,14 +180,14 @@ export function DashboardPage() {
                 See all
               </Link>
             </div>
-            {own.length === 0 ? <p className="m-0 py-3 text-sm text-[var(--tl-muted)]">No wallets yet.</p> : null}
+            {own.length === 0 ? <p className="m-0 py-3 text-body text-[var(--tl-muted)]">No wallets yet.</p> : null}
             <ul className="m-0 flex list-none flex-col p-0">
               {own.slice(0, 6).map((wallet) => (
                 <li key={wallet.id} className="flex h-[52px] items-center gap-3">
                   <IconTile icon={walletIcon(wallet.type)} size={38} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-bold">{wallet.name}</span>
-                    <span className="block truncate text-[12px] text-[var(--tl-muted)]">{walletDetail(wallet)}</span>
+                    <span className="block truncate text-caption text-[var(--tl-muted)]">{walletDetail(wallet)}</span>
                   </span>
                   <span className={`text-sm font-extrabold ${wallet.balance < 0 ? "text-expense dark:text-expense-dark" : ""}`}>
                     {formatBdt(wallet.balance)}
@@ -196,7 +199,7 @@ export function DashboardPage() {
 
           <section aria-labelledby="recent-title" className="lg:col-span-2">
             <div className="mb-2 mt-1 flex items-center justify-between lg:mt-0">
-              <h2 id="recent-title" className="m-0 text-[15px] font-extrabold lg:text-base">
+              <h2 id="recent-title" className="m-0 text-body font-extrabold lg:text-base">
                 <span className="lg:hidden">Recent</span>
                 <span className="hidden lg:inline">Recent transactions</span>
               </h2>
@@ -265,9 +268,9 @@ function Spending({
       <h2 id={id} className="m-0 text-base font-extrabold">
         Spending by category
       </h2>
-      <p className="mb-4 mt-1 text-[13px] text-[var(--tl-muted)]">{monthLabel(month)}</p>
+      <p className="mb-4 mt-1 text-small text-[var(--tl-muted)]">{monthLabel(month)}</p>
       {items.length === 0 ? (
-        <p className="m-0 text-sm text-[var(--tl-muted)]">No spending this month.</p>
+        <p className="m-0 text-body text-[var(--tl-muted)]">No spending this month.</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
           {items.map((item) => {

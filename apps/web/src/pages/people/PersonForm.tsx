@@ -66,7 +66,7 @@ export function PersonForm({ person, onClose, onCreated }: { person: Person | nu
           </span>
         </div>
         {person && confirmDelete ? (
-          <p className="m-0 text-[13px] text-[var(--tl-muted)]">
+          <p className="m-0 text-small text-[var(--tl-muted)]">
             This works only while no loans are recorded with {person.name}, so no history is lost.
           </p>
         ) : null}

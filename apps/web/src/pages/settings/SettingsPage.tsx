@@ -96,13 +96,13 @@ function Devices() {
         {(sessions.data ?? []).map((session) => (
           <li key={session.id} className="flex flex-wrap items-center gap-3 rounded-[16px] bg-[var(--tl-chip)] px-3 py-2.5">
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-bold">
+              <span className="block truncate text-body font-bold">
                 {session.device}
                 {session.current ? (
-                  <span className="ml-2 rounded-full bg-[var(--tl-surface)] px-2 py-0.5 text-[12px] font-bold text-[var(--tl-primary)]">This device</span>
+                  <span className="ml-2 rounded-full bg-[var(--tl-surface)] px-2 py-0.5 text-caption font-bold text-[var(--tl-primary)]">This device</span>
                 ) : null}
               </span>
-              <span className="block text-[13px] text-[var(--tl-muted)]">
+              <span className="block text-small text-[var(--tl-muted)]">
                 Last used {when(session.lastUsedAt)} · signed in {when(session.signedInAt)}
               </span>
             </span>
@@ -126,13 +126,13 @@ const MORE: { to: string; label: string; icon: IconName }[] = [
   { to: "/categories", label: "Categories", icon: "tag" },
 ];
 
-const rowClass = `-mx-1.5 flex h-[54px] w-[calc(100%+12px)] cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`;
+const rowClass = `-mx-1.5 flex min-h-[54px] w-[calc(100%+12px)] py-1.5 cursor-pointer items-center gap-3 rounded-[14px] px-1.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`;
 
 function RowText({ icon, label, value, danger = false }: { icon: IconName; label: string; value?: string; danger?: boolean }) {
   return (
     <>
       <IconTile icon={icon} size={36} tone={danger ? "expense" : "primary"} />
-      <span className={`flex-1 text-[15px] font-bold ${danger ? "text-expense dark:text-expense-dark" : ""}`}>{label}</span>
+      <span className={`flex-1 text-body font-bold ${danger ? "text-expense dark:text-expense-dark" : ""}`}>{label}</span>
       {value ? <span className="text-sm font-semibold text-[var(--tl-muted)]">{value}</span> : null}
       {danger ? null : <Chevron />}
     </>
@@ -180,7 +180,7 @@ function AccountCard() {
           <span className={`block truncate text-base font-extrabold ${user.name ? "" : "text-[var(--tl-muted)]"}`}>
             {user.name || "Add your name"}
           </span>
-          <span className="block truncate text-[13px] text-[var(--tl-muted)]">{user.email}</span>
+          <span className="block truncate text-small text-[var(--tl-muted)]">{user.email}</span>
         </span>
         {editing ? null : (
           <Button variant="secondary" onClick={start} aria-label={user.name ? "Edit your name" : "Add your name"}>

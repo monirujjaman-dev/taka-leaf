@@ -78,7 +78,7 @@ function BudgetForm({ budget, taken, onClose }: { budget: Budget | null; taken: 
           </span>
         </div>
         {budget && confirmRemove ? (
-          <p className="m-0 text-[13px] text-[var(--tl-muted)]">Your spending stays as it is. Only this monthly limit goes.</p>
+          <p className="m-0 text-small text-[var(--tl-muted)]">Your spending stays as it is. Only this monthly limit goes.</p>
         ) : null}
       </form>
     </Modal>
@@ -131,7 +131,7 @@ export function BudgetsPage() {
         {budgets.isSuccess && list.length === 0 ? (
           <section className="glass rounded-[22px]">
             <EmptyState title="No budgets yet">
-              <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">
+              <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">
                 Set a monthly limit for all spending, or for a category like Food and dining, and see how {monthLabel(month).split(" ")[0]} is going.
               </p>
             </EmptyState>
@@ -144,14 +144,14 @@ export function BudgetsPage() {
             className="relative overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-hero"
           >
             <LeafWatermark />
-            <p className="relative m-0 text-[13px] font-semibold text-mint">{monthLabel(month).split(" ")[0]} budget</p>
-            <p className="relative m-0 mt-1 text-[28px] font-extrabold tracking-[-0.5px] [overflow-wrap:anywhere]">
-              {formatBdt(total.spent)} <span className="text-[15px] font-semibold text-mint">of {formatBdt(total.amount)}</span>
+            <p className="relative m-0 text-small font-semibold text-mint">{monthLabel(month).split(" ")[0]} budget</p>
+            <p className="relative m-0 mt-1 text-display-sm font-extrabold [overflow-wrap:anywhere]">
+              {formatBdt(total.spent)} <span className="text-body font-semibold text-mint">of {formatBdt(total.amount)}</span>
             </p>
             <div className="relative mt-3.5 h-2 overflow-hidden rounded-[4px] bg-white/25" aria-hidden="true">
               <div className="h-full rounded-[4px] bg-white" style={{ width: `${total.amount > 0 ? Math.min(100, (total.spent / total.amount) * 100) : 0}%` }} />
             </div>
-            <p className="relative m-0 mt-2.5 text-[13px] font-semibold text-mint">
+            <p className="relative m-0 mt-2.5 text-small font-semibold text-mint">
               {left >= 0 ? `${formatBdt(left)} left` : `${formatBdt(-left)} over`}
               {days !== null ? ` · ${days} ${days === 1 ? "day" : "days"} to go` : ""}
             </p>

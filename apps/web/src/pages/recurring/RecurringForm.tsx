@@ -122,7 +122,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
         <TextField label="Note (optional)" value={note} maxLength={500} placeholder="House rent, Claude Pro…" onChange={(e) => setNote(e.target.value)} />
 
         <fieldset className="m-0 grid grid-cols-[6rem_1fr] gap-3 border-0 p-0">
-          <legend className="mb-1.5 text-[13px] font-bold">Repeat every</legend>
+          <legend className="mb-1.5 text-small font-bold">Repeat every</legend>
           <TextField label="How many" type="number" min={1} max={366} value={interval} onChange={(e) => setInterval(e.target.value)} error={errorFor("interval")} />
           <SelectField label="Unit" value={frequency} onChange={(e) => setFrequency(e.target.value as Frequency)}>
             {FREQUENCIES.map((f) => (
@@ -140,7 +140,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
           <input type="checkbox" checked={autoRecord} onChange={(e) => setAutoRecord(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--tl-primary)]" />
           <span>
             Record it automatically
-            <span className="block text-[13px] text-[var(--tl-muted)]">Otherwise it waits for you to record or skip each time, with the amount you choose.</span>
+            <span className="block text-small text-[var(--tl-muted)]">Otherwise it waits for you to record or skip each time, with the amount you choose.</span>
           </span>
         </label>
 
@@ -173,7 +173,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
             </Button>
           </span>
         </div>
-        {rule && confirmDelete ? <p className="m-0 text-[13px] text-[var(--tl-muted)]">Transactions it already recorded stay in your history. To stop it for a while, use Pause instead.</p> : null}
+        {rule && confirmDelete ? <p className="m-0 text-small text-[var(--tl-muted)]">Transactions it already recorded stay in your history. To stop it for a while, use Pause instead.</p> : null}
       </form>
     </Modal>
   );

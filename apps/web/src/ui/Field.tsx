@@ -1,7 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 
 export const inputClass =
-  "h-[50px] w-full rounded-[16px] border border-[var(--tl-glass-border)] bg-[var(--tl-glass)] px-3.5 text-[15px] text-[var(--tl-text)] outline-none transition placeholder:text-[var(--tl-muted)]/70 focus:border-[var(--tl-primary)] focus:ring-2 focus:ring-[var(--tl-primary)]/25 aria-[invalid=true]:border-expense dark:aria-[invalid=true]:border-expense-dark";
+  "h-[50px] w-full rounded-[16px] border border-[var(--tl-glass-border)] bg-[var(--tl-glass)] px-3.5 text-body text-[var(--tl-text)] outline-none transition placeholder:text-[var(--tl-muted)]/70 focus:border-[var(--tl-primary)] focus:ring-2 focus:ring-[var(--tl-primary)]/25 aria-[invalid=true]:border-expense dark:aria-[invalid=true]:border-expense-dark";
 
 interface FieldShellProps {
   label: string;
@@ -15,16 +15,16 @@ function FieldShell({ label, error, hint, children }: FieldShellProps) {
   const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-[13px] font-bold">
+      <label htmlFor={id} className="text-small font-bold">
         {label}
       </label>
       {children({ id, "aria-invalid": Boolean(error), "aria-describedby": describedBy })}
       {error ? (
-        <p id={`${id}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+        <p id={`${id}-error`} className="m-0 text-small font-semibold text-expense dark:text-expense-dark">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="m-0 text-[13px] text-[var(--tl-muted)]">
+        <p id={`${id}-hint`} className="m-0 text-small text-[var(--tl-muted)]">
           {hint}
         </p>
       ) : null}

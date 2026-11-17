@@ -40,7 +40,7 @@ export function RecurringPage() {
           <Icon name="plus" size={18} /> Add recurring
         </Button>
       </PageHeader>
-      <p className="mb-3 mt-0 text-sm text-[var(--tl-muted)] lg:-mt-3 lg:mb-5">Rent, salary, subscriptions — anything that repeats.</p>
+      <p className="mb-3 mt-0 text-body text-[var(--tl-muted)] lg:-mt-3 lg:mb-5">Rent, salary, subscriptions — anything that repeats.</p>
 
       {rules.isPending ? <Loading /> : null}
       <LoadError query={rules} />
@@ -57,7 +57,7 @@ export function RecurringPage() {
       {rules.isSuccess && all.length === 0 ? (
         <section className="glass rounded-[22px]">
           <EmptyState title="Nothing repeating yet">
-            <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">Add your house rent or salary once, and TakaLeaf reminds you — or records it for you — every time.</p>
+            <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">Add your house rent or salary once, and TakaLeaf reminds you — or records it for you — every time.</p>
           </EmptyState>
         </section>
       ) : null}
@@ -72,16 +72,16 @@ export function RecurringPage() {
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-base font-extrabold">{ruleTitle(rule)}</span>
-                <span className="block text-[13px] text-[var(--tl-muted)]">
+                <span className="block text-small text-[var(--tl-muted)]">
                   {scheduleLabel(rule.frequency, rule.interval)} · {status(rule)}
                 </span>
-                <span className="mt-1 block truncate text-[13px] text-[var(--tl-muted)]">
+                <span className="mt-1 block truncate text-small text-[var(--tl-muted)]">
                   {rule.type === "Transfer" ? `${rule.fromWalletName} → ${rule.toWalletName}` : rule.type === "Income" ? `Into ${rule.toWalletName}` : `From ${rule.fromWalletName}`}
                 </span>
               </span>
               <span className="shrink-0 text-right">
                 <span className={`block text-base font-extrabold ${TONE[rule.type]}`}>{formatBdt(rule.amount)}</span>
-                <span className="mt-1 inline-block rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-[12px] font-bold text-[var(--tl-primary)]">
+                <span className="mt-1 inline-block rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-caption font-bold text-[var(--tl-primary)]">
                   {rule.autoRecord ? "Automatic" : "Ask me"}
                 </span>
               </span>

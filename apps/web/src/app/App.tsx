@@ -46,7 +46,7 @@ function SessionUnavailable({ message, from }: { message: string; from: string }
       <div role="alert" className="flex max-w-sm flex-col items-center gap-3 text-center">
         <Logo theme={theme} size={36} />
         <h1 className="m-0 mt-4 text-xl font-extrabold tracking-tight">Your account could not be opened</h1>
-        <p className="m-0 text-[15px] text-[var(--tl-muted)]">{message} You are still signed in.</p>
+        <p className="m-0 text-body text-[var(--tl-muted)]">{message} You are still signed in.</p>
         <Button className="mt-2 min-w-40" onClick={retry}>
           Try again
         </Button>

@@ -61,10 +61,10 @@ export function TransactionRow({
       >
         <IconTile icon={icon} tone={transaction.type === "Expense" ? "expense" : "primary"} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[15px] font-bold">{title}</span>
-          <span className="block truncate text-[12px] text-[var(--tl-muted)]">{[detail, when].filter(Boolean).join(" · ")}</span>
+          <span className="block truncate text-body font-bold">{title}</span>
+          <span className="block truncate text-caption text-[var(--tl-muted)]">{[detail, when].filter(Boolean).join(" · ")}</span>
         </span>
-        <span className={`shrink-0 text-[15px] font-extrabold ${TONE[transaction.type]}`}>{signedAmount(transaction)}</span>
+        <span className={`shrink-0 text-body font-extrabold ${TONE[transaction.type]}`}>{signedAmount(transaction)}</span>
       </button>
     </li>
   );

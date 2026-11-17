@@ -33,7 +33,7 @@ export class PageBoundary extends Component<{ children: ReactNode; resetKey?: st
     return (
       <div role="alert" className="flex flex-col items-center gap-3 px-4 py-10 text-center">
         <p className="m-0 text-base font-bold">{chunk ? "TakaLeaf has been updated" : "This page could not be shown"}</p>
-        <p className="m-0 max-w-sm text-sm text-[var(--tl-muted)]">
+        <p className="m-0 max-w-sm text-body text-[var(--tl-muted)]">
           {chunk
             ? "Reload to get the new version. Nothing you saved is lost."
             : "Reload to try again. Nothing you saved is lost; if it keeps happening, sign out and back in."}

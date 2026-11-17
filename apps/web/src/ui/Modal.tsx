@@ -113,13 +113,13 @@ export function Modal({
             >
               <Icon name="close" size={20} />
             </button>
-            <h2 id={titleId} className="m-0 min-w-0 text-[17px] font-extrabold tracking-tight">
+            <h2 id={titleId} className="m-0 min-w-0 text-dialog font-extrabold tracking-tight">
               {title}
             </h2>
           </div>
         ) : (
           <div className="mb-4 flex items-start justify-between gap-3">
-            <h2 id={titleId} className="m-0 min-w-0 pt-2 text-lg font-extrabold tracking-tight">
+            <h2 id={titleId} className="m-0 min-w-0 pt-2 text-dialog font-extrabold tracking-tight">
               {title}
             </h2>
             <button

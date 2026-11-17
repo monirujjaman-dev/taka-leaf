@@ -186,7 +186,7 @@ export function TransactionsPage() {
               value={search}
               placeholder="Search transactions"
               onChange={(e) => setSearch(e.target.value)}
-              className="h-full min-w-0 flex-1 bg-transparent text-sm text-[var(--tl-text)] outline-none placeholder:text-[var(--tl-muted)]"
+              className="h-full min-w-0 flex-1 bg-transparent text-body text-[var(--tl-text)] outline-none placeholder:text-[var(--tl-muted)]"
             />
           </label>
           {wide ? (
@@ -240,7 +240,7 @@ export function TransactionsPage() {
         {data && !wide ? (
           <div className="glass flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[18px] px-4 py-3">
             <span className="text-sm font-extrabold">{rangeLabel}</span>
-            <span className="flex gap-3 text-[13px] font-semibold text-[var(--tl-muted)]">
+            <span className="flex gap-3 text-small font-semibold text-[var(--tl-muted)]">
               <span>
                 In <b className="text-forest dark:text-income-dark">{formatBdt(data.totals.income)}</b>
               </span>
@@ -257,14 +257,14 @@ export function TransactionsPage() {
       {data && data.items.length === 0 ? (
         <section className="glass rounded-[22px]">
           <EmptyState title="Nothing matches these filters">
-            <p className="m-0 text-sm text-[var(--tl-muted)]">Try a wider date range or clear the search.</p>
+            <p className="m-0 text-body text-[var(--tl-muted)]">Try a wider date range or clear the search.</p>
           </EmptyState>
         </section>
       ) : null}
 
       {data && data.items.length > 0 && wide ? (
         <section className="glass min-w-0 rounded-[22px] px-2 pb-3 pt-2">
-          <p className="m-0 flex flex-wrap gap-x-5 px-3 pb-1 pt-1 text-[13px] font-semibold text-[var(--tl-muted)]">
+          <p className="m-0 flex flex-wrap gap-x-5 px-3 pb-1 pt-1 text-small font-semibold text-[var(--tl-muted)]">
             <span>{rangeLabel}</span>
             <span>
               In <b className="text-forest dark:text-income-dark">{formatBdt(data.totals.income)}</b>
@@ -277,7 +277,7 @@ export function TransactionsPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse">
               <thead>
-                <tr className="text-left text-[12px] font-extrabold text-[var(--tl-muted)]">
+                <tr className="text-left text-caption font-extrabold text-[var(--tl-muted)]">
                   {["Date", "Description", "Category", "Wallet"].map((h) => (
                     <th key={h} scope="col" className="h-11 border-b border-[var(--tl-glass-border)] px-3">
                       {h}
@@ -324,8 +324,8 @@ export function TransactionsPage() {
           {groupByDay(data.items).map(([day, items]) => (
             <section key={day} aria-label={dayHeading(day)} className="flex flex-col gap-2">
               <div className="mt-1 flex items-center justify-between gap-3">
-                <h2 className="m-0 text-[13px] font-extrabold text-[var(--tl-muted)]">{dayHeading(day)}</h2>
-                <span className="text-[13px] font-bold text-[var(--tl-muted)]">{dayTotal(items)}</span>
+                <h2 className="m-0 text-small font-extrabold text-[var(--tl-muted)]">{dayHeading(day)}</h2>
+                <span className="text-small font-bold text-[var(--tl-muted)]">{dayTotal(items)}</span>
               </div>
               <ListCard>
                 <ul className="m-0 flex list-none flex-col p-0">

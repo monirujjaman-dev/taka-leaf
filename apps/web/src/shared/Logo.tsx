@@ -7,7 +7,7 @@ export function Logo({ theme, size = 36 }: { theme: Theme; size?: number }) {
   return (
     <span className="inline-flex items-center gap-2">
       <img src={theme === "dark" ? markOnDark : markColor} width={size} height={size} alt="" />
-      <span className="text-[22px] font-extrabold tracking-tight">
+      <span className="text-wordmark font-extrabold tracking-tight">
         Taka<span className="text-[var(--tl-primary)]">Leaf</span>
         <span className="sr-only"> ({APP_NAME})</span>
       </span>

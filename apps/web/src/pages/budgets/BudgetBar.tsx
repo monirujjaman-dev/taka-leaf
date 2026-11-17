@@ -19,7 +19,7 @@ export function BudgetBar({ budget }: { budget: Budget }) {
         <span className={`block h-full rounded-[4px] ${BAR[budget.status]}`} style={{ width: `${Math.min(Math.max(budget.percent, 2), 100)}%` }} />
       </span>
       <span
-        className={`block text-[12px] ${budget.status === "Over" ? "font-bold text-expense dark:text-expense-dark" : "font-medium text-[var(--tl-muted)]"}`}
+        className={`block text-caption ${budget.status === "Over" ? "font-bold text-expense dark:text-expense-dark" : "font-medium text-[var(--tl-muted)]"}`}
       >
         {budgetLine(budget)}
       </span>

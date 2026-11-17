@@ -30,7 +30,7 @@ function RecordForm({ rule, onClose }: { rule: RecurringRule; onClose: () => voi
   return (
     <Modal title={`Record ${ruleTitle(rule)}`} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-        <p className="m-0 text-sm text-[var(--tl-muted)]">
+        <p className="m-0 text-small text-[var(--tl-muted)]">
           Due {dayLabel(rule.nextDate!)} · {rule.type === "Income" ? `into ${rule.toWalletName}` : `from ${rule.fromWalletName}`}
         </p>
         <AmountField label="Amount (৳)" value={amount} onChange={(e) => setAmount(e.target.value)} error={problem ?? apiError?.field("amount")} />
@@ -60,8 +60,8 @@ export function DueList({ rules }: { rules: RecurringRule[] }) {
         {rules.map((rule) => (
           <li key={rule.id} className="flex flex-wrap items-center gap-3 rounded-[16px] bg-[var(--tl-chip)] px-3 py-2.5">
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-bold">{ruleTitle(rule)}</span>
-              <span className="block text-[13px] text-[var(--tl-muted)]">
+              <span className="block truncate text-body font-bold">{ruleTitle(rule)}</span>
+              <span className="block text-small text-[var(--tl-muted)]">
                 {formatBdt(rule.amount)} · due {dayLabel(rule.nextDate!)}
                 {rule.dueCount > 1 ? ` · ${rule.dueCount} dates waiting` : ""}
               </span>

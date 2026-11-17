@@ -36,12 +36,35 @@ typography:
     lineHeight: 1.1
     letterSpacing: "-0.025em"
     fontFeature: "tnum"
+  display-sm:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "28px"
+    fontWeight: 800
+    lineHeight: 1.15
+    letterSpacing: "-0.02em"
+    fontFeature: "tnum"
   headline:
     fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
     fontSize: "26px"
     fontWeight: 800
     lineHeight: 1.2
-    letterSpacing: "-0.025em"
+    letterSpacing: "-0.02em"
+  headline-phone:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
+  dialog:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "18px"
+    fontWeight: 800
+    lineHeight: 1.3
+  wordmark:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "22px"
+    fontWeight: 800
+    lineHeight: 1.2
   title:
     fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
     fontSize: "16px"
@@ -58,7 +81,12 @@ typography:
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.6
-  label:
+  control:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 700
+    lineHeight: 1.4
+  small:
     fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 700
@@ -68,6 +96,16 @@ typography:
     fontSize: "12px"
     fontWeight: 600
     lineHeight: 1.4
+  micro:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "11px"
+    fontWeight: 700
+    lineHeight: 1.3
+  tab:
+    fontFamily: "Inter, Noto Sans Bengali, system-ui, sans-serif"
+    fontSize: "10px"
+    fontWeight: 700
+    lineHeight: 1.3
 rounded:
   sm: "10px"
   md: "14px"
@@ -222,16 +260,25 @@ Rules:
 **Inter** for everything (Noto Sans Bengali as a fallback), with tabular figures on by default
 (`font-variant-numeric: tabular-nums` on the body), so columns of amounts line up.
 
-| Role | Size / weight | Used for |
+Each role is a Tailwind token in `index.css` (`text-display`, `text-body`, …), set in rem so a
+person's browser text size scales it. Use the role, never a pixel value: **14 px is for controls,
+reading text is 15, supporting text 13.**
+
+| Role (class) | Size / weight | Used for |
 | --- | --- | --- |
-| display | 34px / 800, −0.8px; 28–30px for the budget total, a person's standing and the sign-in title; 48px in the add sheet, stepping down to 28px for long amounts | Net balance; the amount being typed |
-| headline | 26px desktop, 20px phone / 800 | Page titles ("Dashboard", "Wallets") |
-| title | 16px / 800 | Card titles, wallet and person names |
-| amount | 15–24px / 800, tabular | Amounts in rows, tiles and cards (24px on wallet cards) |
-| body | 15px / 400, line-height 1.6 | Paragraphs, inputs, row titles (row titles 700) |
-| label | 13px / 700 | Field labels, buttons, chips |
-| caption | 12–13px / 400–600 | Secondary lines, hints, badges ("Automatic", "This device"), tab-bar labels (10px/700) and chart value labels (10–11px/700) |
-| section | 13px / 800 muted | Day headings ("Today · 15 Nov") with the day total, wallet groups |
+| display (`text-display`) | 34px / 800, −0.025em | The amount that answers the screen: net balance. On the balance card it is at most 13% of the card's width, so larger text keeps it on one line |
+| display-sm (`text-display-sm`) | 28px / 800, −0.02em | A secondary hero: the budget total, a person's standing, the sign-in title |
+| amount being typed | 48px / 800, stepping down to 28px for long amounts | The add sheet |
+| headline (`text-headline`; `text-xl` on phones) | 26px desktop, 20px phone / 800 | Page titles ("Dashboard", "Wallets") |
+| dialog (`text-dialog`) | 18px / 800 | Dialog and add-sheet titles |
+| title (`text-base`) | 16px / 800 | Card titles, wallet and person names |
+| amount | 15–18px / 800, tabular | Amounts in rows, tiles and cards |
+| body (`text-body`) | 15px / 400 | Reading text: empty-state sentences, messages, inputs; row titles at 700 |
+| control (`text-sm`) | 14px / 700 | Buttons, navigation, segmented options, chips, pagination. Nothing else |
+| small (`text-small`) | 13px | Field labels (700), hints, notes and metadata (400, muted), section headings (800 muted: "Today · 15 Nov") |
+| caption (`text-caption`) | 12px / 400–600 | The detail line under a row title, tile labels, badges ("Automatic", "This device") |
+| micro / tab (`text-micro`, `text-tab`) | 11px / 10px, 700 | Chart value labels and tab-bar labels only; never reading text |
+| wordmark (`text-wordmark`) | 22px / 800 | "TakaLeaf" beside the mark |
 
 Headings are tight (−0.025em) and heavy, and body text is relaxed. There is no italic, and amounts
 are never shown in a light weight.
@@ -252,7 +299,7 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
 
 ## Components
 
-- **Buttons**: 44 px tall, radius 14 px, 13px/700 label. Primary is forest (sage in dark).
+- **Buttons**: 44 px tall, radius 14 px, 14px/700 label. Primary is forest (sage in dark).
   Secondary is glass. Ghost uses the chip tint on hover. Danger is expense. A disabled button is at
   50% opacity with a not-allowed cursor.
 - **Fields**: label above (13px/700), then a 50 px glass input with radius 16 px, a 1 px line border,
@@ -271,7 +318,8 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   chevron. Used for wallets, people, categories, budgets, settings and day groups in history.
 - **Balance card**: the solid forest hero with "Net balance" 13px, the 34px amount, and Assets and
   Liabilities below (12px mint labels, 15/700 white figures), with the leaf watermark.
-- **Stat tile**: glass, radius 18, padding 12/14, a 36 px icon tile (radius 12; money-in green,
+- **Stat tile**: two by two in a `StatGrid`, one per row when that space is under 20rem (320 px
+  phones, larger text). Glass, radius 18, padding 12/14, a 36 px icon tile (radius 12; money-in green,
   money-out rust), a 12px/600 muted label and a 16px/800 value. Two by two on the dashboard.
 - **Transaction row**: a 40 px icon tile (radius 14; money in, money out in rust, swap for
   transfer), a bold title and a muted "detail · time" line (or "· 5 Nov" outside history), and a

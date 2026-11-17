@@ -88,7 +88,7 @@ function Sidebar() {
           Sign out
         </button>
         {/* States the connection as it is, not as it usually is (the page also says it above). */}
-        <p className="m-0 flex items-center gap-2.5 px-2.5 pt-2 text-[12px] font-semibold text-[var(--tl-muted)]">
+        <p className="m-0 flex items-center gap-2.5 px-2.5 pt-2 text-caption font-semibold text-[var(--tl-muted)]">
           <span className={`flex ${online ? "text-[var(--tl-primary)]" : ""}`}>
             <Icon name="sync" size={17} />
           </span>
@@ -104,7 +104,7 @@ function Tab({ to, label, icon, active }: { to: string; label: string; icon: Ico
     <Link
       to={to}
       aria-current={active ? "page" : undefined}
-      className={`flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-[10px] font-bold ${focusRing} ${
+      className={`flex h-[52px] w-[52px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-tab font-bold ${focusRing} ${
         active ? "text-[var(--tl-nav-active)]" : "text-[var(--tl-muted)]"
       }`}
     >
@@ -213,7 +213,7 @@ export function PageHeader({
           <Icon name="left" size={20} />
         </Link>
       ) : null}
-      <h1 className="m-0 min-w-0 flex-1 text-xl font-extrabold tracking-[-0.4px] lg:flex-none lg:text-[26px] lg:tracking-[-0.5px]">{title}</h1>
+      <h1 className="m-0 min-w-0 flex-1 text-xl font-extrabold tracking-[-0.4px] lg:flex-none lg:text-headline">{title}</h1>
       {phoneAction ? <div className="lg:hidden">{phoneAction}</div> : null}
       {children ? (
         <div className={`flex flex-wrap items-center gap-2.5 ${phoneAction ? "hidden lg:flex" : ""}`}>{children}</div>

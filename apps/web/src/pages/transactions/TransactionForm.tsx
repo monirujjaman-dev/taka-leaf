@@ -135,7 +135,7 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
           />
 
           <div className="flex flex-col items-center py-1">
-            <label htmlFor={amountId} className="text-[13px] font-semibold text-[var(--tl-muted)]">
+            <label htmlFor={amountId} className="text-small font-semibold text-[var(--tl-muted)]">
               Amount (৳)
             </label>
             <div
@@ -161,7 +161,7 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
               />
             </div>
             {errorFor("amount") ? (
-              <p id={`${amountId}-error`} className="m-0 text-center text-[13px] font-semibold text-expense dark:text-expense-dark">
+              <p id={`${amountId}-error`} className="m-0 text-center text-small font-semibold text-expense dark:text-expense-dark">
                 {errorFor("amount")}
               </p>
             ) : null}
@@ -176,10 +176,10 @@ function Editor({ transaction, onClose }: { transaction: Transaction | null; onC
               placeholder="Add a note"
               aria-invalid={Boolean(errorFor("note"))}
               aria-describedby={errorFor("note") ? `${noteId}-error` : undefined}
-              className={`glass mt-2 h-11 w-full max-w-72 rounded-[12px] px-3 text-center text-sm outline-none placeholder:text-[var(--tl-muted)] ${focusRing}`}
+              className={`glass mt-2 h-11 w-full max-w-72 rounded-[12px] px-3 text-center text-body outline-none placeholder:text-[var(--tl-muted)] ${focusRing}`}
             />
             {errorFor("note") ? (
-              <p id={`${noteId}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+              <p id={`${noteId}-error`} className="m-0 text-small font-semibold text-expense dark:text-expense-dark">
                 {errorFor("note")}
               </p>
             ) : null}
@@ -340,7 +340,7 @@ function PickerRow({
         </span>
       </div>
       {error ? (
-        <p id={`${id}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+        <p id={`${id}-error`} className="m-0 text-small font-semibold text-expense dark:text-expense-dark">
           {error}
         </p>
       ) : null}
@@ -370,7 +370,7 @@ function TimeRow({ value, onChange, error }: { value: string; onChange: (value: 
         />
       </div>
       {error ? (
-        <p id={`${id}-error`} className="m-0 text-[13px] font-semibold text-expense dark:text-expense-dark">
+        <p id={`${id}-error`} className="m-0 text-small font-semibold text-expense dark:text-expense-dark">
           {error}
         </p>
       ) : null}

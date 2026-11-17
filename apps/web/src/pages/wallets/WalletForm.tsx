@@ -64,12 +64,12 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
     <Modal title={wallet ? `Edit ${wallet.name}` : "Add a wallet"} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
         {wallet ? (
-          <Link to={`/transactions?walletId=${wallet.id}&from=2000-01-01`} className="self-start text-[13px] font-bold text-[var(--tl-primary)]">
+          <Link to={`/transactions?walletId=${wallet.id}&from=2000-01-01`} className="self-start text-small font-bold text-[var(--tl-primary)]">
             See its transactions
           </Link>
         ) : null}
         {wallet ? (
-          <p className="m-0 text-sm text-[var(--tl-muted)]">
+          <p className="m-0 text-small text-[var(--tl-muted)]">
             {WALLET_TYPE_LABEL[wallet.type]} · balance now {formatBdt(wallet.balance)}
           </p>
         ) : (
@@ -90,7 +90,7 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
                 key={suggestion}
                 type="button"
                 onClick={() => setName(suggestion)}
-                className={`h-11 cursor-pointer rounded-full bg-[var(--tl-chip)] px-4 text-[13px] font-bold text-[var(--tl-primary)] ${focusRing}`}
+                className={`h-11 cursor-pointer rounded-full bg-[var(--tl-chip)] px-4 text-small font-bold text-[var(--tl-primary)] ${focusRing}`}
               >
                 {suggestion}
               </button>
@@ -125,7 +125,7 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
           <input type="checkbox" checked={excluded} onChange={(e) => setExcluded(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--tl-primary)]" />
           <span>
             Leave out of net balance
-            <span className="block text-[13px] text-[var(--tl-muted)]">For money you keep for someone else, for example.</span>
+            <span className="block text-small text-[var(--tl-muted)]">For money you keep for someone else, for example.</span>
           </span>
         </label>
 

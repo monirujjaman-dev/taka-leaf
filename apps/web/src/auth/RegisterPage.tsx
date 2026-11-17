@@ -38,7 +38,7 @@ export function RegisterPage() {
   if (done) {
     return (
       <AuthLayout title="Check your email" intro={done}>
-        <p className="m-0 text-sm text-[var(--tl-muted)]">
+        <p className="m-0 text-body text-[var(--tl-muted)]">
           The link works for 24 hours. Nothing in your inbox? Look in spam, or{" "}
           <button type="button" className={`${linkClass} cursor-pointer`} onClick={() => setDone(null)}>
             try again

@@ -45,8 +45,8 @@ export function PersonPage() {
           {person.name.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <h1 className="m-0 text-xl font-extrabold tracking-tight [overflow-wrap:anywhere] lg:text-[26px]">{person.name}</h1>
-          {person.note ? <p className="m-0 line-clamp-2 text-[13px] text-[var(--tl-muted)]">{person.note}</p> : null}
+          <h1 className="m-0 text-xl font-extrabold tracking-tight [overflow-wrap:anywhere] lg:text-headline">{person.name}</h1>
+          {person.note ? <p className="m-0 line-clamp-2 text-small text-[var(--tl-muted)]">{person.note}</p> : null}
         </div>
         <Button variant="secondary" onClick={() => setEditing(true)}>
           Edit
@@ -56,7 +56,7 @@ export function PersonPage() {
       <section className="glass mb-4 rounded-[22px] p-5">
         <Standing person={person} large />
         {person.owesMe > 0 && person.iOwe > 0 ? (
-          <p className="m-0 mt-2 text-[13px] text-[var(--tl-muted)]">
+          <p className="m-0 mt-2 text-small text-[var(--tl-muted)]">
             They owe you {formatBdt(person.owesMe)}; you owe them {formatBdt(person.iOwe)}.
           </p>
         ) : null}
@@ -84,7 +84,7 @@ export function PersonPage() {
         </h2>
         {loans.length === 0 ? (
           <EmptyState title="No loans yet">
-            <p className="m-0 text-sm text-[var(--tl-muted)]">Use Lend or Borrow above to record the first one.</p>
+            <p className="m-0 text-body text-[var(--tl-muted)]">Use Lend or Borrow above to record the first one.</p>
           </EmptyState>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
@@ -96,13 +96,13 @@ export function PersonPage() {
                   className={`flex w-full cursor-pointer items-center gap-3 rounded-[16px] px-2 py-2.5 text-left hover:bg-[var(--tl-chip)] ${focusRing}`}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-bold">{LOAN_LABEL[loan.kind](person.name)}</span>
-                    <span className="block truncate text-[13px] text-[var(--tl-muted)]">
+                    <span className="block truncate text-body font-bold">{LOAN_LABEL[loan.kind](person.name)}</span>
+                    <span className="block truncate text-small text-[var(--tl-muted)]">
                       {dayLabel(localDate(new Date(loan.occurredAt)))}, {timeLabel(loan.occurredAt)}
                       {[loan.walletName, loan.note].filter(Boolean).map((part) => ` · ${part}`)}
                     </span>
                   </span>
-                  <span className="shrink-0 text-[15px] font-extrabold">
+                  <span className="shrink-0 text-body font-extrabold">
                     {SIGN[loan.kind]}
                     {formatBdt(loan.amount)}
                   </span>

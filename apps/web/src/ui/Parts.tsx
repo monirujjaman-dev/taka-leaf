@@ -23,11 +23,23 @@ export function StatTile({ icon, tone, label, value }: { icon: IconName; tone?: 
     <div className="glass flex min-w-0 items-center gap-2 rounded-[18px] px-3 py-3 sm:gap-2.5 sm:px-3.5">
       <IconTile icon={icon} tone={tone} size={36} />
       <div className="min-w-0">
-        <p className="m-0 text-[12px] font-semibold leading-snug text-[var(--tl-muted)]">{label}</p>
+        <p className="m-0 text-caption font-semibold leading-snug text-[var(--tl-muted)]">{label}</p>
         {/* Never cut off: a large amount wraps rather than losing digits behind an ellipsis. */}
-        <p className="m-0 text-[15px] font-extrabold leading-snug tracking-tight [overflow-wrap:anywhere] sm:text-base">{value}</p>
+        <p className="m-0 text-body font-extrabold leading-snug tracking-tight [overflow-wrap:anywhere] sm:text-base">{value}</p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Stat tiles two by two, or one per row where two would squeeze the amounts: 320 px phones and
+ * larger browser text (20rem grows with the text size, the space does not).
+ */
+export function StatGrid({ children, label, className = "" }: { children: ReactNode; label?: string; className?: string }) {
+  return (
+    <section aria-label={label} className={`@container ${className}`}>
+      <div className="grid grid-cols-1 gap-2.5 @[20rem]:grid-cols-2 lg:gap-3">{children}</div>
+    </section>
   );
 }
 
@@ -44,10 +56,10 @@ export function ListCard({ children, className = "", label }: { children: ReactN
 export function SectionHeading({ id, title, children }: { id?: string; title: string; children?: ReactNode }) {
   return (
     <div className="mt-1 flex min-h-5 items-center justify-between gap-3">
-      <h2 id={id} className="m-0 text-[13px] font-extrabold text-[var(--tl-muted)]">
+      <h2 id={id} className="m-0 text-small font-extrabold text-[var(--tl-muted)]">
         {title}
       </h2>
-      {children ? <span className="text-[13px] font-bold text-[var(--tl-muted)]">{children}</span> : null}
+      {children ? <span className="text-small font-bold text-[var(--tl-muted)]">{children}</span> : null}
     </div>
   );
 }

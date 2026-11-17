@@ -86,7 +86,7 @@ function Trend({ report }: { report: Report }) {
           const highlight = report.period === "Month" && point.month === last;
           return (
             <li key={point.month} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
-              <span className="text-[10px] font-bold text-[var(--tl-muted)] sm:text-[11px]" aria-hidden="true">
+              <span className="text-tab font-bold text-[var(--tl-muted)] sm:text-micro" aria-hidden="true">
                 {point.expense > 0 ? compactTaka(point.expense) : ""}
               </span>
               <div
@@ -94,7 +94,7 @@ function Trend({ report }: { report: Report }) {
                 className={`w-full max-w-11 rounded-t-[8px] rounded-b-[3px] ${highlight ? "bg-forest dark:bg-sage" : "bg-sage dark:bg-leaf"}`}
                 style={{ height: `${point.expense > 0 ? Math.max((point.expense / max) * 100, 3) : 1}%` }}
               />
-              <span className={`text-[11px] font-bold sm:text-[12px] ${highlight ? "" : "text-[var(--tl-muted)]"}`}>
+              <span className={`text-micro font-bold sm:text-caption ${highlight ? "" : "text-[var(--tl-muted)]"}`}>
                 <span aria-hidden="true">{shortMonth(point.month)}</span>
                 <span className="sr-only">
                   {monthLabel(point.month)}: {formatBdt(point.expense)} spent
@@ -119,11 +119,11 @@ function ByCategory({ title, rows, total, report, type }: { title: string; rows:
       <h2 id={`${type}-title`} className="m-0 mb-1 text-base font-extrabold">
         {title}
       </h2>
-      <p className="mb-3 mt-0 text-[13px] text-[var(--tl-muted)]">
+      <p className="mb-3 mt-0 text-small text-[var(--tl-muted)]">
         {formatBdt(total)} in all · open a category to see what is in it
       </p>
       {rows.length === 0 ? (
-        <p className="m-0 text-sm text-[var(--tl-muted)]">Nothing in this period.</p>
+        <p className="m-0 text-body text-[var(--tl-muted)]">Nothing in this period.</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-1 p-0">
           {rows.map((row) => {
@@ -154,7 +154,7 @@ function ByCategory({ title, rows, total, report, type }: { title: string; rows:
                       <li key={child.categoryId ?? "none"}>
                         <Link
                           to={link(child.categoryId)}
-                          className={`flex justify-between gap-3 rounded-[10px] px-2 py-1.5 text-[13px] hover:bg-[var(--tl-chip)] ${focusRing}`}
+                          className={`flex justify-between gap-3 rounded-[10px] px-2 py-1.5 text-small hover:bg-[var(--tl-chip)] ${focusRing}`}
                         >
                           <span className="truncate">{child.name}</span>
                           <span className="shrink-0 font-bold">{formatBdt(child.amount)}</span>
@@ -162,7 +162,7 @@ function ByCategory({ title, rows, total, report, type }: { title: string; rows:
                       </li>
                     ))}
                     <li>
-                      <Link to={link(row.categoryId)} className="inline-block px-2 py-1.5 text-[13px] font-bold text-[var(--tl-primary)]">
+                      <Link to={link(row.categoryId)} className="inline-block px-2 py-1.5 text-small font-bold text-[var(--tl-primary)]">
                         See all {row.name} transactions
                       </Link>
                     </li>
@@ -240,7 +240,7 @@ export function ReportsPage() {
         report.data.income === 0 && report.data.expense === 0 && report.data.trend.every((t) => t.expense === 0) ? (
           <section className="glass rounded-[22px]">
             <EmptyState title={`Nothing recorded in ${period === "Year" ? year : monthLabel(month)}`}>
-              <p className="m-0 text-sm text-[var(--tl-muted)]">Reports fill in as you add income and expenses.</p>
+              <p className="m-0 text-body text-[var(--tl-muted)]">Reports fill in as you add income and expenses.</p>
             </EmptyState>
           </section>
         ) : (
