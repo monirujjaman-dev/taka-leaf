@@ -7,7 +7,7 @@ namespace TakaLeaf.App.Tests.Features.Health;
 [Collection(DatabaseCollection.Name)]
 public class GetHealthTests(DatabaseFixture fixture)
 {
-    private sealed record HealthResponse(string Status, string Database);
+    private sealed record HealthResponse(string Status, string Database, string Cache);
 
     [Fact]
     public async Task Health_endpoint_answers_ok_and_sees_the_database()
@@ -21,5 +21,9 @@ public class GetHealthTests(DatabaseFixture fixture)
         Assert.NotNull(body);
         Assert.Equal("ok", body.Status);
         Assert.Equal("up", body.Database);
+
+        // CI runs the tests with Redis; locally the cache may be memory only.
+        var redis = Environment.GetEnvironmentVariable("ConnectionStrings__Redis");
+        Assert.Equal(string.IsNullOrWhiteSpace(redis) ? "memory" : "up", body.Cache);
     }
 }

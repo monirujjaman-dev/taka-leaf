@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data;
 
 namespace TakaLeaf.App.Features.Wallets;
@@ -22,9 +23,17 @@ public static class GetWallets
         bool? includeArchived,
         ClaimsPrincipal principal,
         AppDbContext db,
+        UserDataCache cache,
         CancellationToken cancellationToken)
     {
         var userId = principal.UserId();
+        var list = await cache.GetOrCreateAsync(userId, "wallets", ct => LoadAsync(db, userId, ct), cancellationToken);
+        return Results.Ok(includeArchived == true ? list : list with { Wallets = list.Wallets.Where(w => !w.Archived).ToList() });
+    }
+
+    /// <summary>Every wallet with its balance, archived ones included; the endpoint filters.</summary>
+    private static async ValueTask<WalletList> LoadAsync(AppDbContext db, Guid userId, CancellationToken cancellationToken)
+    {
         var wallets = await db.Wallets
             .Where(w => w.UserId == userId)
             .OrderBy(w => w.SortOrder)
@@ -34,8 +43,6 @@ public static class GetWallets
 
         var all = wallets.Select(w => WalletRules.ToDto(w, movements.GetValueOrDefault(w.Id))).ToList();
         var summary = Balances.Summarize(wallets, movements);
-        var shown = includeArchived == true ? all : all.Where(w => !w.Archived).ToList();
-
-        return Results.Ok(new WalletList(shown, new WalletTotals(summary.Assets, summary.Liabilities, summary.Net)));
+        return new WalletList(all, new WalletTotals(summary.Assets, summary.Liabilities, summary.Net));
     }
 }

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 
@@ -63,6 +64,7 @@ public static class GetReport
         ClaimsPrincipal principal,
         AppDbContext db,
         LocalCalendar calendar,
+        UserDataCache cache,
         CancellationToken cancellationToken)
     {
         var today = calendar.Today();
@@ -102,6 +104,25 @@ public static class GetReport
         }
 
         var userId = principal.UserId();
+        var report = await cache.GetOrCreateAsync(
+            userId,
+            $"report:{kind}:{label}",
+            ct => LoadAsync(db, calendar, userId, kind, label, from, to, trendFrom, ct),
+            cancellationToken);
+        return Results.Ok(report);
+    }
+
+    private static async ValueTask<ReportDto> LoadAsync(
+        AppDbContext db,
+        LocalCalendar calendar,
+        Guid userId,
+        ReportPeriod kind,
+        string label,
+        DateOnly from,
+        DateOnly to,
+        DateOnly trendFrom,
+        CancellationToken cancellationToken)
+    {
         var start = calendar.StartOf(trendFrom);
         var end = calendar.StartOf(to.AddDays(1));
         var rows = await db.Transactions
@@ -134,7 +155,7 @@ public static class GetReport
             trend.Add(new TrendPoint(m.ToString("yyyy-MM", CultureInfo.InvariantCulture), totals.Income, totals.Expense));
         }
 
-        return Results.Ok(new ReportDto(
+        return new ReportDto(
             kind,
             label,
             from,
@@ -145,7 +166,7 @@ public static class GetReport
             income > 0 ? (int)(saved * 100 / income) : null,
             ByCategory(inPeriod.Where(r => r.Type == TransactionType.Expense), expense, categories),
             ByCategory(inPeriod.Where(r => r.Type == TransactionType.Income), income, categories),
-            trend));
+            trend);
     }
 
     /// <summary>Totals per top-level category (a sub-category counts toward its parent), largest first.</summary>

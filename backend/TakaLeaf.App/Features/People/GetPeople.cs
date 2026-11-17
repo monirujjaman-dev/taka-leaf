@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 
@@ -15,9 +16,14 @@ public static class GetPeople
         return group;
     }
 
-    private static async Task<IResult> Handle(ClaimsPrincipal principal, AppDbContext db, CancellationToken cancellationToken)
+    private static async Task<IResult> Handle(ClaimsPrincipal principal, AppDbContext db, UserDataCache cache, CancellationToken cancellationToken)
     {
         var userId = principal.UserId();
+        return Results.Ok(await cache.GetOrCreateAsync(userId, "people", ct => LoadAsync(db, userId, ct), cancellationToken));
+    }
+
+    private static async ValueTask<PeopleList> LoadAsync(AppDbContext db, Guid userId, CancellationToken cancellationToken)
+    {
         var people = await db.People.Where(p => p.UserId == userId).ToListAsync(cancellationToken);
         var wallets = await db.Wallets.Where(w => w.UserId == userId && w.PersonId != null).ToListAsync(cancellationToken);
         var movements = await Balances.MovementsAsync(db, userId, cancellationToken);
@@ -39,6 +45,6 @@ public static class GetPeople
             .ThenBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        return Results.Ok(new PeopleList(list, list.Sum(p => p.OwesMe), list.Sum(p => p.IOwe)));
+        return new PeopleList(list, list.Sum(p => p.OwesMe), list.Sum(p => p.IOwe));
     }
 }
