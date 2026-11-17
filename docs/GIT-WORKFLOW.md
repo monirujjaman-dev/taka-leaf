@@ -145,5 +145,10 @@ rulesets or secrets; that is why this step is the owner's.
 - The GitHub agents load `.claude/settings.json` too. A command on its `ask` list is **denied** on
   GitHub (nobody is there to answer), so only put a command there if no agent needs it; today only
   `gh pr merge` (Auto merge merges, not Claude).
+- A PR that changes `.github/workflows/claude-review.yml` can't be reviewed by Claude (the action
+  only runs from a workflow file identical to the default branch's). The review check fails on
+  purpose and labels it `needs-owner`: read it and merge it by hand.
+- If a run on a PR shows **Approve and run** (GitHub's guard for first-time contributors, which can
+  include `claude[bot]` pushes on a public repository), approve it once from the PR's Checks tab.
 - Claude review is a gate, not a rubber stamp: dispute a wrong finding on its thread; don't
   bypass it with the owner bypass except in an incident.
