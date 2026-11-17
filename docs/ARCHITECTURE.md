@@ -151,7 +151,7 @@ has ready-made requests.
 
 ## 6. Security
 
-- **Passwords:** ASP.NET Core `PasswordHasher` (PBKDF2), at least 10 characters. Five wrong passwords
+- **Passwords:** ASP.NET Core `PasswordHasher` (PBKDF2), at least 8 characters and not a common one (`PasswordRules`). Five wrong passwords
   lock sign-in for 15 minutes. An unknown email costs the same time as a wrong password.
 - **No account discovery:** register, resend and forgot-password give the same answer whether or
   not the email exists.

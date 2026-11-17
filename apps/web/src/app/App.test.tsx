@@ -70,7 +70,7 @@ describe("signing in", () => {
   it("shows the password rule next to the password field when registering", async () => {
     fakeApi({
       "POST /auth/refresh": signedOut,
-      "POST /auth/register": { status: 400, body: { title: "x", errors: { password: ["Use at least 10 characters."] } } },
+      "POST /auth/register": { status: 400, body: { title: "x", errors: { password: ["Use at least 8 characters."] } } },
     });
     renderApp("/register");
 
@@ -79,7 +79,7 @@ describe("signing in", () => {
     await userEvent.type(screen.getByLabelText("Password"), "short");
     await userEvent.click(screen.getByRole("button", { name: "Create account" }));
 
-    expect(await screen.findByText("Use at least 10 characters.")).toBeInTheDocument();
+    expect(await screen.findByText("Use at least 8 characters.")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toHaveAttribute("aria-invalid", "true");
   });
 

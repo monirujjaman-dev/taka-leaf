@@ -2,12 +2,16 @@ namespace TakaLeaf.App.Common;
 
 public static class PasswordRules
 {
-    public const int MinLength = 10;
+    public const int MinLength = 8;
     public const int MaxLength = 128;
 
     // Passwords long enough to pass the length rule but still among the first ones an attacker tries.
     private static readonly HashSet<string> Common = new(StringComparer.OrdinalIgnoreCase)
     {
+        "12345678", "123456789", "87654321", "11111111", "00000000", "12341234", "11223344",
+        "password", "password1", "passw0rd", "qwerty12", "qwerty123", "qwertyui", "asdfghjk", "1q2w3e4r",
+        "iloveyou", "sunshine", "football", "baseball", "superman", "princess", "welcome1", "letmein1",
+        "abc12345", "abcd1234", "admin123", "dhaka123", "takaleaf",
         "0123456789", "1234567890", "12345678910", "123456789012", "0987654321", "1111111111",
         "qwertyuiop", "qwerty1234", "qwerty12345", "1q2w3e4r5t", "1qaz2wsx3edc", "1234qwerasdf",
         "password12", "password123", "password1234", "passw0rd123", "iloveyou12", "abcdefghij",
