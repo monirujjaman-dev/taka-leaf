@@ -7,7 +7,8 @@
 - The phone never waits for the network: every write goes through `put`/`remove` in `src/data/write.ts`
   inside `db.transaction`, which saves the row and its outbox entry together. Domain rules live in
   `src/data/*` (same messages as the server); screens only call them and show `FieldError`s.
-- Screens read with `useData(() => query(db, …), deps)`; it re-runs on every database change.
+- Screens read with `useData(() => query(db, …), deps)`; it re-runs on every database change, on the
+  screen in front only (others catch up when they return), so call it only inside a navigator screen.
 - Sync: `src/sync/engine.ts` (pure, tested with a fake server); triggers in `src/state/AppState.tsx`.
 - Database: change `src/db/schema.ts`, then `pnpm --filter @takaleaf/mobile db:generate` (drizzle-kit
   writes `drizzle/`). Never edit generated migrations. Queries go in store files that take `AppDb`, so

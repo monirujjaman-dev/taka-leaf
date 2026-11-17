@@ -2,10 +2,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { formatBdt } from "@takaleaf/shared";
 import { router } from "expo-router";
-import { useState, type ComponentProps, type ReactNode } from "react";
-import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from "react-native";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { Animated, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { atLocal, dateLabel, localDate, localTime, timeLabel } from "../data/calendar";
+import { AnimatedPressable, MOTION, usePressScale, useReduceMotion } from "./motion";
 import { useColors } from "./theme";
 
 export type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
@@ -15,7 +16,18 @@ export function Icon({ name, size = 22, color }: { name: IconName; size?: number
   return <MaterialCommunityIcons name={name} size={size} color={color ?? c.text} />;
 }
 
-/** A screen: safe-area padding, a header with an optional back button and action, scrolling content. */
+/** The floating tab bar: its height and its gap above the system navigation bar. */
+export const TAB_BAR = { height: 68, gap: 10, maxWidth: 448 } as const;
+
+/** On tablets, foldables and phones on their side, screens keep a phone-width column, centred. */
+export const COLUMN_MAX = 600;
+const column = { width: "100%", maxWidth: COLUMN_MAX, alignSelf: "center" } as const;
+
+/**
+ * A screen: safe-area padding, a header with an optional back button and action, scrolling content.
+ * Screens without a back button are tabs, so their content clears the floating tab bar. The keyboard
+ * pushes the content and footer up (the app draws edge to edge, so Android no longer resizes it).
+ */
 export function Screen({
   title,
   back = false,
@@ -33,15 +45,13 @@ export function Screen({
 }) {
   const c = useColors();
   const insets = useSafeAreaInsets();
-  const body = <View style={{ gap: 14, paddingHorizontal: 16, paddingBottom: 120 }}>{children}</View>;
+  const tabClearance = insets.bottom + TAB_BAR.gap + TAB_BAR.height + 16;
+  const bottom = back ? (footer ? 16 : insets.bottom + 24) : tabClearance;
+  const body = <View style={[column, { gap: 14, paddingHorizontal: 16, paddingBottom: bottom }]}>{children}</View>;
   return (
-    <View style={{ flex: 1, backgroundColor: c.background, paddingTop: insets.top }}>
-      <View style={styles.header}>
-        {back ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={styles.iconButton} hitSlop={8}>
-            <Icon name="arrow-left" />
-          </Pressable>
-        ) : null}
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: c.background, paddingTop: insets.top }}>
+      <View style={[styles.header, column]}>
+        {back ? <HeaderButton icon="arrow-left" label="Back" onPress={() => router.back()} /> : null}
         <Text accessibilityRole="header" numberOfLines={1} style={[styles.title, { color: c.text }]}>
           {title}
         </Text>
@@ -52,16 +62,27 @@ export function Screen({
           {body}
         </ScrollView>
       ) : (
-        <View style={{ flex: 1 }}>{children}</View>
+        <View style={[column, { flex: 1 }]}>{children}</View>
       )}
-      {footer ? <View style={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 12, paddingTop: 8 }}>{footer}</View> : null}
-    </View>
+      {footer ? <View style={[column, { paddingHorizontal: 16, paddingBottom: insets.bottom + 12, paddingTop: 8 }]}>{footer}</View> : null}
+    </KeyboardAvoidingView>
   );
 }
 
-export function HeaderButton({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
+/** A round 48 dp icon button: Android's borderless ripple, centred on the icon. */
+export function HeaderButton({ icon, label, onPress, disabled = false }: { icon: IconName; label: string; onPress: () => void; disabled?: boolean }) {
+  const c = useColors();
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.iconButton} hitSlop={6}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      android_ripple={{ color: c.ripple, borderless: true, radius: 24 }}
+      style={[styles.iconButton, disabled && { opacity: 0.4 }]}
+      hitSlop={6}
+    >
       <Icon name={icon} />
     </Pressable>
   );
@@ -73,8 +94,8 @@ export function Card({ title, action, children, style }: { title?: string; actio
   return (
     <View style={[styles.card, { backgroundColor: c.glass, borderColor: c.border }, style]}>
       {title ? (
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Text accessibilityRole="header" style={[styles.cardTitle, { color: c.text }]}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <Text accessibilityRole="header" style={[styles.cardTitle, { color: c.text, flexShrink: 1 }]}>
             {title}
           </Text>
           {action ? (
@@ -96,41 +117,62 @@ export function Body({ children, muted = false, style }: { children: ReactNode; 
 
 export type Tone = "income" | "expense" | "neutral";
 
-/** An amount in tabular figures, coloured by meaning. */
+/** An amount in tabular figures, coloured by meaning. In a tight spot it shrinks rather than cut off digits. */
 export function Money({ amount, tone = "neutral", size = 15, sign = false }: { amount: number; tone?: Tone; size?: number; sign?: boolean }) {
   const c = useColors();
   const color = tone === "income" ? c.income : tone === "expense" ? c.expense : c.text;
   const text = sign && amount > 0 ? `+${formatBdt(amount)}` : formatBdt(amount);
-  return <Text style={{ color, fontSize: size, fontWeight: "800", fontVariant: ["tabular-nums"] }} numberOfLines={1}>{text}</Text>;
+  return (
+    <Text style={{ color, fontSize: size, fontWeight: "800", fontVariant: ["tabular-nums"] }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
+      {text}
+    </Text>
+  );
 }
 
-/** 48 dp buttons: solid forest (primary), glass (secondary) or rust text (danger). */
-export function Button({ label, onPress, kind = "primary", disabled = false, icon }: { label: string; onPress: () => void; kind?: "primary" | "secondary" | "danger"; disabled?: boolean; icon?: IconName }) {
+/** A second tap this soon after the first is ignored, so a quick double tap cannot save (or delete) twice. */
+export const REPEAT_TAP_MS = 700;
+
+/**
+ * 48 dp buttons that ripple and press to 0.97: solid forest (primary), glass (secondary), glass with
+ * rust text (quiet danger, the first "Delete"), or solid rust (danger, the "Yes, delete" that does it).
+ */
+export function Button({ label, onPress, kind = "primary", disabled = false, icon }: { label: string; onPress: () => void; kind?: "primary" | "secondary" | "danger" | "quietDanger"; disabled?: boolean; icon?: IconName }) {
   const c = useColors();
+  const lastTap = useRef(0);
+  const press = usePressScale();
   const primary = kind === "primary";
-  const color = primary ? c.onPrimary : kind === "danger" ? c.expense : c.text;
+  const solid = primary || kind === "danger";
+  const color = primary ? c.onPrimary : kind === "danger" ? c.onExpense : kind === "quietDanger" ? c.expense : c.text;
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
+      onPress={() => {
+        const now = Date.now();
+        if (now - lastTap.current < REPEAT_TAP_MS) return;
+        lastTap.current = now;
+        onPress();
+      }}
+      android_ripple={{ color: solid ? c.rippleOnPrimary : c.ripple }}
+      style={[
         styles.button,
-        primary ? { backgroundColor: c.primary } : { backgroundColor: c.glass, borderColor: c.border, borderWidth: 1 },
-        { opacity: disabled ? 0.5 : pressed ? 0.85 : 1 },
+        primary ? { backgroundColor: c.primary } : kind === "danger" ? { backgroundColor: c.expense } : { backgroundColor: c.glass, borderColor: c.border, borderWidth: 1 },
+        { opacity: disabled ? 0.5 : 1, transform: [{ scale: press.scale }] },
       ]}
     >
       {icon ? <Icon name={icon} size={18} color={color} /> : null}
       <Text style={[styles.buttonText, { color }]}>{label}</Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
 /** "Delete" turns into "Yes, delete" and "Keep" in place (no dialogs). */
 export function ConfirmButton({ label, confirmLabel, onConfirm }: { label: string; confirmLabel: string; onConfirm: () => void }) {
   const [asking, setAsking] = useState(false);
-  if (!asking) return <Button kind="danger" label={label} onPress={() => setAsking(true)} />;
+  if (!asking) return <Button kind="quietDanger" label={label} onPress={() => setAsking(true)} />;
   return (
     <View style={{ flexDirection: "row", gap: 10 }}>
       <View style={{ flex: 1 }}>
@@ -173,17 +215,55 @@ export function ErrorText({ children }: { children: ReactNode }) {
 export function Notice({ children, tone = "neutral" }: { children: ReactNode; tone?: Tone }) {
   const c = useColors();
   return (
-    <View accessibilityLiveRegion="polite" style={{ borderRadius: 14, padding: 12, backgroundColor: tone === "expense" ? "rgba(168,65,42,0.12)" : c.chip }}>
+    <View accessibilityLiveRegion="polite" style={{ borderRadius: 14, padding: 12, backgroundColor: tone === "expense" ? c.expenseTint : c.chip }}>
       <Text style={{ color: tone === "expense" ? c.expense : c.text, fontSize: 14 }}>{children}</Text>
     </View>
   );
 }
 
-/** A two-to-four way switch: "Expense · Income · Transfer". */
+const SEGMENT_PAD = 4;
+
+/**
+ * A two-to-four way switch: "Expense · Income · Transfer". The chosen pill slides to the new option,
+ * so the eye follows the change (it jumps with reduce motion). Options share the width equally, so
+ * only the pill's position moves.
+ */
 export function Segmented<T extends string>({ options, value, onChange, label }: { options: { value: T; label: string }[]; value: T; onChange: (value: T) => void; label: string }) {
   const c = useColors();
+  const reduce = useReduceMotion();
+  const [trackWidth, setTrackWidth] = useState(0);
+  const index = Math.max(0, options.findIndex((o) => o.value === value));
+  const segment = trackWidth ? (trackWidth - SEGMENT_PAD * 2 - SEGMENT_PAD * (options.length - 1)) / options.length : 0;
+  const x = useRef(new Animated.Value(0)).current;
+  const placed = useRef(false);
+
+  useEffect(() => {
+    if (!segment) return;
+    const to = index * (segment + SEGMENT_PAD);
+    // The first placement and reduce motion jump; a change the person made slides.
+    if (!placed.current || reduce) {
+      x.setValue(to);
+      placed.current = true;
+      return;
+    }
+    const slide = Animated.timing(x, { toValue: to, duration: MOTION.slideMs, easing: MOTION.easeOut, useNativeDriver: true });
+    slide.start();
+    return () => slide.stop();
+  }, [index, segment, reduce, x]);
+
   return (
-    <View accessibilityRole="radiogroup" accessibilityLabel={label} style={[styles.segmented, { backgroundColor: c.track }]}>
+    <View
+      accessibilityRole="radiogroup"
+      accessibilityLabel={label}
+      onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+      style={[styles.segmented, { backgroundColor: c.track }]}
+    >
+      {segment ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.segmentPill, { width: segment, backgroundColor: c.hero, transform: [{ translateX: x }] }]}
+        />
+      ) : null}
       {options.map((o) => {
         const selected = o.value === value;
         return (
@@ -192,9 +272,13 @@ export function Segmented<T extends string>({ options, value, onChange, label }:
             accessibilityRole="radio"
             accessibilityState={{ selected }}
             onPress={() => onChange(o.value)}
-            style={[styles.segment, selected && { backgroundColor: c.surface }]}
+            android_ripple={{ color: c.ripple }}
+            // Until the track is measured, the chosen option carries its own background.
+            style={[styles.segment, selected && !segment && { backgroundColor: c.hero }]}
           >
-            <Text style={{ color: selected ? c.text : c.muted, fontWeight: "700" }}>{o.label}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={{ color: selected ? c.onHero : c.muted, fontWeight: "700", paddingHorizontal: 4 }}>
+              {o.label}
+            </Text>
           </Pressable>
         );
       })}
@@ -243,7 +327,8 @@ export function Row({
   );
   const style = [styles.row, { opacity: dim ? 0.55 : 1 }];
   return onPress ? (
-    <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} onPress={onPress} style={({ pressed }) => [...style, pressed && { opacity: 0.7 }]}>
+    // The ripple reaches 8 dp past the content on each side, so it does not cut against the icon or amount.
+    <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} onPress={onPress} android_ripple={{ color: c.ripple }} style={[...style, styles.rowPressable]}>
       {content}
     </Pressable>
   ) : (
@@ -255,17 +340,21 @@ export function Row({
 
 export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   const c = useColors();
+  const press = usePressScale();
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.chip, { backgroundColor: selected ? c.primary : c.chip, borderColor: selected ? c.primary : c.border }]}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
+      android_ripple={{ color: c.ripple }}
+      style={[styles.chip, { backgroundColor: c.chip, borderColor: selected ? c.primary : c.border, transform: [{ scale: press.scale }] }]}
     >
-      <Text numberOfLines={1} style={{ color: selected ? c.onPrimary : c.text, fontWeight: "700", fontSize: 14 }}>
+      <Text numberOfLines={1} style={{ color: selected ? c.primary : c.text, fontWeight: "700", fontSize: 14 }}>
         {label}
       </Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -313,7 +402,7 @@ export function Picker({ label, options, value, onChange, placeholder = "Choose"
 function PickerItem({ label, detail, selected, indent, onPress }: { label: string; detail?: string; selected: boolean; indent?: boolean; onPress: () => void }) {
   const c = useColors();
   return (
-    <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={onPress} style={[styles.pickerItem, { paddingLeft: indent ? 28 : 12 }, selected && { backgroundColor: c.chip }]}>
+    <Pressable accessibilityRole="radio" accessibilityState={{ selected }} onPress={onPress} android_ripple={{ color: c.ripple }} style={[styles.pickerItem, { paddingLeft: indent ? 28 : 12 }, selected && { backgroundColor: c.chip }]}>
       <Text style={{ flex: 1, color: c.text, fontWeight: selected ? "800" : "500" }} numberOfLines={1}>
         {label}
       </Text>
@@ -337,7 +426,7 @@ export function DateTimeField({ label, value, onChange, withTime = true }: { lab
           <Text style={{ color: c.text, fontSize: 15 }}>{dateLabel(date)}</Text>
         </Pressable>
         {withTime ? (
-          <Pressable accessibilityRole="button" accessibilityLabel={`Time: ${timeLabel(value)}`} onPress={() => setMode("time")} style={[styles.input, { width: 120, justifyContent: "center", backgroundColor: c.surface, borderColor: c.border }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Time: ${timeLabel(value)}`} onPress={() => setMode("time")} style={[styles.input, { minWidth: 120, justifyContent: "center", backgroundColor: c.surface, borderColor: c.border }]}>
             <Text style={{ color: c.text, fontSize: 15 }}>{timeLabel(value)}</Text>
           </Pressable>
         ) : null}
@@ -405,7 +494,7 @@ export function Bar({ percent, tone = "income" }: { percent: number; tone?: Tone
   const c = useColors();
   return (
     <View style={{ height: 8, borderRadius: 4, backgroundColor: c.track, overflow: "hidden" }}>
-      <View style={{ width: `${Math.max(0, Math.min(100, percent))}%`, height: 8, borderRadius: 4, backgroundColor: tone === "expense" ? c.expense : tone === "neutral" ? "#C98A1B" : c.primary }} />
+      <View style={{ width: `${Math.max(0, Math.min(100, percent))}%`, height: 8, borderRadius: 4, backgroundColor: tone === "expense" ? c.expense : tone === "neutral" ? c.budgetNear : c.primary }} />
     </View>
   );
 }
@@ -435,17 +524,34 @@ export function NumberPad({ value, onChange }: { value: string; onChange: (value
   return (
     <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
       {keys.map((key) => (
-        <Pressable
+        <PadKey
           key={key}
-          accessibilityRole="button"
-          accessibilityLabel={key === "del" ? "Delete digit" : key === "." ? "Decimal point" : key}
+          label={key === "del" ? "Delete digit" : key === "." ? "Decimal point" : key}
           onPress={() => press(key)}
-          style={({ pressed }) => [styles.key, { backgroundColor: pressed ? c.chip : c.glass, borderColor: c.border }]}
         >
-          {key === "del" ? <Icon name="backspace-outline" /> : <Text style={{ color: c.text, fontSize: 24, fontWeight: "700" }}>{key}</Text>}
-        </Pressable>
+          {key === "del" ? <Icon name="backspace-outline" /> : <Text maxFontSizeMultiplier={1.4} style={{ color: c.text, fontSize: 24, fontWeight: "700" }}>{key}</Text>}
+        </PadKey>
       ))}
     </View>
+  );
+}
+
+/** One number-pad key: it ripples and presses to 0.97, so fast typing feels each digit land. */
+function PadKey({ label, onPress, children }: { label: string; onPress: () => void; children: ReactNode }) {
+  const c = useColors();
+  const press = usePressScale();
+  return (
+    <AnimatedPressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
+      android_ripple={{ color: c.ripple }}
+      style={[styles.key, { backgroundColor: c.glass, borderColor: c.border, transform: [{ scale: press.scale }] }]}
+    >
+      {children}
+    </AnimatedPressable>
   );
 }
 
@@ -473,15 +579,18 @@ const styles = StyleSheet.create({
   card: { borderRadius: 20, borderWidth: 1, padding: 16, gap: 12 },
   cardTitle: { fontSize: 16, fontWeight: "800" },
   body: { fontSize: 14, lineHeight: 20 },
-  button: { minHeight: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, flexDirection: "row", gap: 8 },
+  // Pressables with a fill clip their ripple to their rounded corners (overflow hidden).
+  button: { minHeight: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, flexDirection: "row", gap: 8, overflow: "hidden" },
   buttonText: { fontSize: 15, fontWeight: "800" },
   label: { fontSize: 13, fontWeight: "600" },
   input: { minHeight: 50, borderRadius: 16, borderWidth: 1, paddingHorizontal: 16, fontSize: 15 },
-  segmented: { flexDirection: "row", borderRadius: 16, padding: 4, gap: 4 },
-  segment: { flex: 1, minHeight: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  segmented: { flexDirection: "row", borderRadius: 16, padding: SEGMENT_PAD, gap: SEGMENT_PAD },
+  segment: { flex: 1, minHeight: 48, borderRadius: 12, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  segmentPill: { position: "absolute", top: SEGMENT_PAD, bottom: SEGMENT_PAD, left: SEGMENT_PAD, borderRadius: 12 },
   row: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 56, paddingVertical: 6 },
+  rowPressable: { marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 14, overflow: "hidden" },
   rowIcon: { width: 40, height: 40, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", borderWidth: 1 },
-  pickerItem: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 8, paddingRight: 12, borderRadius: 12 },
-  key: { width: "31.5%", height: 56, borderRadius: 16, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  chip: { minHeight: 48, borderRadius: 22, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", borderWidth: 1, overflow: "hidden" },
+  pickerItem: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 8, paddingRight: 12, borderRadius: 12, overflow: "hidden" },
+  key: { width: "31.5%", minHeight: 56, borderRadius: 16, borderWidth: 1, alignItems: "center", justifyContent: "center", overflow: "hidden" },
 });

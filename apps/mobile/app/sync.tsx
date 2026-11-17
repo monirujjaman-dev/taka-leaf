@@ -7,6 +7,16 @@ import { relative, SyncLine } from "../src/ui/rows";
 
 const NAMES: Record<string, string> = { wallets: "Wallet", categories: "Category", people: "Person", transactions: "Transaction", budgets: "Budget", recurringRules: "Recurring" };
 
+/** The saved change, for its name. A damaged payload shows the row without one rather than break the screen. */
+function readPayload(payload: string): { name?: string; note?: string } {
+  try {
+    const row: unknown = JSON.parse(payload);
+    return row && typeof row === "object" ? (row as { name?: string; note?: string }) : {};
+  } catch {
+    return {};
+  }
+}
+
 export default function SyncStatus() {
   const { sync, syncNow } = useApp();
   const rejected = useData(() => rejectedChanges(db));
@@ -32,7 +42,7 @@ export default function SyncStatus() {
       <Card title="Not saved on the server">
         {rejected.length === 0 ? <Body muted>Everything you saved reached the server.</Body> : null}
         {rejected.map((r) => {
-          const row = JSON.parse(r.payload) as { name?: string; note?: string };
+          const row = readPayload(r.payload);
           return <Row key={r.id} icon="alert-circle-outline" title={`${NAMES[r.tableName] ?? r.tableName}${row.name ? `: ${row.name}` : row.note ? `: ${row.note}` : ""}`} detail={`${r.reason} · ${relative(r.createdAt)}`} />;
         })}
         {rejected.length ? (

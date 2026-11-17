@@ -3,12 +3,14 @@
 import journal from './meta/_journal.json';
 import m0000 from './0000_a1_setup.sql';
 import m0001 from './0001_offline.sql';
+import m0002 from './0002_wallet_balance_indexes.sql';
 
   export default {
     journal,
     migrations: {
       m0000,
-m0001
+m0001,
+m0002
     }
   }
   

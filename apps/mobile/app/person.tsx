@@ -6,10 +6,12 @@ import { loans, personView, type LoanKind } from "../src/data/people";
 import { db } from "../src/db/client";
 import { useData } from "../src/state/AppState";
 import { Body, Button, Card, HeaderButton, Money, Row, Screen } from "../src/ui/kit";
+import { useColors } from "../src/ui/theme";
 
 const LABELS: Record<LoanKind, string> = { Lend: "Lent", GotBack: "Got paid back", Borrow: "Borrowed", PaidBack: "Paid back" };
 
 export default function Person() {
+  const c = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const person = useData(() => personView(db, id), [id]);
   const history = useData(() => (person ? loans(db, id) : []), [id, person]);
@@ -26,7 +28,7 @@ export default function Person() {
   return (
     <Screen title={person.name} back right={<HeaderButton icon="pencil-outline" label="Edit person" onPress={() => router.push({ pathname: "/person-edit", params: { id: person.id } })} />}>
       <Card>
-        <Text accessibilityRole="header" style={{ fontSize: 20, fontWeight: "800", color: person.net > 0 ? "#0F7A44" : person.net < 0 ? "#A8412A" : undefined }}>
+        <Text accessibilityRole="header" style={{ fontSize: 20, fontWeight: "800", color: person.net > 0 ? c.income : person.net < 0 ? c.expense : c.text }}>
           {standing}
         </Text>
         {person.note ? <Body muted>{person.note}</Body> : null}

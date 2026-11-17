@@ -119,7 +119,7 @@ export default function TransactionForm() {
           onChangeText={setNote}
           placeholder="Add a note"
           placeholderTextColor={c.muted}
-          style={{ color: c.text, fontSize: 15, minHeight: 44, textAlign: "center", minWidth: 200 }}
+          style={{ color: c.text, fontSize: 15, minHeight: 48, textAlign: "center", minWidth: 200 }}
         />
         {errors.amount ? <ErrorText>{errors.amount}</ErrorText> : null}
         {errors.note ? <ErrorText>{errors.note}</ErrorText> : null}

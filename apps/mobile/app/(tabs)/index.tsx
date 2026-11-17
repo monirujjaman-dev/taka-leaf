@@ -1,7 +1,7 @@
 import { formatBdt } from "@takaleaf/shared";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 import { monthOf, shiftMonth, shortMonthLabel, today } from "../../src/data/calendar";
 import { dashboard } from "../../src/data/dashboard";
 import { recordNext, scheduleLabel, skipNext } from "../../src/data/recurring";
@@ -36,23 +36,23 @@ export default function Dashboard() {
       <View
         accessible
         accessibilityLabel={`Net balance ${formatBdt(data.summary.net)}. Assets ${formatBdt(data.summary.assets)}. Liabilities ${formatBdt(data.summary.liabilities)}.`}
-        style={{ minHeight: 148, borderRadius: 26, padding: 20, justifyContent: "space-between", overflow: "hidden", backgroundColor: "#0F7A44", elevation: 6 }}
+        style={{ minHeight: 148, borderRadius: 26, padding: 20, justifyContent: "space-between", overflow: "hidden", backgroundColor: c.hero, elevation: 6 }}
       >
         <LeafWatermark />
         <View>
-          <Text style={{ color: "#E7F5EC", fontSize: 13, fontWeight: "600" }}>Net balance</Text>
-          <Text style={{ color: "#FFFFFF", fontSize: 34, fontWeight: "800", letterSpacing: -0.8, marginTop: 4, fontVariant: ["tabular-nums"] }} numberOfLines={1} adjustsFontSizeToFit>
+          <Text style={{ color: c.onHeroMuted, fontSize: 13, fontWeight: "600" }}>Net balance</Text>
+          <Text style={{ color: c.onHero, fontSize: 34, fontWeight: "800", letterSpacing: -0.8, marginTop: 4, fontVariant: ["tabular-nums"] }} numberOfLines={1} adjustsFontSizeToFit>
             {formatBdt(data.summary.net)}
           </Text>
         </View>
         <View style={{ flexDirection: "row", gap: 32, marginTop: 12 }}>
           <View>
-            <Text style={{ color: "#E7F5EC", fontSize: 12, fontWeight: "600" }}>Assets</Text>
-            <Text style={{ color: "#FFFFFF", fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] }}>{formatBdt(data.summary.assets)}</Text>
+            <Text style={{ color: c.onHeroMuted, fontSize: 12, fontWeight: "600" }}>Assets</Text>
+            <Text style={{ color: c.onHero, fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] }}>{formatBdt(data.summary.assets)}</Text>
           </View>
           <View>
-            <Text style={{ color: "#E7F5EC", fontSize: 12, fontWeight: "600" }}>Liabilities</Text>
-            <Text style={{ color: "#FFFFFF", fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] }}>{formatBdt(data.summary.liabilities)}</Text>
+            <Text style={{ color: c.onHeroMuted, fontSize: 12, fontWeight: "600" }}>Liabilities</Text>
+            <Text style={{ color: c.onHero, fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] }}>{formatBdt(data.summary.liabilities)}</Text>
           </View>
         </View>
       </View>
@@ -62,7 +62,7 @@ export default function Dashboard() {
         <Text accessibilityRole="header" style={{ color: c.text, fontWeight: "800", fontSize: 16 }}>
           {shortMonthLabel(month)}
         </Text>
-        <HeaderButton icon="chevron-right" label="Next month" onPress={() => month < current && setMonth(shiftMonth(month, 1))} />
+        <HeaderButton icon="chevron-right" label="Next month" disabled={month >= current} onPress={() => setMonth(shiftMonth(month, 1))} />
       </View>
 
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
@@ -104,7 +104,7 @@ export default function Dashboard() {
         <Card title="Wallets" action={{ label: "All", onPress: () => router.push("/wallets") }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
             {data.wallets.map((w) => (
-              <Pressable key={w.id} accessibilityRole="button" accessibilityLabel={`${w.name} ${formatBdt(w.balance)}`} onPress={() => router.push({ pathname: "/wallet", params: { id: w.id } })} style={{ minWidth: 140, padding: 14, borderRadius: 18, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, gap: 4 }}>
+              <Pressable key={w.id} accessibilityRole="button" accessibilityLabel={`${w.name} ${formatBdt(w.balance)}`} onPress={() => router.push({ pathname: "/wallet", params: { id: w.id } })} android_ripple={{ color: c.ripple }} style={{ minWidth: 140, padding: 14, borderRadius: 18, overflow: "hidden", backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, gap: 4 }}>
                 <Text numberOfLines={1} style={{ color: c.muted, fontWeight: "700" }}>
                   {w.name}
                 </Text>
@@ -123,8 +123,10 @@ export default function Dashboard() {
         <Card title="Budgets" action={{ label: "All", onPress: () => router.push("/budgets") }}>
           {data.budgets.slice(0, 4).map((b) => (
             <View key={b.id} style={{ gap: 6 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Text style={{ color: c.text, fontWeight: "700" }}>{b.name}</Text>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+                <Text numberOfLines={1} style={{ color: c.text, fontWeight: "700", flex: 1 }}>
+                  {b.name}
+                </Text>
                 <Text style={{ color: b.status === "Over" ? c.expense : c.muted }}>
                   {b.status === "Over" ? `Over by ${formatBdt(-b.remaining)}` : `${formatBdt(b.remaining)} left`} · {b.percent}%
                 </Text>
@@ -159,13 +161,16 @@ export default function Dashboard() {
 
 function Tile({ label, amount, tone = "neutral", onPress }: { label: string; amount: number; tone?: "income" | "expense" | "neutral"; onPress?: () => void }) {
   const c = useColors();
+  // Two by two, or one per row once the phone's text is large (the web does the same under 320 px).
+  const wide = useWindowDimensions().fontScale >= 1.3;
   return (
     <Pressable
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityLabel={`${label} ${formatBdt(amount)}`}
       onPress={onPress}
-      style={{ width: "48.5%", padding: 14, borderRadius: 18, borderWidth: 1, borderColor: c.border, backgroundColor: c.glass, gap: 4 }}
+      android_ripple={onPress ? { color: c.ripple } : undefined}
+      style={{ width: wide ? "100%" : "48.5%", padding: 14, borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: c.border, backgroundColor: c.glass, gap: 4 }}
     >
       <Text style={{ color: c.muted, fontWeight: "700" }}>{label}</Text>
       <Money amount={amount} tone={tone} size={17} />

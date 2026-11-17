@@ -1,23 +1,14 @@
 import { LEAF_COLORS, LEAF_GRADIENTS, LEAF_PATHS, LEAF_TRANSFORM, LEAF_VIEWBOX, LOADER_MOTION } from "@takaleaf/shared";
-import { useEffect, useRef, useState } from "react";
-import { AccessibilityInfo, Animated, Easing, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, Text, useColorScheme, View } from "react-native";
 import Svg, { Defs, Ellipse, G, LinearGradient, Path, RadialGradient, Stop } from "react-native-svg";
+import { useReduceMotion } from "./motion";
 import { useColors } from "./theme";
 
 type Piece = keyof typeof LOADER_MOTION.pieces;
 const ORDER: Piece[] = ["left", "stem", "right", "body"];
 const EASE = Easing.bezier(0.65, 0, 0.35, 1);
 const rad = (deg: number) => (deg * Math.PI) / 180;
-
-function useReduceMotion(): boolean {
-  const [reduce, setReduce] = useState(false);
-  useEffect(() => {
-    void AccessibilityInfo.isReduceMotionEnabled().then(setReduce);
-    const subscription = AccessibilityInfo.addEventListener("reduceMotionChanged", setReduce);
-    return () => subscription.remove();
-  }, []);
-  return reduce;
-}
 
 /**
  * Where a piece sits in the scene's own plane when the mark is apart. React Native has no
