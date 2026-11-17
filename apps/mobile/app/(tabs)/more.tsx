@@ -28,6 +28,7 @@ export default function More() {
       <Card>
         <Row icon="wallet-outline" title="Wallets" onPress={() => router.push("/wallets")} />
         <Row icon="account-group-outline" title="People and loans" onPress={() => router.push("/people")} />
+        <Row icon="bank-outline" title="Bank loans and card EMIs" onPress={() => router.push("/bank-loans")} />
         <Row icon="target" title="Budgets" onPress={() => router.push("/budgets")} />
         <Row icon="calendar-sync-outline" title="Recurring" onPress={() => router.push("/recurring")} />
         <Row icon="shape-outline" title="Categories" onPress={() => router.push("/categories")} />

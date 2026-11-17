@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 import { monthOf, shiftMonth, shortMonthLabel, today } from "../../src/data/calendar";
 import { dashboard } from "../../src/data/dashboard";
+import { dueEmis } from "../../src/data/loans";
 import { recordNext, scheduleLabel, skipNext } from "../../src/data/recurring";
 import { db } from "../../src/db/client";
 import { useApp, useData } from "../../src/state/AppState";
 import { useErrors } from "../../src/ui/form";
 import { Bar, Body, Button, Card, Empty, ErrorText, HeaderButton, Icon, Money, Row, Screen } from "../../src/ui/kit";
 import { LeafMark, LeafWatermark } from "../../src/ui/LeafMark";
+import { dueInWords } from "../../src/ui/loanParts";
 import { SyncLine, TransactionRow } from "../../src/ui/rows";
 import { useColors } from "../../src/ui/theme";
 
@@ -18,6 +20,7 @@ export default function Dashboard() {
   const { user, syncNow, changed } = useApp();
   const [month, setMonth] = useState(() => monthOf(today()));
   const data = useData(() => dashboard(db, month), [month]);
+  const emis = useData(() => dueEmis(db));
   const { errors, run } = useErrors();
   const current = monthOf(today());
 
@@ -96,6 +99,22 @@ export default function Dashboard() {
                 </View>
               </View>
             </View>
+          ))}
+        </Card>
+      ) : null}
+
+      {emis.length ? (
+        <Card title="EMIs due" action={{ label: "Loans", onPress: () => router.push("/bank-loans") }}>
+          {emis.map((l) => (
+            <Row
+              key={l.id}
+              icon="bank-outline"
+              title={l.name}
+              detail={`EMI ${l.next!.number} · ${dueInWords(l.next!.dueDate)}`}
+              onPress={() => router.push({ pathname: "/bank-loan-pay", params: { id: l.id, mode: "emi" } })}
+              accessibilityLabel={`Record ${l.name} EMI ${l.next!.number}, ${formatBdt(l.next!.total)}, ${dueInWords(l.next!.dueDate)}`}
+              right={<Money amount={l.next!.total} tone={l.next!.overdue ? "expense" : "neutral"} />}
+            />
           ))}
         </Card>
       ) : null}

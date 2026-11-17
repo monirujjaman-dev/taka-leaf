@@ -27,6 +27,14 @@ export default function WalletForm() {
   const { errors, run, setErrors } = useErrors();
   const inUse = useMemo(() => (existing ? walletInUse(db, existing.id) : false), [existing]);
 
+  if (existing?.type === "Loan") {
+    return (
+      <Screen title={existing.name} back>
+        <Body>This wallet belongs to a loan. Change it from Loans.</Body>
+        <Button label="Open Loans" onPress={() => router.replace("/bank-loans")} />
+      </Screen>
+    );
+  }
   if (existing && (existing.type === "Lent" || existing.type === "Borrowed")) {
     return (
       <Screen title={existing.name} back>
