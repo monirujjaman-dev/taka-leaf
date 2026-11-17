@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
 using TakaLeaf.App.Features.Transactions;
@@ -49,7 +50,7 @@ public static class Budgets
     }
 
     private static async Task<IResult> List(
-        string? month, ClaimsPrincipal principal, AppDbContext db, LocalCalendar calendar, CancellationToken cancellationToken)
+        string? month, ClaimsPrincipal principal, AppDbContext db, LocalCalendar calendar, UserDataCache cache, CancellationToken cancellationToken)
     {
         DateOnly first;
         if (month is null)
@@ -63,9 +64,18 @@ public static class Budgets
         }
 
         var userId = principal.UserId();
-        var budgets = await db.Budgets.Where(b => b.UserId == userId).ToListAsync(cancellationToken);
-        var dtos = await ToDtosAsync(db, userId, budgets, calendar.StartOf(first), calendar.StartOf(first.AddMonths(1)), cancellationToken);
-        return Results.Ok(new BudgetList(first.ToString("yyyy-MM", CultureInfo.InvariantCulture), dtos));
+        var label = first.ToString("yyyy-MM", CultureInfo.InvariantCulture);
+        var list = await cache.GetOrCreateAsync(
+            userId,
+            $"budgets:{label}",
+            async ct =>
+            {
+                var budgets = await db.Budgets.Where(b => b.UserId == userId).ToListAsync(ct);
+                var dtos = await ToDtosAsync(db, userId, budgets, calendar.StartOf(first), calendar.StartOf(first.AddMonths(1)), ct);
+                return new BudgetList(label, dtos);
+            },
+            cancellationToken);
+        return Results.Ok(list);
     }
 
     private static async Task<IResult> Create(

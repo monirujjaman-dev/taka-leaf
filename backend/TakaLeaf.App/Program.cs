@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
 using TakaLeaf.App.Common;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Common.Email;
 using TakaLeaf.App.Common.Logging;
 using TakaLeaf.App.Common.Outbox;
@@ -59,6 +60,21 @@ try
     builder.Services.Configure<RecurringOptions>(builder.Configuration.GetSection(RecurringOptions.Section));
     builder.Services.AddScoped<RecurringRecorder>();
     builder.Services.AddHostedService<RecurringWorker>();
+
+    // Cache for the heavy read endpoints: memory, plus Redis when ConnectionStrings:Redis is set.
+    builder.Services.Configure<CacheOptions>(builder.Configuration.GetSection(CacheOptions.Section));
+    var redis = builder.Configuration.GetConnectionString("Redis");
+    if (!string.IsNullOrWhiteSpace(redis))
+    {
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redis;
+            options.InstanceName = "takaleaf:";
+        });
+    }
+
+    builder.Services.AddHybridCache();
+    builder.Services.AddScoped<UserDataCache>();
 
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));

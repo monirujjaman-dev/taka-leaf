@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using TakaLeaf.App.Common.Caching;
 using TakaLeaf.App.Data.Entities;
 
 namespace TakaLeaf.App.Data;
@@ -7,7 +8,7 @@ namespace TakaLeaf.App.Data;
 /// <summary>
 /// The one database context. Slices use it directly; there are no repository or service layers.
 /// </summary>
-public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options, TimeProvider clock)
+public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options, TimeProvider clock, UserDataCache cache)
     : DbContext(options)
 {
     public const string ServerSeqSequence = "server_seq";
@@ -33,13 +34,18 @@ public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options,
 
     /// <summary>
     /// Stamps every added or changed synced row with the time and the next server sequence
-    /// number, so "what changed since X" is always answerable.
+    /// number, so "what changed since X" is always answerable, and then drops the cached read
+    /// answers of every user whose rows changed.
     /// </summary>
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var changed = ChangeTracker.Entries<SyncedEntity>()
             .Where(entry => entry.State is EntityState.Added or EntityState.Modified)
             .ToList();
+        var users = ChangeTracker.Entries<SyncedEntity>()
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            .Select(entry => entry.Entity.UserId)
+            .ToHashSet();
 
         if (changed.Count > 0)
         {
@@ -62,7 +68,11 @@ public sealed partial class AppDbContext(DbContextOptions<AppDbContext> options,
             }
         }
 
-        return await base.SaveChangesAsync(cancellationToken);
+        var saved = await base.SaveChangesAsync(cancellationToken);
+
+        // Cached dashboards, balances and reports of these users are now out of date.
+        await cache.InvalidateAsync(users, CancellationToken.None);
+        return saved;
     }
 
     public override int SaveChanges() =>
