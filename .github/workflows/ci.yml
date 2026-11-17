@@ -2,8 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
+  # Auto merge and the release train start CI on develop and main for PRs that bots opened.
+  workflow_dispatch:
 
 jobs:
   web:

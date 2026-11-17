@@ -147,19 +147,26 @@ use of version 1 can still shape the later Android screens. The app lives in `ap
 
 ## 4. How the work is done
 
-Each feature goes through the same steps:
+Each feature goes through the same steps (Git flow and agents in full: [GIT-WORKFLOW.md](GIT-WORKFLOW.md)):
 
+0. Start a branch from `develop`: `/start feature/<topic>` (or `fix/<topic>`).
 1. Add or extend a fixture in `contract/fixtures/` if money rules change.
 2. Write the backend slice and its tests against a real PostgreSQL (`/new-slice`).
 3. Generate a migration through CI if entities change (`/migration`).
 4. Add web types and hooks, then build the screen and its tests.
 5. From version 2: the SQLite table, the outbox entry and the sync mapping.
-6. Run the checks (`/check`), open a PR, wait for green CI, squash-merge (`/ship`).
+6. Run the checks (`/check`) and `/ship`: the `reviewer` agent locally, then a PR into `develop`.
+   PR policy, CI and Claude review gate it; Claude fixer fixes failures; Auto merge squash-merges.
+7. The nightly Release train takes `develop` to `main` (production) and tags `vYYYY.MM.DD`;
+   `/release` ships at once, `/hotfix <topic>` fixes production from `main`.
 
 | Topic | Rule |
 | --- | --- |
-| Branches | `main` is always releasable; one short-lived branch per feature (`m<N>/<topic>`, `fix/<topic>`, `docs/<topic>`) |
-| CI | Web and shared package, Backend, Docker image (and Android when the app changes): all green to merge |
+| Branches | `main` = production, `develop` = integration (default, always releasable); short-lived `feature/`, `fix/`, `docs/`, `chore/`, `refactor/`, `perf/`, `test/`, `ci/` branches from develop; `hotfix/` from main ([GIT-WORKFLOW.md](GIT-WORKFLOW.md)) |
+| Review | Claude review on every work and hotfix PR (blocking findings fail the check); local `reviewer` agent before pushing |
+| Merge | Automatic when green: squash into develop; merge commit for release (develop → main) and sync (main → develop) |
+| Release | Nightly release train at 03:00 Asia/Dhaka, or `/release`; tag and GitHub release `vYYYY.MM.DD` (app), `android-v*` (APK) |
+| CI | Web and shared package, Backend, Docker image and browser tests, Dependency scan (and Android when the app changes): all green to merge |
 | Database | One CI-generated EF migration per change; never hand-edited |
 | Definition of done | Merged; its test-plan cases pass; works at 390 px and desktop, light and dark; empty and error states handled; docs updated |
 | Review point | Use each milestone for a day before starting the next |
@@ -173,6 +180,7 @@ Each feature goes through the same steps:
 | SMTP provider account | Verification and reset emails | M5 |
 | S3-compatible bucket (R2, B2, S3…) | Off-server backups | M5 |
 | Android Studio, phone in developer mode, signing key | Android build and release | A1 / A4 |
+| Claude GitHub App + `CLAUDE_CODE_OAUTH_TOKEN` secret; Actions allowed to create PRs ([GIT-WORKFLOW.md §7](GIT-WORKFLOW.md#7-one-time-setup-owner)) | Automated review, fixes, merges and releases | Now |
 
 ## 6. Risks and what to cut first
 

@@ -1,19 +1,28 @@
 ---
 name: ship
-description: Commit the current TakaLeaf work on a branch, open a pull request, wait for CI, fix failures, and squash-merge when green.
+description: Commit the current TakaLeaf work on its branch, open a pull request into develop (or main for a hotfix), and see it through CI, Claude review and auto merge.
 argument-hint: "[short title]"
 disable-model-invocation: true
 ---
 
-Ship the current work as **$ARGUMENTS**.
+Ship the current work as **$ARGUMENTS**, following `docs/GIT-WORKFLOW.md`.
 
-1. `git status` / `git diff`: make sure only intended files changed, with no secrets and no
-   `Data/Migrations` edits by hand.
-2. If on `main`, create a branch (`m<N>/<topic>` or `fix/<topic>`).
-3. Commit with a short subject and a body listing what changed and why, in plain words.
-4. Push and open a PR with a short "What" section (tables for endpoints or screens help) and how it
-   was tested.
-5. Watch CI (`gh run watch`). All three jobs must pass: Web and shared package, Backend, Docker image.
-   On failure read the log (`gh run view <id> --log-failed`), fix, push again.
-6. When green, squash-merge, switch to `main`, pull, and confirm CI on `main` passes.
-7. Report: PR number, what shipped, anything left over.
+1. `git status` / `git diff`: only intended files changed, no secrets, no hand edits in
+   `Data/Migrations`.
+2. If on `main` or `develop`, create a work branch first (`/start feature/<topic>`, or
+   `fix/<topic>`; `hotfix/<topic>` from `origin/main` only for a production fix).
+3. Run `/check`. Then run the `reviewer` agent on the diff and fix its blocking findings before
+   pushing; the same checklist runs again on GitHub as "Claude review".
+4. Commit with a short subject and a body listing what changed and why, in plain words.
+5. Push (`git push -u origin HEAD`) and open the PR with the template:
+   `gh pr create --base develop` (`--base main` for `hotfix/*`), with a short "What" section and
+   how it was tested.
+6. Do not merge by hand. The automation does it:
+   - **PR policy** checks the branch name and target; **CI** runs web, backend, Docker image and
+     browser tests; **Claude review** posts findings and passes or fails.
+   - On failure, **Claude fixer** fixes and pushes (up to two rounds, then `needs-owner`). You can
+     also fix locally with the `pr-fixer` agent and push.
+   - **Auto merge** squash-merges into develop when everything is green and deletes the branch.
+   Watch with `gh pr checks <n> --watch`. If the session can't wait, report the PR and stop.
+7. If the work needs to be live now (not with the nightly release), run `/release`.
+8. Report: PR number, its state (merged, or waiting for what), anything left over.

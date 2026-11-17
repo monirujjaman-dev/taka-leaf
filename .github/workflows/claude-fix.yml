@@ -1,0 +1,142 @@
+# The fix agent. When CI or Claude review fails on a pull request from this repository, Claude
+# reads the failures and the review's blocking findings, fixes them on the PR branch, runs the
+# checks and pushes. The push starts CI and the review again; Auto merge merges when all is green.
+# At most MAX_FIX_ROUNDS rounds per PR (repository variable, default 2); after that the PR gets the
+# needs-owner label. Labels no-auto-fix or needs-owner stop it.
+#
+# Security: this runs the PR branch's code with write access. That is fine here because only the
+# owner (and Claude, on the owner's behalf) can push branches to this repository. Fork PRs are
+# never handled.
+name: Claude fixer
+
+on:
+  workflow_run:
+    workflows: [CI, Claude review]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: read
+  checks: read
+
+concurrency:
+  group: claude-fix-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    name: Fix failures
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      vars.AUTO_FIX != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: takaleaf
+          POSTGRES_USER: takaleaf
+          POSTGRES_PASSWORD: takaleaf_dev
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U takaleaf -d takaleaf" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      BRANCH: ${{ github.event.workflow_run.head_branch }}
+      RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+      ConnectionStrings__Database: Host=localhost;Port=5432;Database=takaleaf;Username=takaleaf;Password=takaleaf_dev
+      ConnectionStrings__Redis: localhost:6379
+    steps:
+      - name: Find the PR and count the rounds
+        id: pr
+        env:
+          MAX: ${{ vars.MAX_FIX_ROUNDS || '2' }}
+          HAS_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+        run: |
+          json=$(gh pr list -R "$REPO" --head "$BRANCH" --state open --json number,headRefOid,labels,isDraft --jq '.[0] // empty')
+          [ -n "$json" ] || { echo "No open PR for $BRANCH."; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          number=$(jq -r .number <<<"$json")
+          labels=$(jq -r '[.labels[].name] | join(",")' <<<"$json")
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          if [ "$(jq -r .headRefOid <<<"$json")" != "$RUN_SHA" ]; then
+            echo "The branch moved on since this run; the newer run decides."; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ "$(jq -r .isDraft <<<"$json")" = true ] || [[ ",$labels," =~ ,(no-auto-fix|needs-owner), ]]; then
+            echo "Draft or opted out."; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ "$HAS_TOKEN" != true ]; then
+            echo "::warning::No CLAUDE_CODE_OAUTH_TOKEN secret; nothing to fix with."; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          rounds=$(tr ',' '\n' <<<"$labels" | grep -c '^claude:fix-round-' || true)
+          if [ "$rounds" -ge "$MAX" ]; then
+            gh pr edit "$number" -R "$REPO" --add-label needs-owner || true
+            gh pr comment "$number" -R "$REPO" --body "Claude fixer stopped after $rounds rounds. Over to you: fix it, or remove \`needs-owner\` and the \`claude:fix-round-*\` labels to let Claude try again."
+            echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          round=$((rounds + 1))
+          gh label create "claude:fix-round-$round" -R "$REPO" --color BFD4F2 --description "Claude fixer round $round" --force >/dev/null
+          gh pr edit "$number" -R "$REPO" --add-label "claude:fix-round-$round"
+          echo "round=$round" >> "$GITHUB_OUTPUT"
+          echo "run=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        if: steps.pr.outputs.run == 'true'
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        if: steps.pr.outputs.run == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.pr.outputs.run == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-dotnet@v6
+        if: steps.pr.outputs.run == 'true'
+        with:
+          dotnet-version: 10.0.x
+      - if: steps.pr.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Fix with Claude
+        if: steps.pr.outputs.run == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ steps.pr.outputs.number }}
+            BRANCH: ${{ github.event.workflow_run.head_branch }} (already checked out)
+            FAILED WORKFLOW: ${{ github.event.workflow_run.name }} — ${{ github.event.workflow_run.html_url }}
+            ROUND: ${{ steps.pr.outputs.round }}
+
+            You are the TakaLeaf fix agent. Follow CLAUDE.md and .claude/agents/pr-fixer.md.
+
+            1. Find what is wrong: `gh pr checks ${{ steps.pr.outputs.number }}`, the failed logs
+               (`gh run view <id> --log-failed`), and the "Claude review" summary comment and
+               inline comments on the PR (`gh api repos/${{ github.repository }}/pulls/${{ steps.pr.outputs.number }}/comments`).
+            2. Fix every failing check and every blocking review finding, with the smallest change
+               that is right. If a finding is wrong, do not change code for it: reply on its inline
+               thread with the reason.
+            3. Run the checks that cover what you touched: `pnpm typecheck && pnpm test && pnpm build`,
+               and `dotnet test backend/TakaLeaf.App.Tests` (PostgreSQL and Redis are running).
+            4. Commit with the subject "Fix review and CI findings (round ${{ steps.pr.outputs.round }})"
+               and a body listing each fix, then `git push origin HEAD`.
+            Never edit backend/TakaLeaf.App/Data/Migrations (use backend/.migration-request), never
+            force-push, never touch .github/workflows unless the failure is in a workflow.
+          claude_args: |
+            --model ${{ vars.CLAUDE_FIX_MODEL || 'opus' }}
+            --max-turns 120
+            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh run view:*),Bash(gh run list:*),Bash(gh api:*)"

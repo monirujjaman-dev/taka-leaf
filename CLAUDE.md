@@ -66,9 +66,18 @@ pnpm --filter @takaleaf/mobile test                     # Android app unit tests
 
 ## Workflow
 
-- Branch from `main` (`m<N>/<topic>` or `fix/<topic>`), small commits, open a PR, wait for CI
-  (web, backend, Docker image), squash-merge. The repo owner has allowed Claude to push, open PRs
-  and merge them.
+- **Git flow is in [docs/GIT-WORKFLOW.md](docs/GIT-WORKFLOW.md); read it before any branch or PR.**
+  `develop` is the default branch and always releasable; `main` is production (Dokploy deploys it).
+  Never push to either; never force-push.
+- Work: `/start <type>/<topic>` from `origin/develop` (`feature`, `fix`, `docs`, `chore`,
+  `refactor`, `perf`, `test`, `ci`; kebab-case topic), small commits, `/check`, then `/ship`: run
+  the `reviewer` agent, push, PR into `develop`. Production bug: `/hotfix <topic>` from `origin/main`,
+  PR into `main`. Release now: `/release`; status: the `release-manager` agent.
+- Don't merge by hand. On GitHub, PR policy + CI + Claude review gate every PR, Claude fixer fixes
+  red PRs (two rounds, then `needs-owner`), Auto merge squash-merges green PRs, the nightly Release
+  train ships develop → main, tags `vYYYY.MM.DD` and syncs main back. The repo owner has allowed
+  Claude to push branches, open PRs and merge them; the automation now does the merging.
+- In Claude Code cloud sessions GitHub GraphQL is blocked: use `gh api repos/...` (REST).
 - UI copy is short, plain English; amounts like `৳1,25,000.00`.
 - Keep docs current: `docs/ARCHITECTURE.md` when a rule, table or endpoint changes; `DESIGN.md`
   (and `.impeccable/design.json`) when a colour, type style or component changes;
