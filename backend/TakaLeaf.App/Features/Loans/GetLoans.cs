@@ -86,10 +86,10 @@ public static class GetLoans
         foreach (var paid in rows.Where(t => t.LoanEmi != null).GroupBy(t => t.LoanEmi!.Value).OrderBy(g => g.Key))
         {
             var principalRow = paid.FirstOrDefault(t => t.LoanPart == LoanPart.Principal);
-            var principal = principalRow?.Amount ?? 0;
+            var repaid = principalRow?.Amount ?? 0;
             var interest = paid.Where(t => t.LoanPart == LoanPart.Interest).Sum(t => t.Amount);
             schedule.Add(new ScheduleRowDto(
-                paid.Key, LoanRules.DueDateOf(loan, paid.Key), "Paid", principal, interest, principal + interest, null,
+                paid.Key, LoanRules.DueDateOf(loan, paid.Key), "Paid", repaid, interest, repaid + interest, null,
                 principalRow?.OccurredAt, principalRow?.FromWalletId is { } from ? names.GetValueOrDefault(from) : null));
         }
 
