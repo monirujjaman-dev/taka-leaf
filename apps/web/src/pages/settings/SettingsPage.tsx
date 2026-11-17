@@ -2,7 +2,7 @@ import { checkName, NAME_MAX_LENGTH } from "@takaleaf/shared";
 import markOnDark from "../../assets/takaleaf-mark-on-dark.svg";
 import { useState, type FormEvent } from "react";
 import { api, ApiError } from "../../api/client";
-import { useSessions, useSignOutSession } from "../../api/queries";
+import { useSessions, useSignOutSession, useAndroidApp } from "../../api/queries";
 import type { AuthUser, MessageResponse } from "../../api/types";
 import { useAuth } from "../../auth/AuthContext";
 import { PASSWORD_HINT, PasswordField } from "../../auth/PasswordField";
@@ -217,6 +217,7 @@ export function SettingsPage() {
   const { state, signOut } = useAuth();
   const [theme, toggleTheme] = useTheme();
   const sessions = useSessions();
+  const android = useAndroidApp();
   const [changing, setChanging] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const email = state.status === "signedIn" ? state.user.email : "";
@@ -272,6 +273,13 @@ export function SettingsPage() {
                 <RowText icon="device" label="Signed-in devices" value={sessions.data ? String(sessions.data.length) : undefined} />
               </a>
             </li>
+            {android.data ? (
+              <li>
+                <a href={android.data.downloadUrl} className={rowClass}>
+                  <RowText icon="phone" label="Get the Android app" value="APK" />
+                </a>
+              </li>
+            ) : null}
             <li>
               <button type="button" onClick={() => void signOut()} className={rowClass}>
                 <RowText icon="out" label="Sign out" danger />

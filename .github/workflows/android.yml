@@ -1,7 +1,8 @@
 name: Android
 
 # Builds an installable APK of the Android app, so it can be tried on a phone without Android
-# Studio. Runs when the app or the shared package changes, and on demand.
+# Studio. Runs when the app or the shared package changes, and on demand. On main it also
+# publishes the APK as the latest GitHub Release, which the web app's download links point to.
 on:
   push:
     branches: [main]
@@ -15,9 +16,13 @@ jobs:
     name: Android APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write
     env:
       EXPO_NO_TELEMETRY: 1
       EXPO_OFFLINE: 1
+      # Every build gets a higher Android version code, so a new APK installs over the old one.
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -44,3 +49,24 @@ jobs:
           name: takaleaf-android-${{ github.sha }}
           path: apps/mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
+      - name: Publish the APK as the latest release (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./apps/mobile/app.json').expo.version")
+          tag="android-v${version}-build.${{ github.run_number }}"
+          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk takaleaf.apk
+          sha256sum takaleaf.apk > takaleaf.apk.sha256
+          cat > notes.md <<NOTES
+          TakaLeaf for Android ${version}, build ${{ github.run_number }}, from commit ${{ github.sha }}.
+
+          Install: download \`takaleaf.apk\` on the phone and open it (allow "Install unknown apps" when asked).
+          The web app's "Get the Android app" links always point to the newest build:
+          https://github.com/${{ github.repository }}/releases/latest/download/takaleaf.apk
+
+          Signed with the development key until milestone A4; after that, reinstall once.
+          NOTES
+          gh release create "$tag" takaleaf.apk takaleaf.apk.sha256 \
+            --title "TakaLeaf for Android ${version} (build ${{ github.run_number }})" \
+            --notes-file notes.md --target "${{ github.sha }}" --latest

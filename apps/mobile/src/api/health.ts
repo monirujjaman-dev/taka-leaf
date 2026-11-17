@@ -1,4 +1,8 @@
+import Constants from "expo-constants";
 import type { CheckResult } from "../db/store";
+
+/** The owner's server, filled in for them (app.json extra.defaultServerUrl); they can change it. */
+export const DEFAULT_SERVER_URL: string = (Constants.expoConfig?.extra?.defaultServerUrl as string | undefined) ?? "";
 
 /** "takaleaf.example.com" or "http://192.168.0.5:5080" → a base URL without a trailing slash. */
 export function normaliseServerUrl(input: string): string | null {

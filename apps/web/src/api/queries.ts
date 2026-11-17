@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "./client";
+import { api, ApiError } from "./client";
 import type {
   SessionInfo,
   BudgetList,
@@ -285,5 +285,22 @@ export function useSignOutSession() {
     mutationFn: (id: string | "others") =>
       id === "others" ? api("/auth/sessions/sign-out-others", { method: "POST" }) : api<void>(`/auth/sessions/${id}`, { method: "DELETE" }),
     onSuccess: () => client.invalidateQueries({ queryKey: ["sessions"] }),
+  });
+}
+
+/** Where to download the Android app, or null when this server does not offer it (404). */
+export function useAndroidApp() {
+  return useQuery({
+    queryKey: ["app", "android"],
+    queryFn: async ({ signal }) => {
+      try {
+        return await api<{ downloadUrl: string }>("/app/android", { signal });
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    },
+    staleTime: Infinity,
+    retry: false,
   });
 }

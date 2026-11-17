@@ -16,6 +16,7 @@ using TakaLeaf.App.Common.Outbox;
 using TakaLeaf.App.Common.Web;
 using TakaLeaf.App.Data;
 using TakaLeaf.App.Data.Entities;
+using TakaLeaf.App.Features.AppInfo;
 using TakaLeaf.App.Features.Auth;
 using TakaLeaf.App.Features.Categories;
 using TakaLeaf.App.Features.Budgets;
@@ -245,6 +246,7 @@ try
     api.MapBudgets();
     api.MapRecurring();
     api.MapReports();
+    api.MapAppInfo();
 
     // An unknown API address is a 404 problem, never the web app's page.
     api.Map(

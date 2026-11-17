@@ -13,7 +13,7 @@ Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ takaleaf app :8080 ─�
 ## Before you start
 
 - A Linux VPS with Dokploy installed, **at least 2 GB RAM** (building the image needs it).
-- A domain or sub-domain, for example `takaleaf.example.com`, with a DNS **A record** pointing to the VPS.
+- The domain `takaleaf.monirujjaman.dev` (or your own), with a DNS **A record** pointing to the VPS.
 - An SMTP account for email (any provider; you need host, port, username, password and a sender address).
 - For backups: an S3-compatible bucket (Cloudflare R2, Backblaze B2, AWS S3, MinIO…).
 
@@ -55,14 +55,14 @@ Browser ──HTTPS──▶ Traefik (Dokploy) ──▶ takaleaf app :8080 ─�
    3. **Advanced → Volumes/Mounts → Bind Mount**: host path `/etc/takaleaf/dataprotection.pfx`,
       mount path `/app/certs/dataprotection.pfx`.
    4. **Environment**: set `DataProtection__CertificatePassword` to the certificate's password.
-7. **Domains → Add Domain**: host `takaleaf.example.com`, path `/`, **container port `8080`**,
+7. **Domains → Add Domain**: host `takaleaf.monirujjaman.dev`, path `/`, **container port `8080`**,
    HTTPS on, certificate **Let's Encrypt**.
 8. **Deploy**. The first build takes a few minutes. On start the app creates or updates the
    database tables by itself (`Database__MigrateOnStartup=true` is set in the image).
 
 ## 3. Check it
 
-- `https://takaleaf.example.com/api/health` shows `{"status":"ok","database":"up"}`.
+- `https://takaleaf.monirujjaman.dev/api/health` shows `{"status":"ok","database":"up","cache":"memory"}` (`"up"` with Redis).
 - Open the site, create your account, open the link from the verification email, sign in.
 - Optional: set `Auth__RegistrationOpen=false` in the app's Environment and redeploy, so nobody else can register.
 - In the app's **Logs** tab, request lines show your real IP address. If they show a `10.x.x.x`

@@ -34,6 +34,26 @@ describe("settings and account", () => {
     await vi.waitFor(() => expect(calls.some((c) => c.method === "DELETE" && c.path === "/auth/sessions/s2")).toBe(true));
   });
 
+  it("offers the Android app when the server has a download", async () => {
+    fakeApi({
+      "POST /auth/refresh": { body: session() },
+      "GET /auth/sessions": { body: [] },
+      "GET /app/android": { body: { downloadUrl: "https://example.test/takaleaf.apk" } },
+    });
+    renderApp("/settings");
+
+    const link = await screen.findByRole("link", { name: /Get the Android app/ });
+    expect(link).toHaveAttribute("href", "https://example.test/takaleaf.apk");
+  });
+
+  it("hides the Android app when the server offers none", async () => {
+    fakeApi({ "POST /auth/refresh": { body: session() }, "GET /auth/sessions": { body: [] } });
+    renderApp("/settings");
+
+    expect(await screen.findByRole("region", { name: "Account" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Get the Android app/ })).not.toBeInTheDocument();
+  });
+
   it("shows the name and changes it", async () => {
     const { calls } = fakeApi({
       "POST /auth/refresh": { body: session() },
