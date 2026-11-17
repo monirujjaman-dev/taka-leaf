@@ -3,8 +3,11 @@ name: TakaLeaf
 description: Your Money. Your Control. A calm, natural-green personal finance app for Bangladeshi taka.
 colors:
   forest: "#0F7A44"
+  forest-hover: "#0C6A3B"
   leaf: "#22A06B"
   sage: "#83CFA2"
+  sage-hover: "#9ADAB4"
+  sage-soft: "#B5E2C4"
   mint: "#E7F5EC"
   ink: "#0B3B24"
   slate: "#55637A"
@@ -198,7 +201,10 @@ The palette comes from the brand board: natural greens with one warm counterweig
 | track | ink at 8% | white at 10% | Progress bar track |
 | income | #0F7A44 | #83CFA2 | Income amounts, "owes you" |
 | expense | #A8412A | #F0997F | Expense amounts, "you owe", over budget, errors, delete |
-| budget near | #C98A1B (bar) | same | Budget at 80% or more |
+| budget near | `budget-near` #C98A1B (bar) | same | Budget at 80% or more |
+| hover | `forest-hover` #0C6A3B | `sage-hover` #9ADAB4 | Primary buttons on hover |
+| sage soft | `sage-soft` #B5E2C4 | same | "Leaf" in the wordmark on forest panels |
+| selection | forest at 18% | sage at 30% | Selected text; the caret and native checkboxes use the primary colour |
 | active tab text | `forest` | `night-nav-active` #83CFA2 | Active phone tab (no tint behind it). The active sidebar item is solid forest with white text in both themes |
 | glow A / B | leaf 30% / sage 55% | leaf 28% / forest 55% | The two blurred background circles |
 
@@ -207,6 +213,7 @@ Rules:
 - Income and expense are always shown with a sign (`+৳85,000.00`, `−৳1,250.00`) **and** a colour.
   Transfers stay neutral.
 - `leaf` #22A06B is for progress fills only (category and budget bars), not for text.
+- Each theme sets `color-scheme`, so native select menus, the date picker and scrollbars match it.
 - Error text uses `expense`, on a 10% `expense` tint for alert boxes. Success uses the primary
   colour on the chip tint.
 
@@ -217,13 +224,13 @@ Rules:
 
 | Role | Size / weight | Used for |
 | --- | --- | --- |
-| display | 34px / 800, −0.8px; 48px in the add sheet | Net balance; the amount being typed |
+| display | 34px / 800, −0.8px; 28–30px for the budget total, a person's standing and the sign-in title; 48px in the add sheet, stepping down to 28px for long amounts | Net balance; the amount being typed |
 | headline | 26px desktop, 20px phone / 800 | Page titles ("Dashboard", "Wallets") |
 | title | 16px / 800 | Card titles, wallet and person names |
 | amount | 15–24px / 800, tabular | Amounts in rows, tiles and cards (24px on wallet cards) |
 | body | 15px / 400, line-height 1.6 | Paragraphs, inputs, row titles (row titles 700) |
 | label | 13px / 700 | Field labels, buttons, chips |
-| caption | 12–13px / 400–600 | Secondary lines, hints, tab-bar labels (10px/700) |
+| caption | 12–13px / 400–600 | Secondary lines, hints, badges ("Automatic", "This device"), tab-bar labels (10px/700) and chart value labels (10–11px/700) |
 | section | 13px / 800 muted | Day headings ("Today · 15 Nov") with the day total, wallet groups |
 
 Headings are tight (−0.025em) and heavy, and body text is relaxed. There is no italic, and amounts
@@ -236,7 +243,7 @@ Depth comes from glass and soft green shadows, not from stacking layers.
 | Level | Treatment | Used for |
 | --- | --- | --- |
 | 0 Ground | Mint (night) background + two 80–90 px blurred glows | Page |
-| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, tab bar, stat tiles, fields |
+| 1 Glass | 66% white (8% in dark), 1 px border, blur 20 px saturate 140%, shadow `0 8px 24px rgb(11 59 36 / 0.07)` (dark: `rgb(0 0 0 / 0.25)`) | Cards, sidebar, tab bar, stat tiles, fields. Inside a dialog the same tint without the blur, since it sits on a solid surface |
 | 2 Hero | Solid forest, shadow `0 12px 28px rgb(11 59 36 / 0.22)`, leaf watermark at 16% top right | Net balance card, month budget card, sign-in brand panel |
 | 3 Floating | Solid forest, radius 20, shadow `0 8px 18px rgb(15 122 68 / 0.4)` | Centre Add button in the tab bar |
 | 4 Overlay | Night at 45% + 2 px blur backdrop; solid surface panel, large shadow | Dialogs; the add sheet is full screen on phones |

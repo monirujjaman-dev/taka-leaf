@@ -19,7 +19,7 @@ export function AuthLayout({ title, intro, children }: { title: string; intro?: 
           <span className="relative flex items-center gap-2.5">
             <img src={markOnDark} width={44} height={44} alt="" />
             <span className="text-[26px] font-extrabold tracking-[-0.5px]">
-              Taka<span className="text-[#b5e2c4]">Leaf</span>
+              Taka<span className="text-sage-soft">Leaf</span>
             </span>
           </span>
           <div className="relative">

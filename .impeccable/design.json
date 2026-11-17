@@ -64,11 +64,25 @@
         "darkCounterpart": "warning-dark"
       },
       "budget-near": {
-        "role": "budget bar at 80% or more"
+        "role": "budget bar at 80% or more",
+        "cssVar": "--color-budget-near"
       },
       "night-nav-active": {
         "role": "active phone tab text in dark theme (no tint behind it)",
         "cssVar": "--tl-nav-active"
+      },
+      "forest-hover": {
+        "role": "primary button hover (light)",
+        "cssVar": "--color-forest-hover",
+        "darkCounterpart": "sage-hover"
+      },
+      "sage-hover": {
+        "role": "primary button hover (dark)",
+        "cssVar": "--color-sage-hover"
+      },
+      "sage-soft": {
+        "role": "\"Leaf\" in the wordmark on forest panels",
+        "cssVar": "--color-sage-soft"
       }
     },
     "typographyMeta": {

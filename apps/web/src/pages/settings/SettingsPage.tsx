@@ -99,7 +99,7 @@ function Devices() {
               <span className="block truncate text-[15px] font-bold">
                 {session.device}
                 {session.current ? (
-                  <span className="ml-2 rounded-full bg-[var(--tl-surface)] px-2 py-0.5 text-[11px] font-bold text-[var(--tl-primary)]">This device</span>
+                  <span className="ml-2 rounded-full bg-[var(--tl-surface)] px-2 py-0.5 text-[12px] font-bold text-[var(--tl-primary)]">This device</span>
                 ) : null}
               </span>
               <span className="block text-[13px] text-[var(--tl-muted)]">

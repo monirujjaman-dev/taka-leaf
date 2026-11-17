@@ -14,7 +14,7 @@ import { Modal } from "../../ui/Modal";
 import { MonthPicker } from "../../ui/MonthPicker";
 import { CategoryOptions } from "../transactions/pickers";
 
-const BAR = { OnTrack: "bg-leaf", Near: "bg-[#c98a1b]", Over: "bg-expense dark:bg-expense-dark" } as const;
+const BAR = { OnTrack: "bg-leaf", Near: "bg-budget-near", Over: "bg-expense dark:bg-expense-dark" } as const;
 
 /** "৳2,160 left · 82%", "Fully used · 100%" or "Over by ৳200 · 104%". */
 function budgetLine(budget: Budget): string {
@@ -153,7 +153,7 @@ export function BudgetsPage() {
         {list.length > 0 ? (
           <section
             aria-label="Monthly budget"
-            className="relative overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-[0_12px_28px_rgb(11_59_36/0.22)]"
+            className="relative overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-hero"
           >
             <LeafWatermark />
             <p className="relative m-0 text-[13px] font-semibold text-mint">{monthLabel(month).split(" ")[0]} budget</p>

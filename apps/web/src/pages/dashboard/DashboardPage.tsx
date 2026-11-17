@@ -38,8 +38,8 @@ function PhoneHeader({ month, onMonth }: { month: string; onMonth: (m: string) =
         <Logo theme={theme} size={30} />
       </span>
       <MonthPicker month={month} onChange={onMonth} short />
-      <button type="button" aria-label="Refresh" onClick={() => void client.invalidateQueries()} className={iconButtonClass}>
-        <Icon name="sync" size={20} className={fetching ? "motion-safe:animate-spin" : ""} />
+      <button type="button" aria-label="Refresh" aria-busy={fetching} onClick={() => void client.invalidateQueries()} className={iconButtonClass}>
+        <Icon name="sync" size={20} className={fetching ? "motion-safe:animate-spin motion-reduce:opacity-50" : ""} />
       </button>
     </div>
   );
@@ -91,7 +91,7 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-5">
           <section
             aria-label="Net balance"
-            className="relative flex min-h-[148px] flex-col justify-between overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-[0_12px_28px_rgb(11_59_36/0.22)] lg:min-h-[168px]"
+            className="relative flex min-h-[148px] flex-col justify-between overflow-hidden rounded-[26px] bg-forest p-5 text-white shadow-hero lg:min-h-[168px]"
           >
             <LeafWatermark />
             <div className="relative">

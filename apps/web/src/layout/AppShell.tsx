@@ -33,7 +33,7 @@ export function AddTransactionButton() {
     <button
       type="button"
       onClick={() => sheet.open()}
-      className={`hidden h-11 cursor-pointer items-center gap-1.5 rounded-[14px] bg-forest px-4 text-sm font-extrabold text-white hover:bg-[#0c6a3b] lg:inline-flex ${focusRing}`}
+      className={`hidden h-11 cursor-pointer items-center gap-1.5 rounded-[14px] bg-forest px-4 text-sm font-extrabold text-white hover:bg-forest-hover dark:bg-sage dark:text-ink dark:hover:bg-sage-hover lg:inline-flex ${focusRing}`}
     >
       <Icon name="plus" size={18} />
       Add transaction
@@ -125,7 +125,7 @@ function TabBar() {
         type="button"
         aria-label="Add transaction"
         onClick={() => sheet.open()}
-        className={`grid h-14 w-14 cursor-pointer place-items-center rounded-[20px] bg-forest text-white shadow-[0_8px_18px_rgb(15_122_68/0.4)] ${focusRing}`}
+        className={`grid h-14 w-14 cursor-pointer place-items-center rounded-[20px] bg-forest text-white shadow-float ${focusRing}`}
       >
         <Icon name="plus" size={26} />
       </button>

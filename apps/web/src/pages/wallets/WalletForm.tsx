@@ -114,7 +114,7 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
         {card ? (
           <>
             <label className="-mt-2 flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={owedIsCredit} onChange={(e) => setOwedIsCredit(e.target.checked)} className="h-4 w-4 accent-forest" />
+              <input type="checkbox" checked={owedIsCredit} onChange={(e) => setOwedIsCredit(e.target.checked)} className="h-4 w-4 accent-[var(--tl-primary)]" />
               The card is in credit (you paid more than you owed)
             </label>
             <AmountField label="Credit limit (৳, optional)" value={limit} onChange={(e) => setLimit(e.target.value)} error={errorFor("creditLimit")} />
@@ -122,7 +122,7 @@ export function WalletForm({ wallet, onClose }: { wallet: Wallet | null; onClose
         ) : null}
 
         <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" checked={excluded} onChange={(e) => setExcluded(e.target.checked)} className="mt-0.5 h-4 w-4 accent-forest" />
+          <input type="checkbox" checked={excluded} onChange={(e) => setExcluded(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--tl-primary)]" />
           <span>
             Leave out of net balance
             <span className="block text-[13px] text-[var(--tl-muted)]">For money you keep for someone else, for example.</span>

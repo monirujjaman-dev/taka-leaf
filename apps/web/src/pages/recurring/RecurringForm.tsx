@@ -137,7 +137,7 @@ export function RecurringForm({ rule, onClose }: { rule: RecurringRule | null; o
           <TextField label="Last date (optional)" type="date" min={startDate} value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errorFor("endDate")} />
         </div>
         <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" checked={autoRecord} onChange={(e) => setAutoRecord(e.target.checked)} className="mt-0.5 h-4 w-4 accent-forest" />
+          <input type="checkbox" checked={autoRecord} onChange={(e) => setAutoRecord(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--tl-primary)]" />
           <span>
             Record it automatically
             <span className="block text-[13px] text-[var(--tl-muted)]">Otherwise it waits for you to record or skip each time, with the amount you choose.</span>

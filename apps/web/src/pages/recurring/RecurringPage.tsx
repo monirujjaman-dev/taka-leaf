@@ -81,7 +81,7 @@ export function RecurringPage() {
               </span>
               <span className="shrink-0 text-right">
                 <span className={`block text-base font-extrabold ${TONE[rule.type]}`}>{formatBdt(rule.amount)}</span>
-                <span className="mt-1 inline-block rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-[11px] font-bold text-[var(--tl-primary)]">
+                <span className="mt-1 inline-block rounded-full bg-[var(--tl-chip)] px-2 py-0.5 text-[12px] font-bold text-[var(--tl-primary)]">
                   {rule.autoRecord ? "Automatic" : "Ask me"}
                 </span>
               </span>
