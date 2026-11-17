@@ -10,7 +10,7 @@ export function PasswordField(props: InputHTMLAttributes<HTMLInputElement> & { l
       <button
         type="button"
         onClick={() => setShown((value) => !value)}
-        className={`absolute right-1.5 top-[27px] h-11 min-w-11 cursor-pointer rounded-[12px] px-2.5 text-small font-bold text-[var(--tl-primary)] hover:bg-[var(--tl-chip)] ${focusRing}`}
+        className={`absolute right-1.5 top-[27px] h-11 min-w-11 cursor-pointer rounded-[12px] px-2.5 text-small font-bold text-[var(--tl-primary)] hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
         aria-label={shown ? `Hide ${props.label.toLowerCase()}` : `Show ${props.label.toLowerCase()}`}
       >
         {shown ? "Hide" : "Show"}

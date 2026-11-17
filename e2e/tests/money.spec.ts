@@ -48,9 +48,11 @@ test.describe("everyday money, in a real browser", () => {
     await page.getByRole("link", { name: "Dashboard" }).first().click();
     await expect(page.getByRole("region", { name: "Net balance" })).toContainText("৳13,731.50");
 
+    // A wallet row's accessible name is what it shows, ending in ", edit", so a screen reader hears
+    // the balance too ("Cash Cash ৳10,750.00, edit"), not only "Edit Cash".
     await page.getByRole("link", { name: "Wallets" }).first().click();
-    await expect(page.getByRole("button", { name: "Edit Cash" })).toContainText("৳10,750.00");
-    await expect(page.getByRole("button", { name: "Edit bKash" })).toContainText("৳2,981.50");
+    await expect(page.getByRole("button", { name: /^Cash .*৳10,750\.00 ?, edit$/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^bKash .*৳2,981\.50 ?, edit$/ })).toBeVisible();
 
     await page.getByRole("link", { name: "Transactions" }).first().click();
     await expect(page.getByText("Weekly bazaar")).toBeVisible();

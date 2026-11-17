@@ -97,7 +97,7 @@ export function PeoplePage() {
                     <li key={person.id}>
                       <Link
                         to={`/people/${person.id}`}
-                        className={`-mx-1.5 flex h-[60px] items-center gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] ${focusRing}`}
+                        className={`-mx-1.5 flex h-[60px] items-center gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                       >
                         <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest text-body font-extrabold text-white">
                           {person.name.charAt(0).toUpperCase()}

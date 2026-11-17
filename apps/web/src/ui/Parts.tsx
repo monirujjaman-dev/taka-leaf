@@ -89,8 +89,17 @@ export function Segmented<T extends string>({
   onChange: (value: T) => void;
   className?: string;
 }) {
+  const count = options.length;
+  const index = Math.max(0, options.findIndex((option) => option.value === value));
   return (
-    <div role="radiogroup" aria-label={label} className={`glass flex h-11 shrink-0 gap-1 rounded-[14px] p-[3px] ${className}`}>
+    <div role="radiogroup" aria-label={label} className={`glass relative flex h-11 shrink-0 gap-1 rounded-[14px] p-[3px] ${className}`}>
+      {/* The forest pill slides to the chosen option (options are equal widths, 4 px apart), so the
+          change reads as one choice moving, in the direction of the tap. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[3px] top-[3px] h-9 rounded-[11px] bg-forest transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)]"
+        style={{ width: `calc((100% - 6px - ${(count - 1) * 4}px) / ${count})`, transform: `translateX(calc(${index} * (100% + 4px)))` }}
+      />
       {options.map((option) => {
         const on = option.value === value;
         return (
@@ -100,8 +109,8 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={on}
             onClick={() => onChange(option.value)}
-            className={`tap-area h-9 min-w-0 flex-1 cursor-pointer rounded-[11px] px-2 text-sm font-bold ${focusRing} ${
-              on ? "bg-forest text-white" : "text-[var(--tl-muted)] hover:text-[var(--tl-text)]"
+            className={`tap-area h-9 min-w-0 flex-1 cursor-pointer rounded-[11px] px-2 text-sm font-bold transition-colors duration-200 ${focusRing} ${
+              on ? "text-white" : "text-[var(--tl-muted)] hover:text-[var(--tl-text)]"
             }`}
           >
             <span className="block truncate">{option.label}</span>
@@ -113,7 +122,7 @@ export function Segmented<T extends string>({
 }
 
 /** A 44 px square glass button holding one icon, for back, add and refresh in page headers. */
-export const iconButtonClass = `glass grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-[14px] text-[var(--tl-text)] ${focusRing}`;
+export const iconButtonClass = `press glass grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-[14px] text-[var(--tl-text)] ${focusRing}`;
 
 /** The leaf watermark on forest cards (balance, budget total). */
 export function LeafWatermark({ size = 140, className = "" }: { size?: number; className?: string }) {

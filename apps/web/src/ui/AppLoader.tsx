@@ -1,5 +1,6 @@
 import { LEAF_GRADIENTS, LEAF_PATHS, LEAF_TRANSFORM, LEAF_VIEWBOX, LOADER_MOTION } from "@takaleaf/shared";
-import { useId, type CSSProperties } from "react";
+import { useId, useState, type CSSProperties } from "react";
+import { loaderElapsed } from "./loaderClock";
 
 type Piece = keyof typeof LOADER_MOTION.pieces;
 const ORDER: Piece[] = ["left", "stem", "right", "body"];
@@ -37,11 +38,18 @@ function PieceSvg({ piece, size, id }: { piece: Piece; size: number; id: string 
   );
 }
 
+/** In-page loaders stay invisible this long, so a quick load shows nothing instead of a flash. */
+export const LOADER_SHOW_AFTER_MS = 350;
+
 /**
  * The TakaLeaf loader (design option A, "Leaf assembly"): the four pieces of the mark float
  * apart in an isometric view, then turn face-on and lock together, over a shadow that tightens
  * as they meet. Full size while the app starts; small inside pages. With reduced motion the mark
  * stays assembled and only fades gently.
+ *
+ * Full-size loaders share one clock (loaderClock.ts), so start-up reads as one continuous loader.
+ * Small ones fade in after LOADER_SHOW_AFTER_MS and are first seen with the mark assembled, not
+ * as scattered pieces.
  */
 export function AppLoader({
   label = "Loading…",
@@ -58,16 +66,22 @@ export function AppLoader({
   const id = useId().replace(/:/g, "");
   const scale = size / LOADER_MOTION.box;
   const large = size >= 100;
+  // Where in the cycle this loader starts. Large: the shared clock. Small: the moment it becomes
+  // visible lands on "together", so the first thing seen is the TakaLeaf mark.
+  const [offset] = useState(() =>
+    large ? loaderElapsed() : LOADER_MOTION.together * LOADER_MOTION.cycleMs - LOADER_SHOW_AFTER_MS,
+  );
+  const sync = { animationDelay: `${-offset}ms` };
   return (
-    <div role="status" aria-live="polite" className={`tl-loader flex flex-col items-center ${className}`}>
-      <div className="tl-loader-scene" style={{ width: size, height: size }}>
+    <div role="status" aria-live="polite" className={`tl-loader flex flex-col items-center ${large ? "" : "tl-loader-delayed"} ${className}`}>
+      <div className="tl-loader-scene" style={{ width: size, height: size, ...sync }}>
         {ORDER.map((piece) => {
           const p = LOADER_MOTION.pieces[piece];
           const style = {
             "--x": `${p.x * scale}px`,
             "--y": `${p.y * scale}px`,
             "--z": `${p.z * scale}px`,
-            animationDelay: `${p.delayMs}ms`,
+            animationDelay: `${p.delayMs - offset}ms`,
           } as CSSProperties;
           return (
             <div key={piece} className="tl-loader-piece" style={style}>
@@ -76,11 +90,12 @@ export function AppLoader({
           );
         })}
       </div>
-      <div className="tl-loader-shadow" style={{ width: size * 0.8, height: Math.max(6, size * 0.15), marginTop: size * 0.12 }} />
-      <p className={`m-0 font-bold tracking-tight ${large ? "mt-7 text-body text-[var(--tl-text)]" : "mt-2 text-sm text-[var(--tl-muted)]"}`}>{label}</p>
+      <div className="tl-loader-shadow" style={{ width: size * 0.8, height: Math.max(6, Math.floor(size * 0.15)), marginTop: size * 0.12, ...sync }} />
+      {/* Large: the same box as the static copy in index.html (.tl-boot-label), so nothing moves at the hand-off. */}
+      <p className={`m-0 font-bold ${large ? "mt-8 text-body text-[var(--tl-text)]" : "mt-2 text-sm tracking-tight text-[var(--tl-muted)]"}`}>{label}</p>
       {bar ? (
-        <div aria-hidden="true" className="mt-3 h-1 w-[120px] overflow-hidden rounded-[2px] bg-[var(--tl-track)]">
-          <div className="tl-loader-bar h-1 w-2/5 rounded-[2px] bg-[var(--tl-primary)]" />
+        <div aria-hidden="true" className="tl-boot-bar">
+          <div className="tl-loader-bar" style={sync} />
         </div>
       ) : null}
     </div>
