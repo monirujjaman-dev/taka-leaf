@@ -9,7 +9,7 @@ import { db } from "../../src/db/client";
 import { useApp, useData } from "../../src/state/AppState";
 import { useErrors } from "../../src/ui/form";
 import { Bar, Body, Button, Card, Empty, ErrorText, HeaderButton, Icon, Money, Row, Screen } from "../../src/ui/kit";
-import { LeafMark } from "../../src/ui/LeafMark";
+import { LeafMark, LeafWatermark } from "../../src/ui/LeafMark";
 import { SyncLine, TransactionRow } from "../../src/ui/rows";
 import { useColors } from "../../src/ui/theme";
 
@@ -33,14 +33,27 @@ export default function Dashboard() {
         </View>
       </View>
 
-      <View style={{ borderRadius: 26, padding: 20, gap: 6, backgroundColor: "#0F7A44" }} accessibilityLabel={`Net balance ${formatBdt(data.summary.net)}`}>
-        <Text style={{ color: "#D7EFE0", fontWeight: "700" }}>Net balance</Text>
-        <Text style={{ color: "#FFFFFF", fontSize: 32, fontWeight: "800", fontVariant: ["tabular-nums"] }} numberOfLines={1} adjustsFontSizeToFit>
-          {formatBdt(data.summary.net)}
-        </Text>
-        <View style={{ flexDirection: "row", gap: 16 }}>
-          <Text style={{ color: "#D7EFE0" }}>Assets {formatBdt(data.summary.assets)}</Text>
-          <Text style={{ color: "#D7EFE0" }}>Liabilities {formatBdt(data.summary.liabilities)}</Text>
+      <View
+        accessible
+        accessibilityLabel={`Net balance ${formatBdt(data.summary.net)}. Assets ${formatBdt(data.summary.assets)}. Liabilities ${formatBdt(data.summary.liabilities)}.`}
+        style={{ minHeight: 148, borderRadius: 26, padding: 20, justifyContent: "space-between", overflow: "hidden", backgroundColor: "#0F7A44", elevation: 6 }}
+      >
+        <LeafWatermark />
+        <View>
+          <Text style={{ color: "#E7F5EC", fontSize: 13, fontWeight: "600" }}>Net balance</Text>
+          <Text style={{ color: "#FFFFFF", fontSize: 34, fontWeight: "800", letterSpacing: -0.8, marginTop: 4, fontVariant: ["tabular-nums"] }} numberOfLines={1} adjustsFontSizeToFit>
+            {formatBdt(data.summary.net)}
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row", gap: 32, marginTop: 12 }}>
+          <View>
+            <Text style={{ color: "#E7F5EC", fontSize: 12, fontWeight: "600" }}>Assets</Text>
+            <Text style={{ color: "#FFFFFF", fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] }}>{formatBdt(data.summary.assets)}</Text>
+          </View>
+          <View>
+            <Text style={{ color: "#E7F5EC", fontSize: 12, fontWeight: "600" }}>Liabilities</Text>
+            <Text style={{ color: "#FFFFFF", fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] }}>{formatBdt(data.summary.liabilities)}</Text>
+          </View>
         </View>
       </View>
 
