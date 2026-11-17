@@ -15,3 +15,26 @@ export function LeafMark({ size = 32, onDark = false }: { size?: number; onDark?
     </Svg>
   );
 }
+
+/** The faint white leaf in the corner of forest cards, as LeafWatermark on the web (top-right, partly cut off). */
+export function LeafWatermark({ size = 140 }: { size?: number }) {
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox={LEAF_VIEWBOX}
+      testID="leaf-watermark"
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={{ position: "absolute", right: -18, top: -14, opacity: 0.16 }}
+    >
+      <G transform={LEAF_TRANSFORM} fill="#FFFFFF">
+        <Path d={LEAF_PATHS.left} fillOpacity={0.8} />
+        <Path d={LEAF_PATHS.stem} fillOpacity={0.7} />
+        <Path d={LEAF_PATHS.right} fillOpacity={0.7} />
+        <Path d={LEAF_PATHS.body} />
+      </G>
+    </Svg>
+  );
+}

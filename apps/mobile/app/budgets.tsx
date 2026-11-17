@@ -7,6 +7,7 @@ import { daysInMonth, monthLabel, monthOf, shiftMonth, today } from "../src/data
 import { db } from "../src/db/client";
 import { useData } from "../src/state/AppState";
 import { Bar, Card, Empty, HeaderButton, Row, Screen } from "../src/ui/kit";
+import { LeafWatermark } from "../src/ui/LeafMark";
 import { useColors } from "../src/ui/theme";
 
 export default function Budgets() {
@@ -28,7 +29,8 @@ export default function Budgets() {
         <HeaderButton icon="chevron-right" label="Next month" onPress={() => setMonth(shiftMonth(month, 1))} />
       </View>
       {total ? (
-        <View style={{ borderRadius: 26, padding: 20, gap: 8, backgroundColor: "#0F7A44" }}>
+        <View style={{ borderRadius: 26, padding: 20, gap: 8, overflow: "hidden", backgroundColor: "#0F7A44" }}>
+          <LeafWatermark />
           <Text style={{ color: "#D7EFE0", fontWeight: "700" }}>Spent this month</Text>
           <Text style={{ color: "#FFFFFF", fontSize: 26, fontWeight: "800" }}>
             {formatBdt(total.spent)} <Text style={{ fontSize: 15, color: "#D7EFE0" }}>of {formatBdt(total.amount)}</Text>
