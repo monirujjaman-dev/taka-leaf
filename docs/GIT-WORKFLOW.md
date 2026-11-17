@@ -142,5 +142,8 @@ rulesets or secrets; that is why this step is the owner's.
 - PR title = the squash commit subject: short, plain English, says what changed
   ("Tags on transactions", "Budget bar rounds to whole taka").
 - A red PR is the agents' first, then yours: after two fixer rounds it is labelled `needs-owner`.
+- The GitHub agents load `.claude/settings.json` too. A command on its `ask` list is **denied** on
+  GitHub (nobody is there to answer), so only put a command there if no agent needs it; today only
+  `gh pr merge` (Auto merge merges, not Claude).
 - Claude review is a gate, not a rubber stamp: dispute a wrong finding on its thread; don't
   bypass it with the owner bypass except in an incident.
