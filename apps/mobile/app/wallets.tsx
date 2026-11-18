@@ -20,6 +20,7 @@ export default function Wallets() {
   const shown = all.filter((w) => showArchived || !w.archived);
   const own = shown.filter((w) => isOwnWallet(w.type));
   const loanLeft = all.filter((w) => w.type === "Loan" && w.balance < 0).reduce((s, w) => s - w.balance, 0);
+  const saved = all.filter((w) => w.type === "Savings" && w.balance > 0).reduce((s, w) => s + w.balance, 0);
 
   return (
     <Screen title="Wallets" back right={<HeaderButton icon="plus" label="Add a wallet" onPress={() => router.push("/wallet")} />}>
@@ -53,6 +54,11 @@ export default function Wallets() {
           </Card>
         );
       })}
+      {saved ? (
+        <Card title="Savings" action={{ label: "Savings", onPress: () => router.push("/savings") }}>
+          <Row icon="piggy-bank-outline" title="FDR, DPS, Sanchayapatra, prize bonds" onPress={() => router.push("/savings")} right={<Money amount={saved} tone="income" />} />
+        </Card>
+      ) : null}
       {loanLeft ? (
         <Card title="Bank loans and card EMIs" action={{ label: "Loans", onPress: () => router.push("/bank-loans") }}>
           <Row icon="bank-outline" title="Left to pay" onPress={() => router.push("/bank-loans")} right={<Money amount={loanLeft} tone="expense" />} />

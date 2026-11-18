@@ -204,7 +204,7 @@ function checkPayWallet(db: AppDb, id: string | null | undefined, field: string,
   if (!id) throw new FieldError(field, creditCard ? "Choose the credit card." : "Choose the wallet the EMIs are paid from.");
   const wallet = find(db, "wallets", id);
   if (!wallet) throw new FieldError(field, "That wallet does not exist.");
-  if (wallet.type === "Lent" || wallet.type === "Borrowed" || wallet.type === "Loan") throw new FieldError(field, "Choose one of your own wallets, like your bank account or bKash.");
+  if (wallet.type === "Lent" || wallet.type === "Borrowed" || wallet.type === "Loan" || wallet.type === "Savings") throw new FieldError(field, "Choose one of your own wallets, like your bank account or bKash.");
   if (creditCard && wallet.type !== "CreditCard") throw new FieldError(field, "Choose a credit card.");
   if (wallet.archived && id !== current) throw new FieldError(field, "That wallet is archived. Unarchive it to use it.");
   return wallet;
@@ -218,7 +218,7 @@ function checkEmi(emi: number, balance: number, ratePoints: number): void {
 function row(loan: Pick<LoanRow, "id">, part: LoanPart, type: TransactionRow["type"], amount: number, from: string | null, to: string | null, categoryId: string | null, emi: number | null, at: string, note: string | null): TransactionRow {
   return {
     id: newId(), type, amount, fromWalletId: from, toWalletId: to, categoryId, personId: null, feeOfId: null, recurringRuleId: null, recurringDate: null,
-    occurredAt: new Date(at).toISOString(), note, loanId: loan.id, loanEmi: emi, loanPart: part, updatedAt: "", deletedAt: null,
+    occurredAt: new Date(at).toISOString(), note, loanId: loan.id, loanEmi: emi, loanPart: part, savingId: null, savingSeq: null, savingPart: null, updatedAt: "", deletedAt: null,
   };
 }
 

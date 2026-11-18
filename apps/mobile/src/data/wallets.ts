@@ -75,7 +75,7 @@ export function listWallets(db: AppDb, { includeArchived = true } = {}): WalletW
 
 /** The user's own wallets (not loans), for pickers. */
 /** A wallet of the user's own: not a person's Lent or Borrowed wallet, not a loan's. */
-export const isOwnWallet = (type: WalletType) => !isPersonWallet(type) && type !== "Loan";
+export const isOwnWallet = (type: WalletType) => !isPersonWallet(type) && type !== "Loan" && type !== "Savings";
 
 export const ownWallets = (db: AppDb, options?: { includeArchived?: boolean }) => listWallets(db, options).filter((w) => isOwnWallet(w.type));
 
@@ -107,6 +107,7 @@ export function saveWallet(db: AppDb, input: WalletInput, now: Date = new Date()
   if (!name || name.length > NAME_MAX) throw new FieldError("name", `Give the wallet a name of up to ${NAME_MAX} characters.`);
   if (isPersonWallet(input.type)) throw new FieldError("type", "Lending and borrowing are recorded from People.");
   if (input.type === "Loan" || find(db, "wallets", input.id)?.type === "Loan") throw new FieldError("type", "This wallet belongs to a loan. Change it from Loans.");
+  if (input.type === "Savings" || find(db, "wallets", input.id)?.type === "Savings") throw new FieldError("type", "This wallet belongs to a saving. Change it from Savings.");
   if (!Number.isSafeInteger(input.openingBalance) || Math.abs(input.openingBalance) > MAX_AMOUNT) throw new FieldError("openingBalance", "Enter the balance, like 1250 or 1250.50.");
   if (input.creditLimit != null) {
     if (input.type !== "CreditCard") throw new FieldError("creditLimit", "Only a credit card has a credit limit.");
@@ -146,6 +147,7 @@ export function setWalletArchived(db: AppDb, id: string, archived: boolean, now:
   db.transaction((tx) => {
     const wallet = find(tx, "wallets", id);
     if (wallet?.type === "Loan") throw new FieldError("wallet", "This wallet belongs to a loan. Change it from Loans.");
+    if (wallet?.type === "Savings") throw new FieldError("wallet", "This wallet belongs to a saving. Change it from Savings.");
     if (wallet) put(tx, "wallets", { ...wallet, archived }, now);
   });
 }
@@ -169,6 +171,7 @@ export function walletInUse(db: AppDb, id: string): boolean {
 
 export function deleteWallet(db: AppDb, id: string, now: Date = new Date()): void {
   if (find(db, "wallets", id)?.type === "Loan") throw new FieldError("wallet", "This wallet belongs to a loan. Change it from Loans.");
+  if (find(db, "wallets", id)?.type === "Savings") throw new FieldError("wallet", "This wallet belongs to a saving. Change it from Savings.");
   if (walletInUse(db, id)) throw new FieldError("wallet", "This wallet has transactions. Archive it instead.");
   db.transaction((tx) => {
     const wallet = find(tx, "wallets", id);

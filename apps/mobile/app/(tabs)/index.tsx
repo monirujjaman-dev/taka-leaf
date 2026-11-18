@@ -5,6 +5,8 @@ import { Pressable, ScrollView, Text, useWindowDimensions, View } from "react-na
 import { monthOf, shiftMonth, shortMonthLabel, today } from "../../src/data/calendar";
 import { dashboard } from "../../src/data/dashboard";
 import { dueEmis } from "../../src/data/loans";
+import { dueSavings } from "../../src/data/savings";
+import { kindIcon, nextDetail } from "../../src/ui/savingParts";
 import { recordNext, scheduleLabel, skipNext } from "../../src/data/recurring";
 import { db } from "../../src/db/client";
 import { useApp, useData } from "../../src/state/AppState";
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const [month, setMonth] = useState(() => monthOf(today()));
   const data = useData(() => dashboard(db, month), [month]);
   const emis = useData(() => dueEmis(db));
+  const savingsDue = useData(() => dueSavings(db));
   const { errors, run } = useErrors();
   const current = monthOf(today());
 
@@ -114,6 +117,21 @@ export default function Dashboard() {
               onPress={() => router.push({ pathname: "/bank-loan-pay", params: { id: l.id, mode: "emi" } })}
               accessibilityLabel={`Record ${l.name} EMI ${l.next!.number}, ${formatBdt(l.next!.total)}, ${dueInWords(l.next!.dueDate)}`}
               right={<Money amount={l.next!.total} tone={l.next!.overdue ? "expense" : "neutral"} />}
+            />
+          ))}
+        </Card>
+      ) : null}
+
+      {savingsDue.length ? (
+        <Card title="Savings and premiums due" action={{ label: "Savings", onPress: () => router.push("/savings") }}>
+          {savingsDue.map((s) => (
+            <Row
+              key={s.id}
+              icon={kindIcon(s.kind, s.policy)}
+              title={`${s.name} · ${dueInWords(s.next!.date)}`}
+              detail={nextDetail(s)}
+              onPress={() => router.push({ pathname: "/saving", params: { id: s.id } })}
+              right={s.next!.amount !== null ? <Money amount={s.next!.amount} tone={s.next!.overdue ? "expense" : "neutral"} /> : undefined}
             />
           ))}
         </Card>

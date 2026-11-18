@@ -27,6 +27,14 @@ export default function WalletForm() {
   const { errors, run, setErrors } = useErrors();
   const inUse = useMemo(() => (existing ? walletInUse(db, existing.id) : false), [existing]);
 
+  if (existing?.type === "Savings") {
+    return (
+      <Screen title={existing.name} back>
+        <Body>This wallet belongs to a saving. Change it from Savings.</Body>
+        <Button label="Open Savings" onPress={() => router.replace("/savings")} />
+      </Screen>
+    );
+  }
   if (existing?.type === "Loan") {
     return (
       <Screen title={existing.name} back>

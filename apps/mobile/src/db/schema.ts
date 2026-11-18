@@ -12,12 +12,15 @@ const synced = {
   deletedAt: text("deleted_at"),
 };
 
-export const WALLET_TYPES = ["Cash", "Bank", "CreditCard", "Mfs", "Lent", "Borrowed", "Loan"] as const;
+export const WALLET_TYPES = ["Cash", "Bank", "CreditCard", "Mfs", "Lent", "Borrowed", "Loan", "Savings"] as const;
 export const TRANSACTION_TYPES = ["Income", "Expense", "Transfer"] as const;
 export const CATEGORY_KINDS = ["Income", "Expense"] as const;
 export const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Yearly"] as const;
 export const LOAN_TYPES = ["Bank", "CardEmi"] as const;
 export const LOAN_PARTS = ["Disbursement", "Purchase", "Principal", "Interest", "Fee"] as const;
+export const SAVING_KINDS = ["Fdr", "Dps", "Certificate", "PrizeBond", "Insurance"] as const;
+export const POLICY_TYPES = ["Life", "Health", "Car", "Other"] as const;
+export const SAVING_PARTS = ["Deposit", "Profit", "Tax", "Fee", "Withdrawal", "Premium", "Prize", "Payout"] as const;
 
 /** Small key/value settings: server address, sync cursor, last sync, app lock... */
 export const settings = sqliteTable("settings", {
@@ -78,6 +81,10 @@ export const transactions = sqliteTable(
     loanId: text("loan_id"),
     loanEmi: integer("loan_emi"),
     loanPart: text("loan_part", { enum: LOAN_PARTS }),
+    /** Rows of a saving or policy: which one, which instalment, profit payment or premium, and what the row is to it. */
+    savingId: text("saving_id"),
+    savingSeq: integer("saving_seq"),
+    savingPart: text("saving_part", { enum: SAVING_PARTS }),
     ...synced,
   },
   (t) => [
@@ -90,6 +97,7 @@ export const transactions = sqliteTable(
     index("transactions_fee_of").on(t.feeOfId),
     index("transactions_person").on(t.personId),
     index("transactions_loan").on(t.loanId),
+    index("transactions_saving").on(t.savingId),
   ],
 );
 
@@ -139,6 +147,38 @@ export const loans = sqliteTable("loans", {
   ...synced,
 });
 
+/** An FDR, DPS, savings certificate, prize bonds or a policy (as on the server). The money in it is the balance of its Savings wallet. */
+export const savings = sqliteTable("savings", {
+  id: text("id").primaryKey(),
+  kind: text("kind", { enum: SAVING_KINDS }).notNull(),
+  name: text("name").notNull(),
+  provider: text("provider"),
+  walletId: text("wallet_id"),
+  payFromWalletId: text("pay_from_wallet_id").notNull(),
+  amount: integer("amount").notNull(),
+  ratePoints: integer("rate_points").notNull(),
+  months: integer("months").notNull(),
+  everyMonths: integer("every_months").notNull(),
+  startDate: text("start_date").notNull(),
+  taxPoints: integer("tax_points").notNull(),
+  chargesPerYear: integer("charges_per_year").notNull(),
+  maturityAmount: integer("maturity_amount"),
+  cover: integer("cover"),
+  policy: text("policy", { enum: POLICY_TYPES }),
+  policyNumber: text("policy_number"),
+  insured: text("insured"),
+  nominee: text("nominee"),
+  bondNumbers: text("bond_numbers"),
+  paidBefore: integer("paid_before").notNull(),
+  autoRecord: integer("auto_record", { mode: "boolean" }).notNull(),
+  remind: integer("remind", { mode: "boolean" }).notNull(),
+  renew: integer("renew", { mode: "boolean" }).notNull(),
+  missed: text("missed"),
+  seqBase: integer("seq_base").notNull(),
+  closedOn: text("closed_on"),
+  ...synced,
+});
+
 /** Changes waiting to be pushed, oldest first. Written in the same SQLite transaction as the row. */
 export const outbox = sqliteTable(
   "outbox",
@@ -177,6 +217,10 @@ export type Frequency = (typeof FREQUENCIES)[number];
 export type LoanRow = typeof loans.$inferSelect;
 export type LoanType = (typeof LOAN_TYPES)[number];
 export type LoanPart = (typeof LOAN_PARTS)[number];
+export type SavingRow = typeof savings.$inferSelect;
+export type SavingKind = (typeof SAVING_KINDS)[number];
+export type PolicyType = (typeof POLICY_TYPES)[number];
+export type SavingPart = (typeof SAVING_PARTS)[number];
 
 /** The synced tables by their sync name (the server's `table` in push and the keys of a pull page). */
 export const SYNCED_TABLES = {
@@ -187,6 +231,7 @@ export const SYNCED_TABLES = {
   budgets,
   recurringRules,
   loans,
+  savings,
 } as const;
 
 export type SyncedTableName = keyof typeof SYNCED_TABLES;
