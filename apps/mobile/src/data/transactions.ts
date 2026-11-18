@@ -45,6 +45,7 @@ export function checkTransaction(db: AppDb, input: TransactionInput, existing?: 
     if (!wallet) throw new FieldError(field, "That wallet does not exist.");
     if (isPersonWallet(wallet.type)) throw new FieldError(field, "Lending and borrowing are recorded from People.");
     if (wallet.type === "Loan") throw new FieldError(field, "Loan payments are recorded from Loans.");
+    if (wallet.type === "Savings") throw new FieldError(field, "Money in savings is recorded from Savings.");
     if (wallet.archived && id !== current) throw new FieldError(field, "That wallet is archived. Unarchive it to use it.");
   };
   if (type !== "Income") checkWallet(from, existing?.fromWalletId, "fromWalletId");
@@ -68,10 +69,16 @@ export function checkTransaction(db: AppDb, input: TransactionInput, existing?: 
 /** Adds or changes a transaction; a transfer's fee is its own expense row, kept in step. Returns the id. */
 export function saveTransaction(db: AppDb, input: TransactionInput, now: Date = new Date()): string {
   const existing = find(db, "transactions", input.id);
-  if (existing && (existing.feeOfId || existing.personId || existing.loanId)) {
+  if (existing && (existing.feeOfId || existing.personId || existing.loanId || existing.savingId)) {
     throw new FieldError(
       "type",
-      existing.feeOfId ? "This is a transfer fee. Change it on its transfer." : existing.loanId ? "This is part of a bank loan or card EMI. Change it from Loans." : "Loans and repayments are changed from People.",
+      existing.feeOfId
+        ? "This is a transfer fee. Change it on its transfer."
+        : existing.loanId
+          ? "This is part of a bank loan or card EMI. Change it from Loans."
+          : existing.savingId
+            ? "This is part of a saving or policy. Change it from Savings."
+            : "Loans and repayments are changed from People.",
     );
   }
   checkTransaction(db, input, existing);
@@ -93,6 +100,9 @@ export function saveTransaction(db: AppDb, input: TransactionInput, now: Date = 
       loanId: null,
       loanEmi: null,
       loanPart: null,
+      savingId: null,
+      savingSeq: null,
+      savingPart: null,
       occurredAt,
       note,
       updatedAt: "",
@@ -115,6 +125,9 @@ export function saveTransaction(db: AppDb, input: TransactionInput, now: Date = 
         loanId: null,
         loanEmi: null,
         loanPart: null,
+        savingId: null,
+        savingSeq: null,
+        savingPart: null,
         occurredAt,
         note: FEE_NOTE,
         updatedAt: "",
@@ -133,6 +146,7 @@ export function deleteTransaction(db: AppDb, id: string, now: Date = new Date())
     const row = find(tx, "transactions", id);
     if (!row) return;
     if (row.loanId) throw new FieldError("type", "This is part of a bank loan or card EMI. Change it from Loans.");
+    if (row.savingId) throw new FieldError("type", "This is part of a saving or policy. Change it from Savings.");
     const fee = feeOf(tx, id);
     if (fee) remove(tx, "transactions", fee, now);
     remove(tx, "transactions", row, now);

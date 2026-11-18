@@ -10,8 +10,9 @@ import { useColors } from "./theme";
 const ICONS: Record<TransactionView["type"], IconName> = { Income: "arrow-down-bold-circle-outline", Expense: "arrow-up-bold-circle-outline", Transfer: "swap-horizontal" };
 
 /** Opens a row where it can be changed: a transaction in the form, a fee on its transfer, a loan on its person, an EMI on its loan. */
-export function openTransaction(t: Pick<TransactionView, "id" | "feeOfId" | "personId" | "loanId">) {
-  if (t.loanId) router.push({ pathname: "/bank-loan", params: { id: t.loanId } });
+export function openTransaction(t: Pick<TransactionView, "id" | "feeOfId" | "personId" | "loanId" | "savingId">) {
+  if (t.savingId) router.push({ pathname: "/saving", params: { id: t.savingId } });
+  else if (t.loanId) router.push({ pathname: "/bank-loan", params: { id: t.loanId } });
   else if (t.personId) router.push({ pathname: "/person", params: { id: t.personId } });
   else router.push({ pathname: "/transaction", params: { id: t.feeOfId ?? t.id } });
 }

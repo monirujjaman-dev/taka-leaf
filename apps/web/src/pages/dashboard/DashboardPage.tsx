@@ -17,6 +17,7 @@ import { Bar, IconTile, iconButtonClass, LeafWatermark, ListCard, StatGrid, Stat
 import { localMonth, monthLabel, WALLET_TYPE_LABEL } from "../../ui/format";
 import { BudgetBar } from "../budgets/BudgetBar";
 import { DueEmis } from "../loans/DueEmis";
+import { DueSavings } from "../savings/DueSavings";
 import { DueList } from "../recurring/DueList";
 import { TransactionRow } from "../transactions/TransactionRow";
 
@@ -136,6 +137,7 @@ export function DashboardPage() {
           ) : null}
 
           <DueEmis />
+          <DueSavings />
 
           {hasWallets ? (
             <section aria-labelledby="wallets-strip" className="lg:hidden">

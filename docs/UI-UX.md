@@ -25,11 +25,12 @@ TakaLeaf UI design canvas in claude.ai; the web app now follows them in code.
 | Wallets | `/wallets` | Where the money is: balances by wallet type |
 | People | `/people`, `/people/:id` | Lending and borrowing, per person |
 | Loans | `/loans`, `/loans/:id` | Bank loans and credit card EMIs: what is left, EMIs, schedule, early settlement |
+| Savings | `/savings`, `/savings/:id` | FDR, DPS, Sanchayapatra, prize bonds and insurance: what is saved, what comes next, the tax year |
 | Reports | `/reports` | Month or year: income against expense, savings, trend, by category with drill-down |
 | Budgets | `/budgets` | Monthly limits and progress |
 | Recurring | `/recurring` | Rent, salary, subscriptions; items waiting to be recorded |
 | Categories | `/categories` | Income and expense categories, two levels |
-| Settings | `/settings` | The **More** tab on phones: links to Wallets, People and loans, Bank loans and card EMIs, Budgets, Recurring, Categories; then theme, password, export, devices, sign out |
+| Settings | `/settings` | The **More** tab on phones: links to Wallets, People and loans, Bank loans and card EMIs, Savings and insurance, Budgets, Recurring, Categories; then theme, password, export, devices, sign out |
 | Sign-in flow | `/sign-in`, `/register`, `/verify-email`, `/forgot-password`, `/reset-password` | Account access; email links land on the last two |
 
 ### Navigation
@@ -63,6 +64,13 @@ EMI row on its loan.
 | Add loan | Bank loan · Credit card EMI switch; name, bank or card, amount or price, rate (% a year), months with 12–60 chips, the bank's EMI (optional), first EMI or statement date; live **Your EMI** card (total interest, total to pay, last EMI); "I'm already paying this loan" with EMIs already paid; paid from, money received in (or paid to the seller), processing fee; "The bank takes it automatically"; for card EMIs, the purchase category | "Add your credit card in Wallets first" |
 | Loan | Hero: left to pay, repaid bar, EMI, rate, interest paid and still to come, last EMI; **Next EMI** card (number, date, principal + interest, **Record EMI**, or "Added to the card automatically"); card EMIs: card balance, held for EMIs, you can still spend; **Pay extra** and **Close the loan early**; schedule (Paid / Due / Upcoming, show all) with Undo the last EMI; activity | Closed loans show "Closed on …" |
 | Record EMI / Pay extra / Settle | Amount card; paid from; EMI: amount paid (optional) and late fee; settle: charge as % of what is left or an amount, with what is left, charge and total to pay now | Errors beside fields |
+| Savings and insurance | Forest hero "Saved and invested" with Deposits (FDR, DPS), Sanchayapatra and Prize bonds; **Coming up** (date badge, what and amount); All · FDR · DPS · Sanchayapatra · Prize bonds · Insurance chips; Savings list (kind tile, name, detail, amount in it, progress bar, words and a pill) and Insurance list (cover, Due soon). Desktop: four tiles (profit this tax year, tax at source, insurance cover, next to mature), Savings and Insurance tables, Coming up and **Tax year** card with Export for my tax return | "Nothing saved here yet" with Add |
+| Add savings | Five kind tiles (FDR, DPS, Sanchayapatra, Prize bonds, Insurance), then that kind's fields: amounts, rate, term and profit chips, dates, tax at source chips, excise duty, bond numbers, policy details; a live card with what it pays (at maturity, each profit payment, at maturity about, face value and next draw); "I opened this before"; the account; automatic and remind switches; FDR "When it matures" Pay into my account · Renew | Errors beside fields |
+| FDR | Hero "In the FDR" with days bar, rate and what happens then; At maturity breakdown; renew card (Pay into account / Renew instead, Change rate); profit payments if periodic; Close it early | Closed FDRs show only the hero and activity |
+| DPS | Hero "Paid in so far" with instalments bar; next instalment card (automatic switch, Record now, Missed it) or "Matured" with Record what the bank paid; 12-a-row instalment grid (paid, next, missed, to come); At maturity from the DPS book; Close DPS early; undo | |
+| Sanchayapatra | Hero "Invested" with months bar; each profit payment (profit, tax at source, into the account); tax rule note; automatic switch or Record profit; profit payments list; Encash early; undo | |
+| Prize bonds | Hero with count, face value, won so far and the next draw strip; your numbers (two columns, winner in gold); Did a number win? (I won a prize, Sell back); last win; prizes per series | |
+| Policy | Hero with sum assured or cover and premiums bar; next premium with grace period, Pay from and Pay premium; Remind me 7 days before; policy details; premiums paid; Money from the policy (Got a claim, Matured) | |
 | Reports | Month · Year switch with month or year arrows (kept in the address); **Income and expense** bars with "Saved ৳X · Y% of income"; **Expense, last 6 months** (or by month for a year) with the chosen month highlighted; **Spending by category** and **Income by category**, each category opening to its sub-categories with links to the matching transactions; Budgets (month only) | "Nothing recorded in …" |
 | Budgets | Month button; forest month card (spent of total, white bar, left and days to go); rows with spent / limit, bar and "৳x left · 82%" or "Over by ৳x · 104%" | "No budgets yet" |
 | Recurring | "Waiting for you" list; rule cards: title, schedule ("Every month"), next date, From/Into, amount, Automatic / Ask me | Paused and ended rules dimmed |

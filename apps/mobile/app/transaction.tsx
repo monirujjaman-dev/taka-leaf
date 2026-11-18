@@ -44,7 +44,7 @@ export default function TransactionForm() {
   const quick = tree.slice(0, 8);
   const walletOptions = wallets.map((w) => ({ id: w.id, label: w.name, detail: formatBdt(w.balance) }));
 
-  if (existing && (existing.feeOfId || existing.personId || existing.loanId)) {
+  if (existing && (existing.feeOfId || existing.personId || existing.loanId || existing.savingId)) {
     return (
       <Screen title="Transaction" back>
         <Notice>
@@ -52,7 +52,9 @@ export default function TransactionForm() {
             ? "This is a transfer fee. Change it on its transfer."
             : existing.loanId
               ? "This is part of a bank loan or card EMI. Change it from Loans."
-              : "Loans and repayments are changed from People."}
+              : existing.savingId
+                ? "This is part of a saving or policy. Change it from Savings."
+                : "Loans and repayments are changed from People."}
         </Notice>
       </Screen>
     );

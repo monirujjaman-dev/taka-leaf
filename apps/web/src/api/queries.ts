@@ -24,11 +24,16 @@ import type {
   BankLoan,
   BankLoanDetail,
   BankLoanList,
+  AddSavingInput,
+  Saving,
+  SavingDetail,
+  SavingList,
+  UpdateSavingInput,
   UpdateBankLoanInput,
 } from "./types";
 
 /** Anything that changes money touches these, so they are refreshed together after a change. */
-const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"], ["reports"], ["loans"]] as const;
+const MONEY_KEYS = [["dashboard"], ["wallets"], ["transactions"], ["people"], ["budgets"], ["recurring"], ["reports"], ["loans"], ["savings"]] as const;
 
 function useInvalidateMoney() {
   const client = useQueryClient();
@@ -375,4 +380,47 @@ export function useSettleLoan(id: string) {
 export function useUndoEmi(id: string) {
   const invalidate = useInvalidateMoney();
   return useMutation({ mutationFn: () => api(`/loans/${id}/emis/last`, { method: "DELETE" }), onSuccess: invalidate });
+}
+
+// Savings and insurance
+
+export const savingsQuery = () => queryOptions({ queryKey: ["savings"], queryFn: ({ signal }) => api<SavingList>("/savings", { signal }) });
+
+export function useSavings() {
+  return useQuery(savingsQuery());
+}
+
+export function useSaving(id: string) {
+  return useQuery({ queryKey: ["savings", id], queryFn: ({ signal }) => api<SavingDetail>(`/savings/${id}`, { signal }) });
+}
+
+export function useAddSaving() {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: (input: AddSavingInput) => api<Saving>("/savings", { method: "POST", body: input }), onSuccess: invalidate });
+}
+
+export function useUpdateSaving(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: (input: UpdateSavingInput) => api<Saving>(`/savings/${id}`, { method: "PUT", body: input }), onSuccess: invalidate });
+}
+
+export function useDeleteSaving() {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: (id: string) => api(`/savings/${id}`, { method: "DELETE" }), onSuccess: invalidate });
+}
+
+/** Deposit, skip, profit, close, renew, prize, sell, premium or payout: POST /savings/{id}/{action}. */
+export type SavingActionName = "deposit" | "skip" | "profit" | "close" | "renew" | "prize" | "sell" | "premium" | "payout";
+
+export function useSavingAction(id: string, action: SavingActionName) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({
+    mutationFn: (input: Record<string, unknown>) => api<Saving>(`/savings/${id}/${action}`, { method: "POST", body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUndoSavingEntry(id: string) {
+  const invalidate = useInvalidateMoney();
+  return useMutation({ mutationFn: () => api(`/savings/${id}/last`, { method: "DELETE" }), onSuccess: invalidate });
 }

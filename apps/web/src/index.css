@@ -60,6 +60,11 @@
   --tl-surface: #ffffff;
   --tl-glass-border: #d1dfd8;
   --tl-chip: #e7f5ec;
+  /* Savings kind tiles: gold for certificates and prize bonds, blue for policies. */
+  --tl-gold-tint: #fbf0d9;
+  --tl-gold: #7a4f00;
+  --tl-blue-tint: #e4eef7;
+  --tl-blue: #2c5f8a;
   --tl-nav-active: #0f7a44;
   --tl-track: rgb(11 59 36 / 0.08);
   --tl-shadow: 0 8px 24px rgb(11 59 36 / 0.07);
@@ -87,6 +92,10 @@
   --tl-surface: #11301f;
   --tl-glass-border: rgb(255 255 255 / 0.14);
   --tl-chip: rgb(131 207 162 / 0.14);
+  --tl-gold-tint: #3a2e12;
+  --tl-gold: #f2c46d;
+  --tl-blue-tint: #18283a;
+  --tl-blue: #8db8e2;
   --tl-nav-active: #83cfa2;
   --tl-track: rgb(255 255 255 / 0.1);
   --tl-shadow: 0 8px 24px rgb(0 0 0 / 0.25);

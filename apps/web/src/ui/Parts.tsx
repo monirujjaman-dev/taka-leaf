@@ -2,15 +2,21 @@ import type { ReactNode } from "react";
 import { focusRing } from "./Button";
 import { Icon, type IconName } from "./Icon";
 
-/** The 40 px (or 36 px) rounded square that holds a row's or tile's icon. */
-export function IconTile({ icon, tone = "primary", size = 40 }: { icon: IconName; tone?: "primary" | "expense"; size?: 36 | 38 | 40 }) {
-  const color = tone === "expense" ? "text-expense dark:text-expense-dark" : "text-[var(--tl-primary)]";
+/** The 40 px (or 36 px) rounded square that holds a row's or tile's icon. Gold and blue mark certificates, bonds and policies. */
+export function IconTile({ icon, tone = "primary", size = 40 }: { icon: IconName; tone?: "primary" | "expense" | "gold" | "blue" | "muted"; size?: 36 | 38 | 40 }) {
+  const color = {
+    primary: "bg-[var(--tl-chip)] text-[var(--tl-primary)]",
+    expense: "bg-[var(--tl-chip)] text-expense dark:text-expense-dark",
+    gold: "bg-[var(--tl-gold-tint)] text-[var(--tl-gold)]",
+    blue: "bg-[var(--tl-blue-tint)] text-[var(--tl-blue)]",
+    muted: "bg-[var(--tl-track)] text-[var(--tl-muted)]",
+  }[tone];
   const radius = size === 36 ? "rounded-[12px]" : "rounded-[14px]";
   return (
     <span
       aria-hidden="true"
       style={{ width: size, height: size }}
-      className={`grid shrink-0 place-items-center bg-[var(--tl-chip)] ${radius} ${color}`}
+      className={`grid shrink-0 place-items-center ${radius} ${color}`}
     >
       <Icon name={icon} size={size === 36 ? 18 : 19} />
     </span>
@@ -18,7 +24,7 @@ export function IconTile({ icon, tone = "primary", size = 40 }: { icon: IconName
 }
 
 /** A glass tile with an icon, a small label and a value: Income, Expense, Owed to me, I owe. */
-export function StatTile({ icon, tone, label, value }: { icon: IconName; tone?: "primary" | "expense"; label: string; value: ReactNode }) {
+export function StatTile({ icon, tone, label, value }: { icon: IconName; tone?: "primary" | "expense" | "gold" | "blue"; label: string; value: ReactNode }) {
   return (
     <div className="glass flex min-w-0 items-center gap-2 rounded-[18px] px-3 py-3 sm:gap-2.5 sm:px-3.5">
       <IconTile icon={icon} tone={tone} size={36} />
@@ -156,7 +162,7 @@ export function Bar({ share, over = false }: { share: number; over?: boolean }) 
   );
 }
 
-const WALLET_ICON: Record<string, IconName> = { Cash: "cash", Mfs: "phone", Bank: "bank", CreditCard: "card", Lent: "moneyOut", Borrowed: "moneyIn", Loan: "loan" };
+const WALLET_ICON: Record<string, IconName> = { Cash: "cash", Mfs: "phone", Bank: "bank", CreditCard: "card", Lent: "moneyOut", Borrowed: "moneyIn", Loan: "loan", Savings: "coins" };
 
 /** The user's own wallets: not a person's Lent or Borrowed wallet, not a loan's or a saving's. */
 export const isOwnWallet = (wallet: { personId: string | null; type: string }) =>

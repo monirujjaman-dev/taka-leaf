@@ -17,6 +17,8 @@ import {
   PersonPage,
   LoansPage,
   LoanPage,
+  SavingsPage,
+  SavingPage,
   RecurringPage,
   RegisterPage,
   ReportsPage,
@@ -104,6 +106,8 @@ export function App() {
               <Route path="/people/:id" element={<PersonPage />} />
               <Route path="/loans" element={<LoansPage />} />
               <Route path="/loans/:id" element={<LoanPage />} />
+              <Route path="/savings" element={<SavingsPage />} />
+              <Route path="/savings/:id" element={<SavingPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/budgets" element={<BudgetsPage />} />
               <Route path="/recurring" element={<RecurringPage />} />

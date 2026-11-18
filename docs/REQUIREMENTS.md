@@ -107,6 +107,19 @@ Goals:
 | FR-K8 | A new rate applies from the next EMI, with a suggested EMI that keeps the end date | Should | ✅ |
 | FR-K9 | The same on the Android app, offline, synced | Must | ✅ |
 
+### 3.5b Savings and insurance
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| FR-S1 | Add an FDR (amount, rate, term, profit at maturity or every month, 3 months or year, tax at source, excise duty), renewing or paying out at maturity | Must | ✅ |
+| FR-S2 | Add a DPS (monthly instalment, rate, term, first instalment); record instalments, mark missed ones, automatic for auto-debit; maturity estimate or the bank's figure | Must | ✅ |
+| FR-S3 | Add a Sanchayapatra (scheme, amount, rate as on the certificate, profit period); profit after tax at source (5% up to ৳5,00,000 in all, else 10%), automatic or by hand | Must | ✅ |
+| FR-S4 | Add prize bonds with their numbers; next draw (31 Jan, 30 Apr, 31 Jul, 31 Oct) and which bonds are in it (held 60 days); record prizes with tax (20% by default, editable), sell back | Must | ✅ |
+| FR-S5 | Add insurance policies (life, health, car, other): premiums as an expense under Insurance, grace period for life, reminders, claims and maturity as income | Must | ✅ |
+| FR-S6 | Close any saving early with what was paid; anything short is a charge, anything over is profit | Must | ✅ |
+| FR-S7 | Savings page: saved and invested, what is coming up, each saving's progress; tax year (Jul–Jun) totals and a CSV for the tax return; due items on the dashboard and Home | Must | ✅ |
+| FR-S8 | The same on the Android app, offline, synced | Must | ✅ |
+
 ### 3.6 Budgets and recurring
 
 | ID | Requirement | Priority | Status |
