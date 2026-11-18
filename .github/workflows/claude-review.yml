@@ -45,6 +45,17 @@ jobs:
             echo "Release or sync PR: every change in it was reviewed on its way into develop."
             echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
+          # The Claude action refuses to run from a workflow file that differs from the default
+          # branch, so a PR that changes this file can't be reviewed by Claude: the owner merges it.
+          if gh api "repos/$REPO/pulls/$PR/files" --paginate --jq '.[].filename' | grep -qx .github/workflows/claude-review.yml; then
+            gh pr edit "$PR" -R "$REPO" --add-label needs-owner || true
+            if ! gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '.[].body' | grep -q '<!-- review-self-edit -->'; then
+              gh pr comment "$PR" -R "$REPO" --body "<!-- review-self-edit -->
+          This PR changes \`.github/workflows/claude-review.yml\`. Claude can't review a change to its own review workflow (a safety rule of the Claude action), so this PR waits for the owner: check it and merge it by hand."
+            fi
+            echo "::error::Changes the review workflow itself: the owner reviews and merges this PR."
+            exit 1
+          fi
           if [ "$HAS_TOKEN" != true ]; then
             echo "::error::Add the CLAUDE_CODE_OAUTH_TOKEN secret (claude setup-token, or /install-github-app in Claude Code)."
             exit 1
@@ -63,7 +74,8 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_bots: "claude[bot]"
+          # Claude fixer pushes as github-actions or claude[bot]; their PRs must still be reviewed.
+          allowed_bots: "claude[bot],github-actions[bot]"
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}

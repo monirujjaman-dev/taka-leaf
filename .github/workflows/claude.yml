@@ -79,5 +79,6 @@ jobs:
           claude_args: |
             --model ${{ vars.CLAUDE_FIX_MODEL || 'opus' }}
             --max-turns 200
+            --permission-mode acceptEdits
             --append-system-prompt "You work on TakaLeaf. Follow CLAUDE.md and docs/GIT-WORKFLOW.md: work branches start from develop and PRs target develop; never push to main or develop; never edit backend/TakaLeaf.App/Data/Migrations; run pnpm typecheck, pnpm test, pnpm build and dotnet test backend/TakaLeaf.App.Tests before you push. Keep docs current as CLAUDE.md says."
-            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git checkout:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr create:*),Bash(gh issue view:*),Bash(gh run view:*),Bash(gh run list:*)"
+            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(jq:*),Bash(ls:*),Bash(cat:*),Bash(shellcheck:*),Bash(bash -n:*),Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git checkout:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr create:*),Bash(gh issue view:*),Bash(gh run view:*),Bash(gh run list:*)"

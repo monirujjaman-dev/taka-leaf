@@ -111,6 +111,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Fix with Claude
+        id: claude
         if: steps.pr.outputs.run == 'true'
         uses: anthropics/claude-code-action@v1
         with:
@@ -139,4 +140,32 @@ jobs:
           claude_args: |
             --model ${{ vars.CLAUDE_FIX_MODEL || 'opus' }}
             --max-turns 120
-            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh run view:*),Bash(gh run list:*),Bash(gh api:*)"
+            --permission-mode acceptEdits
+            --allowedTools "Read,Edit,MultiEdit,Write,Glob,Grep,Bash(jq:*),Bash(ls:*),Bash(cat:*),Bash(shellcheck:*),Bash(bash -n:*),Bash(actionlint:*),Bash(pnpm:*),Bash(dotnet build:*),Bash(dotnet test:*),Bash(dotnet restore:*),Bash(cd:*),Bash(git fetch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh run view:*),Bash(gh run list:*),Bash(gh api:*)"
+
+      # Without a push nothing runs again, so say so instead of going quiet.
+      - name: Report when nothing was pushed
+        if: always() && steps.pr.outputs.run == 'true'
+        env:
+          NUMBER: ${{ steps.pr.outputs.number }}
+          ROUND: ${{ steps.pr.outputs.round }}
+          EXEC: ${{ steps.claude.outputs.execution_file }}
+        run: |
+          denied=""
+          if [ -n "$EXEC" ] && [ -f "$EXEC" ]; then
+            denied=$(jq -r '[.[] | select(.type == "result") | .permission_denials[]?
+              | "- `\(.tool_name)`: `\(.tool_input.command // .tool_input.file_path // "" | tostring | .[0:120])`"] | join("\n")' "$EXEC" || true)
+            [ -z "$denied" ] || { echo "Denied tool calls:"; echo "$denied"; }
+          fi
+          head=$(gh pr view "$NUMBER" -R "$REPO" --json headRefOid --jq .headRefOid)
+          if [ "$head" = "$RUN_SHA" ]; then
+            gh pr edit "$NUMBER" -R "$REPO" --add-label needs-owner || true
+            {
+              echo "Claude fixer (round $ROUND) did not push a fix, so this PR is waiting for you."
+              echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              if [ -n "$denied" ]; then echo; echo "Tool calls that were not allowed:"; echo "$denied"; fi
+              echo
+              echo "Fix it yourself, or remove \`needs-owner\` and re-run the failed check to let Claude try again."
+            } > note.md
+            gh pr comment "$NUMBER" -R "$REPO" --body-file note.md
+          fi

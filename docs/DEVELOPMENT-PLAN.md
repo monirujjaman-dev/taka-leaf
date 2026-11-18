@@ -180,7 +180,7 @@ Each feature goes through the same steps (Git flow and agents in full: [GIT-WORK
 | SMTP provider account | Verification and reset emails | M5 |
 | S3-compatible bucket (R2, B2, S3…) | Off-server backups | M5 |
 | Android Studio, phone in developer mode, signing key | Android build and release | A1 / A4 |
-| Claude GitHub App + `CLAUDE_CODE_OAUTH_TOKEN` secret; Actions allowed to create PRs ([GIT-WORKFLOW.md §7](GIT-WORKFLOW.md#7-one-time-setup-owner)) | Automated review, fixes, merges and releases | Now |
+| Run `.github/scripts/setup-repo.sh`, install the Claude GitHub App, add `CLAUDE_CODE_OAUTH_TOKEN` ([GIT-WORKFLOW.md §7](GIT-WORKFLOW.md#7-one-time-setup-owner)) | Automated review, fixes, merges and releases | Now |
 
 ## 6. Risks and what to cut first
 
