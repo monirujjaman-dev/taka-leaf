@@ -208,6 +208,15 @@ Designed on the canvas and approved by the owner, then built for web, API and An
 - [x] Card EMIs billed automatically and held from the card's limit; automatic bank EMIs
 - [x] Web Loans pages and dashboard due EMIs; Android screens, offline, synced
 
+### Savings and insurance ✅
+
+Designed on the canvas and approved by the owner, then built for the API (#42), and the web and Android apps.
+
+- [x] Savings table and Savings wallets; savings parts on transactions; shared maths in C# and TS
+- [x] FDR (renew or pay out), DPS (instalments, missed, auto-debit), Sanchayapatra (profit after tax at source), prize bonds (prizes, sell back), policies (premiums, claims, maturity)
+- [x] Early encashment, undo, the tax year with a CSV export; SavingWorker for what banks do themselves
+- [x] Web Savings pages and dashboard due items; Android screens, offline, synced
+
 ## 7. After version 2 (ideas, not planned)
 
 Receipt photo on a transaction · PDF export of reports · offline support in the web app · import
