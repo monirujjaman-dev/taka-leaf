@@ -24,6 +24,7 @@ using TakaLeaf.App.Features.Budgets;
 using TakaLeaf.App.Features.Dashboard;
 using TakaLeaf.App.Features.People;
 using TakaLeaf.App.Features.Loans;
+using TakaLeaf.App.Features.Savings;
 using TakaLeaf.App.Features.Recurring;
 using TakaLeaf.App.Features.Reports;
 using TakaLeaf.App.Features.Health;
@@ -66,6 +67,9 @@ try
     builder.Services.Configure<LoanOptions>(builder.Configuration.GetSection(LoanOptions.Section));
     builder.Services.AddScoped<LoanRecorder>();
     builder.Services.AddHostedService<LoanWorker>();
+    builder.Services.Configure<SavingOptions>(builder.Configuration.GetSection(SavingOptions.Section));
+    builder.Services.AddScoped<SavingRecorder>();
+    builder.Services.AddHostedService<SavingWorker>();
 
     // Cache for the heavy read endpoints: memory, plus Redis when ConnectionStrings:Redis is set.
     builder.Services.Configure<CacheOptions>(builder.Configuration.GetSection(CacheOptions.Section));
@@ -251,6 +255,7 @@ try
     api.MapBudgets();
     api.MapRecurring();
     api.MapBankLoans();
+    api.MapSavings();
     api.MapReports();
     api.MapAppInfo();
     api.MapSync();

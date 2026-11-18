@@ -15,6 +15,9 @@ public enum WalletType
 
     /// <summary>What is left to pay on a bank loan or credit card EMI. One per loan, made with it.</summary>
     Loan,
+
+    /// <summary>The money in an FDR, DPS, savings certificate or prize bonds. One per saving, made with it.</summary>
+    Savings,
 }
 
 public sealed class Wallet : SyncedEntity

@@ -38,6 +38,11 @@ public static class ArchiveWallet
             return ValidationErrors.For("type", "This wallet belongs to a loan. Change it from Loans.");
         }
 
+        if (wallet.Type == WalletType.Savings)
+        {
+            return ValidationErrors.For("type", "This wallet belongs to a saving. Change it from Savings.");
+        }
+
         if (WalletRules.IsPersonWallet(wallet.Type))
         {
             return ValidationErrors.For("type", "A lent or borrowed wallet is changed from People.");

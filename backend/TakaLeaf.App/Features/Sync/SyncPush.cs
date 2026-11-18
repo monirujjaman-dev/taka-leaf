@@ -7,6 +7,7 @@ using TakaLeaf.App.Features.Categories;
 using TakaLeaf.App.Features.Loans;
 using TakaLeaf.App.Features.People;
 using TakaLeaf.App.Features.Recurring;
+using TakaLeaf.App.Features.Savings;
 using TakaLeaf.App.Features.Transactions;
 using TakaLeaf.App.Features.Wallets;
 
@@ -32,6 +33,7 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
                 "budgets" => await BudgetAsync(change.MutationId, Read<BudgetRow>(change), cancellationToken),
                 "recurringRules" => await RecurringAsync(change.MutationId, Read<RecurringRuleRow>(change), cancellationToken),
                 "loans" => await LoanAsync(change.MutationId, Read<LoanRow>(change), cancellationToken),
+                "savings" => await SavingAsync(change.MutationId, Read<SavingRow>(change), cancellationToken),
                 _ => Result(change.MutationId, SyncRules.Rejected, "This kind of change is not known to the server.", null),
             };
         }
@@ -198,11 +200,11 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
             return "Give the wallet a name.";
         }
 
-        if (row.Type == WalletType.Loan || existing?.Type == WalletType.Loan)
+        if (row.Type is WalletType.Loan or WalletType.Savings || existing?.Type is WalletType.Loan or WalletType.Savings)
         {
             if (existing is not null && existing.Type != row.Type)
             {
-                return "A loan's wallet keeps its type.";
+                return row.Type == WalletType.Savings || existing.Type == WalletType.Savings ? "A saving's wallet keeps its type." : "A loan's wallet keeps its type.";
             }
 
             return name.Length > WalletRules.NameMax ? $"Give the wallet a name of up to {WalletRules.NameMax} characters."
@@ -371,6 +373,14 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
             row = row with { CategoryId = await LoanRules.InterestCategoryAsync(db, userId, cancellationToken) };
         }
 
+        // A saving's profit, tax, premium, prize or payout saved offline without a category gets the server's.
+        if (row.SavingId is { } savingId && row.SavingPart is { } part && part is not (SavingPart.Deposit or SavingPart.Withdrawal)
+            && row.CategoryId is null && row.DeletedAt is null)
+        {
+            var policy = await db.Savings.Where(s => s.Id == savingId && s.UserId == userId).Select(s => s.Policy).FirstOrDefaultAsync(cancellationToken);
+            row = row with { CategoryId = await SavingRules.CategoryAsync(db, userId, part, policy, cancellationToken) };
+        }
+
         return await TransactionUpsertAsync(mutationId, row, cancellationToken);
     }
 
@@ -394,6 +404,9 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
                 transaction.LoanId = row.LoanId;
                 transaction.LoanEmi = row.LoanId is null ? null : row.LoanEmi;
                 transaction.LoanPart = row.LoanId is null ? null : row.LoanPart;
+                transaction.SavingId = row.SavingId;
+                transaction.SavingSeq = row.SavingId is null ? null : row.SavingSeq;
+                transaction.SavingPart = row.SavingId is null ? null : row.SavingPart;
             },
             Fine,
             async transaction =>
@@ -440,7 +453,12 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
 
         if (row.LoanId is { } loanId)
         {
-            return await CheckLoanRowAsync(row, loanId, cancellationToken);
+            return row.SavingId is null ? await CheckLoanRowAsync(row, loanId, cancellationToken) : "This entry could not be read.";
+        }
+
+        if (row.SavingId is { } savingId)
+        {
+            return await CheckSavingRowAsync(row, savingId, cancellationToken);
         }
 
         if (row.FeeOfId is { } feeOf)
@@ -551,7 +569,8 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
 
     private async Task<bool> OwnWalletAsync(Guid? id, CancellationToken cancellationToken) =>
         id is { } walletId && await db.Wallets.AnyAsync(
-            w => w.Id == walletId && w.UserId == userId && w.Type != WalletType.Lent && w.Type != WalletType.Borrowed && w.Type != WalletType.Loan,
+            w => w.Id == walletId && w.UserId == userId && w.Type != WalletType.Lent && w.Type != WalletType.Borrowed && w.Type != WalletType.Loan
+                && w.Type != WalletType.Savings,
             cancellationToken);
 
     // Loans
@@ -622,12 +641,161 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
         }
 
         var payFrom = await db.Wallets.IgnoreQueryFilters().FirstOrDefaultAsync(w => w.Id == row.PayFromWalletId && w.UserId == userId, cancellationToken);
-        if (payFrom is null || payFrom.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan)
+        if (payFrom is null || payFrom.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan or WalletType.Savings)
         {
             return "Choose one of your own wallets to pay the EMIs from.";
         }
 
         return row.Type == LoanType.CardEmi && payFrom.Type != WalletType.CreditCard ? "Choose a credit card." : null;
+    }
+
+    /// <summary>
+    /// A saving's row has the shape its part needs: money moves between one of the user's own
+    /// wallets and the saving's wallet; profit, prizes and payouts arrive in an own wallet (or an
+    /// FDR's own, when it renews); tax, fees and premiums are expenses from either.
+    /// </summary>
+    private async Task<string?> CheckSavingRowAsync(TransactionRow row, Guid savingId, CancellationToken cancellationToken)
+    {
+        var saving = await db.Savings.FirstOrDefaultAsync(s => s.Id == savingId && s.UserId == userId, cancellationToken);
+        if (saving is null)
+        {
+            return "That saving does not exist.";
+        }
+
+        if (row.SavingPart is not { } part || !Enum.IsDefined(part) || row.PersonId is not null || row.FeeOfId is not null || row.RecurringRuleId is not null)
+        {
+            return "This savings entry could not be read.";
+        }
+
+        if (row.SavingSeq is <= 0)
+        {
+            return "A payment number starts at 1.";
+        }
+
+        var own = saving.WalletId;
+        async Task<bool> OwnOrSaving(Guid? id) => (id is not null && id == own) || await OwnWalletAsync(id, cancellationToken);
+        var (type, ok) = part switch
+        {
+            SavingPart.Deposit => (TransactionType.Transfer, row.ToWalletId == own && own is not null && await OwnWalletAsync(row.FromWalletId, cancellationToken)),
+            SavingPart.Withdrawal => (TransactionType.Transfer, row.FromWalletId == own && own is not null && await OwnWalletAsync(row.ToWalletId, cancellationToken)),
+            SavingPart.Profit or SavingPart.Prize or SavingPart.Payout => (TransactionType.Income, row.FromWalletId is null && await OwnOrSaving(row.ToWalletId)),
+            _ => (TransactionType.Expense, row.ToWalletId is null && await OwnOrSaving(row.FromWalletId)),
+        };
+        if (row.Type != type)
+        {
+            return "This savings entry has the wrong kind.";
+        }
+
+        if (!ok)
+        {
+            return "Choose one of your own wallets for the money.";
+        }
+
+        var kind = type == TransactionType.Income ? CategoryKind.Income : CategoryKind.Expense;
+        return row.CategoryId is { } categoryId && type != TransactionType.Transfer
+            && !await db.Categories.AnyAsync(c => c.Id == categoryId && c.UserId == userId && c.Kind == kind, cancellationToken)
+            ? "Choose a category of the right kind."
+            : type == TransactionType.Transfer && row.CategoryId is not null ? "Money moved into or out of a saving has no category." : null;
+    }
+
+    // Savings
+
+    private Task<PushResult> SavingAsync(Guid mutationId, SavingRow row, CancellationToken cancellationToken) =>
+        UpsertAsync(
+            mutationId, db.Savings, row.Id, row.UpdatedAt, row.DeletedAt is not null,
+            existing => CheckSavingAsync(row, existing, cancellationToken),
+            s =>
+            {
+                s.Kind = row.Kind;
+                s.Name = Text.Clean(row.Name)!;
+                s.Provider = Text.Clean(row.Provider);
+                s.WalletId = row.Kind == SavingKind.Insurance ? null : row.WalletId;
+                s.PayFromWalletId = row.PayFromWalletId;
+                s.Amount = row.Amount;
+                s.RatePoints = row.RatePoints;
+                s.Months = row.Months;
+                s.EveryMonths = row.EveryMonths;
+                s.StartDate = row.StartDate;
+                s.TaxPoints = row.TaxPoints;
+                s.ChargesPerYear = row.ChargesPerYear;
+                s.MaturityAmount = row.MaturityAmount;
+                s.Cover = row.Cover;
+                s.Policy = row.Kind == SavingKind.Insurance ? row.Policy : null;
+                s.PolicyNumber = Text.Clean(row.PolicyNumber);
+                s.Insured = Text.Clean(row.Insured);
+                s.Nominee = Text.Clean(row.Nominee);
+                s.BondNumbers = Text.Clean(row.BondNumbers);
+                s.PaidBefore = row.PaidBefore;
+                s.AutoRecord = row.Kind == SavingKind.Fdr || row.AutoRecord;
+                s.Remind = row.Remind;
+                s.Renew = row.Kind == SavingKind.Fdr && row.Renew;
+                s.Missed = Text.Clean(row.Missed);
+                s.SeqBase = row.SeqBase;
+                s.ClosedOn = row.ClosedOn;
+            },
+            Fine,
+            async s =>
+            {
+                // Its wallet and every row recorded for it go with it, as when deleting through the API.
+                foreach (var t in await db.Transactions.Where(t => t.UserId == userId && t.SavingId == s.Id).ToListAsync(cancellationToken))
+                {
+                    t.DeletedAt = now;
+                }
+
+                if (s.WalletId is { } walletId && await db.Wallets.FirstOrDefaultAsync(w => w.Id == walletId && w.UserId == userId, cancellationToken) is { } wallet)
+                {
+                    wallet.DeletedAt = now;
+                }
+            },
+            s => SyncRules.ToRow(s),
+            cancellationToken);
+
+    private async Task<string?> CheckSavingAsync(SavingRow row, Saving? existing, CancellationToken cancellationToken)
+    {
+        if (!Enum.IsDefined(row.Kind) || (existing is not null && existing.Kind != row.Kind))
+        {
+            return "Choose FDR, DPS, Sanchayapatra, prize bonds or insurance.";
+        }
+
+        if (Text.LabelProblem(row.Name, SavingRules.NameMax) is { } nameProblem)
+        {
+            return nameProblem;
+        }
+
+        if (row.Amount <= 0 || row.Amount > TransactionRules.MaxAmount || row.ChargesPerYear < 0 || row.MaturityAmount is <= 0 || row.Cover is <= 0)
+        {
+            return "Enter the amounts, more than zero.";
+        }
+
+        if (row.RatePoints is < 0 or > SavingMath.MaxRatePoints || row.TaxPoints is < 0 or > SavingMath.MaxRatePoints
+            || row.Months is < 0 or > SavingMath.MaxMonths || row.EveryMonths < 0 || row.PaidBefore < 0 || row.SeqBase < 0)
+        {
+            return "Check the rate, the tax and the term.";
+        }
+
+        if ((row.BondNumbers?.Length ?? 0) > SavingRules.BondNumbersMax || (row.Missed?.Length ?? 0) > 2000)
+        {
+            return "That is too much to keep.";
+        }
+
+        if (row.Kind == SavingKind.Insurance)
+        {
+            if (row.WalletId is not null)
+            {
+                return "A policy has no wallet.";
+            }
+        }
+        else if (row.WalletId is not { } walletId
+            || !await db.Wallets.AnyAsync(w => w.Id == walletId && w.UserId == userId && w.Type == WalletType.Savings, cancellationToken)
+            || await db.Savings.AnyAsync(s => s.UserId == userId && s.Id != row.Id && s.WalletId == walletId, cancellationToken))
+        {
+            return "The saving's wallet does not exist.";
+        }
+
+        var payFrom = await db.Wallets.IgnoreQueryFilters().FirstOrDefaultAsync(w => w.Id == row.PayFromWalletId && w.UserId == userId, cancellationToken);
+        return payFrom is null || payFrom.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan or WalletType.Savings
+            ? "Choose one of your own wallets for the money."
+            : null;
     }
 
     // Budgets
