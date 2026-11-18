@@ -180,7 +180,7 @@ Each feature goes through the same steps (Git flow and agents in full: [GIT-WORK
 | SMTP provider account | Verification and reset emails | M5 |
 | S3-compatible bucket (R2, B2, S3…) | Off-server backups | M5 |
 | Android Studio, phone in developer mode, signing key | Android build and release | A1 / A4 |
-| Claude GitHub App + `CLAUDE_CODE_OAUTH_TOKEN` secret; Actions allowed to create PRs ([GIT-WORKFLOW.md §7](GIT-WORKFLOW.md#7-one-time-setup-owner)) | Automated review, fixes, merges and releases | Now |
+| Run `.github/scripts/setup-repo.sh`, install the Claude GitHub App, add `CLAUDE_CODE_OAUTH_TOKEN` ([GIT-WORKFLOW.md §7](GIT-WORKFLOW.md#7-one-time-setup-owner)) | Automated review, fixes, merges and releases | Now |
 
 ## 6. Risks and what to cut first
 
@@ -207,6 +207,15 @@ Designed on the canvas and approved by the owner, then built for web, API and An
 - [x] Record EMI with late fee, a different amount, undo; pay extra; early settlement with a charge
 - [x] Card EMIs billed automatically and held from the card's limit; automatic bank EMIs
 - [x] Web Loans pages and dashboard due EMIs; Android screens, offline, synced
+
+### Savings and insurance ✅
+
+Designed on the canvas and approved by the owner, then built for the API (#42), and the web and Android apps.
+
+- [x] Savings table and Savings wallets; savings parts on transactions; shared maths in C# and TS
+- [x] FDR (renew or pay out), DPS (instalments, missed, auto-debit), Sanchayapatra (profit after tax at source), prize bonds (prizes, sell back), policies (premiums, claims, maturity)
+- [x] Early encashment, undo, the tax year with a CSV export; SavingWorker for what banks do themselves
+- [x] Web Savings pages and dashboard due items; Android screens, offline, synced
 
 ## 7. After version 2 (ideas, not planned)
 

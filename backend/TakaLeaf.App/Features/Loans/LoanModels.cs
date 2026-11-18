@@ -203,7 +203,7 @@ internal static class LoanRules
             return ValidationErrors.For(field, "That wallet does not exist.");
         }
 
-        if (wallet.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan)
+        if (wallet.Type is WalletType.Lent or WalletType.Borrowed or WalletType.Loan or WalletType.Savings)
         {
             return ValidationErrors.For(field, "Choose one of your own wallets, like your bank account or bKash.");
         }

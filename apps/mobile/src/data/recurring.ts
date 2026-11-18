@@ -71,7 +71,7 @@ export interface RecurringInput {
 /** As RecurringRules.Apply: changing the schedule carries on from where the old one had reached. */
 export function saveRule(db: AppDb, input: RecurringInput, now: Date = new Date()): string {
   const existing = find(db, "recurringRules", input.id);
-  checkTransaction(db, { ...input, occurredAt: now.toISOString() }, existing ? { ...existing, personId: null, feeOfId: null, recurringRuleId: null, recurringDate: null, occurredAt: "", loanId: null, loanEmi: null, loanPart: null } : undefined);
+  checkTransaction(db, { ...input, occurredAt: now.toISOString() }, existing ? { ...existing, personId: null, feeOfId: null, recurringRuleId: null, recurringDate: null, occurredAt: "", loanId: null, loanEmi: null, loanPart: null, savingId: null, savingSeq: null, savingPart: null } : undefined);
   if (!Number.isInteger(input.interval) || input.interval < 1 || input.interval > MAX_INTERVAL) throw new FieldError("interval", `Repeat every 1 to ${MAX_INTERVAL}.`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.startDate)) throw new FieldError("startDate", "Choose the first date.");
   if (input.endDate && input.endDate < input.startDate) throw new FieldError("endDate", "The last date must be on or after the first.");
@@ -146,6 +146,9 @@ export function recordNext(db: AppDb, ruleId: string, options: { amount?: number
       loanId: null,
       loanEmi: null,
       loanPart: null,
+      savingId: null,
+      savingSeq: null,
+      savingPart: null,
       occurredAt: new Date(occurredAt).toISOString(),
       note: rule.note,
       updatedAt: "",

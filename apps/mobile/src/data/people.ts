@@ -158,7 +158,7 @@ export function saveLoan(db: AppDb, input: LoanInput, now: Date = new Date()): s
   if (!Number.isSafeInteger(input.amount) || input.amount <= 0 || input.amount > MAX_AMOUNT) throw new FieldError("amount", "Enter an amount above zero.");
   const wallet = find(db, "wallets", input.walletId);
   if (!wallet) throw new FieldError("walletId", "That wallet does not exist.");
-  if (isPersonWallet(wallet.type) || wallet.type === "Loan") throw new FieldError("walletId", "Choose one of your own wallets, like Cash or bKash.");
+  if (isPersonWallet(wallet.type) || wallet.type === "Loan" || wallet.type === "Savings") throw new FieldError("walletId", "Choose one of your own wallets, like Cash or bKash.");
   const existing = find(db, "transactions", input.id);
   if (wallet.archived && existing?.fromWalletId !== wallet.id && existing?.toWalletId !== wallet.id) throw new FieldError("walletId", "That wallet is archived. Unarchive it to use it.");
   const note = cleanText(input.note);
@@ -197,6 +197,9 @@ export function saveLoan(db: AppDb, input: LoanInput, now: Date = new Date()): s
       loanId: null,
       loanEmi: null,
       loanPart: null,
+      savingId: null,
+      savingSeq: null,
+      savingPart: null,
       occurredAt: new Date(input.occurredAt).toISOString(),
       note,
       updatedAt: "",

@@ -510,6 +510,171 @@ namespace TakaLeaf.App.Data.Migrations
                     b.ToTable("refresh_tokens");
                 });
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.Saving", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount");
+
+                    b.Property<bool>("AutoRecord")
+                        .HasColumnType("boolean")
+                        .HasColumnName("auto_record");
+
+                    b.Property<string>("BondNumbers")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("bond_numbers");
+
+                    b.Property<long>("ChargesPerYear")
+                        .HasColumnType("bigint")
+                        .HasColumnName("charges_per_year");
+
+                    b.Property<DateOnly?>("ClosedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("closed_on");
+
+                    b.Property<long?>("Cover")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cover");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("EveryMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("every_months");
+
+                    b.Property<string>("Insured")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("insured");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<long?>("MaturityAmount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("maturity_amount");
+
+                    b.Property<string>("Missed")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("missed");
+
+                    b.Property<int>("Months")
+                        .HasColumnType("integer")
+                        .HasColumnName("months");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Nominee")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("nominee");
+
+                    b.Property<int>("PaidBefore")
+                        .HasColumnType("integer")
+                        .HasColumnName("paid_before");
+
+                    b.Property<Guid>("PayFromWalletId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pay_from_wallet_id");
+
+                    b.Property<string>("Policy")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("policy");
+
+                    b.Property<string>("PolicyNumber")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("policy_number");
+
+                    b.Property<string>("Provider")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("provider");
+
+                    b.Property<int>("RatePoints")
+                        .HasColumnType("integer")
+                        .HasColumnName("rate_points");
+
+                    b.Property<bool>("Remind")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind");
+
+                    b.Property<bool>("Renew")
+                        .HasColumnType("boolean")
+                        .HasColumnName("renew");
+
+                    b.Property<int>("SeqBase")
+                        .HasColumnType("integer")
+                        .HasColumnName("seq_base");
+
+                    b.Property<long>("ServerSeq")
+                        .HasColumnType("bigint")
+                        .HasColumnName("server_seq");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<int>("TaxPoints")
+                        .HasColumnType("integer")
+                        .HasColumnName("tax_points");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid?>("WalletId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("wallet_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_savings");
+
+                    b.HasIndex("PayFromWalletId")
+                        .HasDatabaseName("ix_savings_pay_from_wallet_id");
+
+                    b.HasIndex("WalletId")
+                        .HasDatabaseName("ix_savings_wallet_id");
+
+                    b.HasIndex("UserId", "ServerSeq")
+                        .HasDatabaseName("ix_savings_user_id_server_seq");
+
+                    b.ToTable("savings", t =>
+                        {
+                            t.HasCheckConstraint("ck_savings_amount_positive", "amount > 0");
+
+                            t.HasCheckConstraint("ck_savings_months", "months BETWEEN 0 AND 600");
+
+                            t.HasCheckConstraint("ck_savings_rate", "rate_points BETWEEN 0 AND 10000");
+
+                            t.HasCheckConstraint("ck_savings_tax", "tax_points BETWEEN 0 AND 10000");
+                        });
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Session", b =>
                 {
                     b.Property<Guid>("Id")
@@ -614,6 +779,19 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("recurring_rule_id");
 
+                    b.Property<Guid?>("SavingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("saving_id");
+
+                    b.Property<string>("SavingPart")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("saving_part");
+
+                    b.Property<int?>("SavingSeq")
+                        .HasColumnType("integer")
+                        .HasColumnName("saving_seq");
+
                     b.Property<long>("ServerSeq")
                         .HasColumnType("bigint")
                         .HasColumnName("server_seq");
@@ -669,6 +847,11 @@ namespace TakaLeaf.App.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_transactions_loan_id_loan_emi_loan_part")
                         .HasFilter("loan_emi IS NOT NULL AND deleted_at IS NULL");
+
+                    b.HasIndex("SavingId", "SavingSeq", "SavingPart")
+                        .IsUnique()
+                        .HasDatabaseName("ix_transactions_saving_id_saving_seq_saving_part")
+                        .HasFilter("saving_seq IS NOT NULL AND deleted_at IS NULL");
 
                     b.ToTable("transactions", t =>
                         {
@@ -971,6 +1154,29 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasConstraintName("fk_refresh_tokens_sessions_session_id");
                 });
 
+            modelBuilder.Entity("TakaLeaf.App.Data.Entities.Saving", b =>
+                {
+                    b.HasOne("TakaLeaf.App.Data.Entities.Wallet", null)
+                        .WithMany()
+                        .HasForeignKey("PayFromWalletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_savings_wallets_pay_from_wallet_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_savings_users_user_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.Wallet", null)
+                        .WithMany()
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_savings_wallets_wallet_id");
+                });
+
             modelBuilder.Entity("TakaLeaf.App.Data.Entities.Session", b =>
                 {
                     b.HasOne("TakaLeaf.App.Data.Entities.User", null)
@@ -1018,6 +1224,12 @@ namespace TakaLeaf.App.Data.Migrations
                         .HasForeignKey("RecurringRuleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_transactions_recurring_rules_recurring_rule_id");
+
+                    b.HasOne("TakaLeaf.App.Data.Entities.Saving", null)
+                        .WithMany()
+                        .HasForeignKey("SavingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_transactions_savings_saving_id");
 
                     b.HasOne("TakaLeaf.App.Data.Entities.Wallet", null)
                         .WithMany()

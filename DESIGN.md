@@ -396,6 +396,13 @@ Focus is a 2 px primary outline offset by 2 px on every interactive element.
   sentence); the **hero** "Left to pay" amount in expense colour at 28px/800 with two-up facts
   (13px muted label over 15px/700 tabular amount). Schedule rows dim what is upcoming or paid
   before, and use a check, clock or empty circle icon for Paid, Due and Upcoming.
+- **Savings pieces** (Savings pages, web and Android): a **kind tile** (the 40 px icon tile) in
+  three families: mint and forest for deposits (FDR safe, DPS coins), gold (`#FBF0D9` on
+  `#7A4F00`) for Sanchayapatra and prize bonds, blue (`#E4EEF7` on `#2C5F8A`) for policies; the
+  **date badge** (18px/800 day over an 11px/700 month) for Coming up; the DPS **instalment grid**
+  (12 cells a row, 18 px tall, 5 px radius and gap: forest filled for paid, forest outline for next,
+  rust outline for missed, track for to come, read out as one sentence); **bond chips** (two
+  columns, 14 px radius, a winner gets a 2 px gold border on the gold tint with "Won ৳10,000").
 - **Email**: a 600 px column on mint; the leaf mark (40 px PNG) and a live-text "TakaLeaf" wordmark
   above a white card (radius 20, 1 px line border, padding 40, 24 px on phones where the card goes
   edge to edge). Inside: a 24px/800 title, "Hi {name}," (or "Hello,"), 15px/24px body, one forest

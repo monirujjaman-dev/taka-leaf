@@ -21,6 +21,8 @@ const load = {
   person: () => import("../pages/people/PersonPage"),
   loans: () => import("../pages/loans/LoansPage"),
   loan: () => import("../pages/loans/LoanPage"),
+  savings: () => import("../pages/savings/SavingsPage"),
+  saving: () => import("../pages/savings/SavingPage"),
   reports: () => import("../pages/reports/ReportsPage"),
   budgets: () => import("../pages/budgets/BudgetsPage"),
   recurring: () => import("../pages/recurring/RecurringPage"),
@@ -42,6 +44,8 @@ export const PeoplePage = lazy(() => load.people().then((m) => ({ default: m.Peo
 export const PersonPage = lazy(() => load.person().then((m) => ({ default: m.PersonPage })));
 export const LoansPage = lazy(() => load.loans().then((m) => ({ default: m.LoansPage })));
 export const LoanPage = lazy(() => load.loan().then((m) => ({ default: m.LoanPage })));
+export const SavingsPage = lazy(() => load.savings().then((m) => ({ default: m.SavingsPage })));
+export const SavingPage = lazy(() => load.saving().then((m) => ({ default: m.SavingPage })));
 export const ReportsPage = lazy(() => load.reports().then((m) => ({ default: m.ReportsPage })));
 export const BudgetsPage = lazy(() => load.budgets().then((m) => ({ default: m.BudgetsPage })));
 export const RecurringPage = lazy(() => load.recurring().then((m) => ({ default: m.RecurringPage })));
@@ -54,6 +58,7 @@ function loaderFor(pathname: string) {
   if (pathname === "/") return load.dashboard;
   if (/^\/people\/[^/]+/.test(pathname)) return load.person;
   if (/^\/loans\/[^/]+/.test(pathname)) return load.loan;
+  if (/^\/savings\/[^/]+/.test(pathname)) return load.saving;
   const first = `/${pathname.split("/")[1] ?? ""}`;
   const byPath: Record<string, () => Promise<unknown>> = {
     "/sign-in": load.signIn,
@@ -64,6 +69,7 @@ function loaderFor(pathname: string) {
     "/transactions": load.transactions,
     "/wallets": load.wallets,
     "/loans": load.loans,
+    "/savings": load.savings,
     "/people": load.people,
     "/reports": load.reports,
     "/budgets": load.budgets,

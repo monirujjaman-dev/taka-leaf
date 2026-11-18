@@ -31,8 +31,9 @@ pnpm --filter @takaleaf/mobile test                     # Android app unit tests
 - **Scope every query by `UserId`**. Another user's row → 404 via `NotFound.Problem`; another user's id
   inside a request → 400 "does not exist".
 - **Errors** are problem responses; field errors via `ValidationErrors.For(field, "Plain sentence.")`.
-- Fee rows (`FeeOfId`), person loan rows (`PersonId`) and bank loan rows (`LoanId`) change only
-  through their owner, not `/transactions`. Loan wallets (type `Loan`) change only from Loans.
+- Fee rows (`FeeOfId`), person loan rows (`PersonId`), bank loan rows (`LoanId`) and savings rows
+  (`SavingId`) change only through their owner, not `/transactions`. Loan wallets (type `Loan`) and
+  Savings wallets (type `Savings`) change only from Loans and Savings.
 
 ## Backend conventions
 

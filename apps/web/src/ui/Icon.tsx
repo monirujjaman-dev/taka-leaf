@@ -40,6 +40,18 @@ const PATHS = {
   flag: "M5 21V4h11l-2 4 2 4H5",
   info: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 11v6M12 7.5h.01",
   edit: "M4 20h4L19 9l-4-4L4 16zM13 7l4 4",
+  /** Savings and insurance: a safe (FDR), stacked coins (DPS), a certificate, a prize bond, a policy. */
+  safe: "M4 5h16v14H4zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM16.5 12h1.5M6 19v2M18 19v2",
+  coins: "M12 4c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 7v5c0 1.7 3.6 3 8 3s8-1.3 8-3V7M4 12v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5",
+  certificate: "M5 4h14v12H5zM8 8h8M8 11h5M10 16l-1 5 3-2 3 2-1-5",
+  ticket: "M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4zM14 6v12",
+  shield: "M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6zM9 12l2 2 4-4",
+  heart: "M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z",
+  car: "M5 16h14v-4l-2-5H7l-2 5zM5 12h14M7 19v-3M17 19v-3",
+  trophy: "M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8",
+  percent: "M19 5 5 19M7 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
+  check: "M5 12l5 5 9-10",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
 } as const;
 
 export type IconName = keyof typeof PATHS;

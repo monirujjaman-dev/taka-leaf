@@ -40,6 +40,15 @@ public sealed class Transaction : SyncedEntity
 
     /// <summary>What the row is to its loan.</summary>
     public LoanPart? LoanPart { get; set; }
+
+    /// <summary>The saving or policy this row belongs to; such rows change only through Savings.</summary>
+    public Guid? SavingId { get; set; }
+
+    /// <summary>Which DPS instalment, profit payment or premium (1 = the first) a row records; null for one-off rows.</summary>
+    public int? SavingSeq { get; set; }
+
+    /// <summary>What the row is to its saving.</summary>
+    public SavingPart? SavingPart { get; set; }
     public DateTimeOffset OccurredAt { get; set; }
     public string? Note { get; set; }
 }
