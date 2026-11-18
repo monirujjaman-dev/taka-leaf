@@ -29,15 +29,26 @@ RUN dotnet publish backend/TakaLeaf.App/TakaLeaf.App.csproj -c Release -o /out -
 # 3. Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
+
+# Switch to root to install system dependencies
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=api /out ./
 COPY --from=web /src/apps/web/dist ./wwwroot
+
 # Log files and data protection keys go here; mount volumes on /app/logs and /app/keys to keep
 # them across deploys.
 RUN mkdir -p /app/logs /app/keys && chown "$APP_UID" /app/logs /app/keys
+
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     ASPNETCORE_ENVIRONMENT=Production \
     Database__MigrateOnStartup=true \
     DataProtection__KeysPath=/app/keys
+
+# Switch back to the non-root app user
 USER $APP_UID
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "TakaLeaf.App.dll"]
