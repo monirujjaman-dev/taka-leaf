@@ -7,8 +7,8 @@ export function IconTile({ icon, tone = "primary", size = 40 }: { icon: IconName
   const color = {
     primary: "bg-[var(--tl-chip)] text-[var(--tl-primary)]",
     expense: "bg-[var(--tl-chip)] text-expense dark:text-expense-dark",
-    gold: "bg-[#FBF0D9] text-[#7A4F00] dark:bg-[#3A2E12] dark:text-[#F2C46D]",
-    blue: "bg-[#E4EEF7] text-[#2C5F8A] dark:bg-[#18283A] dark:text-[#8DB8E2]",
+    gold: "bg-[var(--tl-gold-tint)] text-[var(--tl-gold)]",
+    blue: "bg-[var(--tl-blue-tint)] text-[var(--tl-blue)]",
     muted: "bg-[var(--tl-track)] text-[var(--tl-muted)]",
   }[tone];
   const radius = size === 36 ? "rounded-[12px]" : "rounded-[14px]";

@@ -485,9 +485,9 @@ function BondsView({ detail, open }: ViewProps) {
               {numbers.map((n) => {
                 const won = n === wonNumber;
                 return (
-                  <li key={n} className={`rounded-[14px] px-2.5 py-2 ${won ? "border-2 border-[#B07A10] bg-[#FBF0D9] dark:bg-[#3A2E12]" : "border border-[var(--tl-border)] bg-[var(--tl-surface)]"}`}>
+                  <li key={n} className={`rounded-[14px] px-2.5 py-2 ${won ? "border-2 border-[var(--tl-gold)] bg-[var(--tl-gold-tint)]" : "border border-[var(--tl-border)] bg-[var(--tl-surface)]"}`}>
                     <span className="block text-sm font-bold tabular-nums tracking-wide">{n}</span>
-                    {won && last ? <span className="block text-caption font-extrabold text-[#7A4F00] dark:text-[#F2C46D]">Won {wholeBdt(last.amount)}</span> : null}
+                    {won && last ? <span className="block text-caption font-extrabold text-[var(--tl-gold)]">Won {wholeBdt(last.amount)}</span> : null}
                   </li>
                 );
               })}
