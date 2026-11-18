@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { dateLabel } from "../src/data/calendar";
+import { addDays, dateLabel, today } from "../src/data/calendar";
 import { comingUp, listSavings, summarizeSavings, type SavingView } from "../src/data/savings";
 import type { SavingKind } from "../src/db/schema";
 import { db } from "../src/db/client";
@@ -90,7 +90,7 @@ export default function Savings() {
                   detail={[s.provider, s.next ? `${s.policy === "Life" ? "next" : "renews"} ${dateLabel(s.next.date)}` : s.closed ? "Closed" : null].filter(Boolean).join(" · ")}
                   onPress={() => openSaving(s)}
                   right={
-                    s.next && s.next.date <= new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10) ? (
+                    s.next && s.next.date <= addDays(today(), 30) ? (
                       <Pill label={s.next.overdue ? "Late" : "Due soon"} tone={s.next.overdue ? "expense" : "muted"} />
                     ) : s.cover ? (
                       <Money amount={s.cover} />

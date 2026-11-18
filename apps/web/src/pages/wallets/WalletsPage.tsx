@@ -131,7 +131,10 @@ export function WalletsPage() {
 
             {lent.length + borrowed.length + bankLoans.length + savings.length > 0 ? (
               <section aria-labelledby="group-loans" className="flex flex-col gap-2">
-                <SectionHeading id="group-loans" title="Loans" />
+                <SectionHeading
+                  id="group-loans"
+                  title={savings.length === 0 ? "Loans" : lent.length + borrowed.length + bankLoans.length === 0 ? "Savings" : "Loans and savings"}
+                />
                 <ListCard>
                   <ul className="m-0 flex list-none flex-col p-0">
                     {[
@@ -147,7 +150,7 @@ export function WalletsPage() {
                             to={row.to}
                             className={`-mx-1.5 flex min-h-14 items-center py-1.5 gap-3 rounded-[14px] px-1.5 hover:bg-[var(--tl-chip)] active:bg-[var(--tl-chip)] ${focusRing}`}
                           >
-                            <IconTile icon={row.icon} tone={row.label === "Lent to others" ? "primary" : "expense"} />
+                            <IconTile icon={row.icon} tone={row.label === "Lent to others" || row.label === "Savings" ? "primary" : "expense"} />
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-body font-bold">{row.label}</span>
                               <span className="block text-caption text-[var(--tl-muted)]">{row.count}</span>

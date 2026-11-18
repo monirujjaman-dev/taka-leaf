@@ -4,6 +4,7 @@ import { useSavingAction, useSavings } from "../../api/queries";
 import type { ComingUp, Saving } from "../../api/types";
 import { Button, focusRing } from "../../ui/Button";
 import { ErrorNote, messageOf } from "../../ui/Feedback";
+import { localDate } from "../../ui/format";
 import { CloseForm, ProfitForm } from "./SavingForms";
 import { dueInWords, dueLabel, KindIcon, wholeBdt } from "./parts";
 
@@ -16,7 +17,7 @@ export const DUE_SOON_DAYS = 7;
  */
 export function DueSavings() {
   const savings = useSavings();
-  const soon = new Date(Date.now() + DUE_SOON_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const soon = localDate(new Date(Date.now() + DUE_SOON_DAYS * 86_400_000));
   const byId = new Map((savings.data?.savings ?? []).map((s) => [s.id, s]));
   const due = (savings.data?.comingUp ?? []).filter((c) => {
     const s = byId.get(c.savingId);

@@ -7,6 +7,7 @@ import type { ComingUp, Saving, SavingKind, SavingList } from "../../api/types";
 import { PageHeader } from "../../layout/AppShell";
 import { Button, buttonClass, focusRing } from "../../ui/Button";
 import { EmptyState, ErrorNote, LoadError, Loading, messageOf } from "../../ui/Feedback";
+import { localDate } from "../../ui/format";
 import { Icon } from "../../ui/Icon";
 import { Bar, iconButtonClass, LeafWatermark, ListCard, StatTile } from "../../ui/Parts";
 import { AddSavingForm } from "./AddSavingForm";
@@ -243,7 +244,7 @@ function SavingItem({ saving }: { saving: Saving }) {
 }
 
 function PolicyItem({ saving }: { saving: Saving }) {
-  const soon = saving.next && !saving.closed && Date.parse(saving.next.date) - Date.now() < 30 * 86_400_000;
+  const soon = saving.next && !saving.closed && saving.next.date <= localDate(new Date(Date.now() + 30 * 86_400_000));
   return (
     <Link to={`/savings/${saving.id}`} className={`flex min-h-[60px] items-center gap-3 rounded-[14px] py-2 ${saving.closed ? "opacity-70" : ""} ${focusRing}`}>
       <KindIcon item={saving} />
@@ -362,7 +363,7 @@ function PoliciesTable({ policies }: { policies: Saving[] }) {
                   <td className={`${td} text-right`}>
                     {wholeBdt(s.amount)} {premiumWords(s.everyMonths)}
                   </td>
-                  <td className="px-2 py-3 text-right">{s.next ? <Pill tone={s.next.overdue ? "rust" : Date.parse(s.next.date) - Date.now() < 30 * 86_400_000 ? "amber" : "grey"}>{dueLabel(s.next.date)}</Pill> : s.closed ? <Pill tone="mint">Closed</Pill> : null}</td>
+                  <td className="px-2 py-3 text-right">{s.next ? <Pill tone={s.next.overdue ? "rust" : s.next.date <= localDate(new Date(Date.now() + 30 * 86_400_000)) ? "amber" : "grey"}>{dueLabel(s.next.date)}</Pill> : s.closed ? <Pill tone="mint">Closed</Pill> : null}</td>
                 </tr>
               ))}
             </tbody>
