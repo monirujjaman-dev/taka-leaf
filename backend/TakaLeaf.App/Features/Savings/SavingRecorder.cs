@@ -16,13 +16,22 @@ public sealed class SavingRecorder(AppDbContext db, LocalCalendar calendar)
     public async Task<int> RecordDueAsync(CancellationToken cancellationToken)
     {
         var today = calendar.Today();
-        var savings = await db.Savings
+        var ids = await db.Savings
             .Where(s => s.ClosedOn == null && s.AutoRecord && s.StartDate <= today
                 && (s.Kind == SavingKind.Dps || s.Kind == SavingKind.Fdr || s.Kind == SavingKind.Certificate))
+            .OrderBy(s => s.Id)
+            .Select(s => s.Id)
             .ToListAsync(cancellationToken);
         var recorded = 0;
-        foreach (var saving in savings)
+        foreach (var id in ids)
         {
+            // Loaded one at a time: a conflict clears the change tracker, and a saving loaded
+            // before it would no longer be tracked, so its new term or closing would not be saved.
+            if (await db.Savings.FirstOrDefaultAsync(s => s.Id == id, cancellationToken) is not { } saving)
+            {
+                continue;
+            }
+
             for (var i = 0; i < SavingRules.MaxCatchUp; i++)
             {
                 var state = (await SavingRules.StatesAsync(db, calendar, saving.UserId, [saving], cancellationToken))[saving.Id];

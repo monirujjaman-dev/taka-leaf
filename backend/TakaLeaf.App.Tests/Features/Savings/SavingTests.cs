@@ -124,6 +124,31 @@ public class SavingTests(DatabaseFixture fixture)
     }
 
     [Fact]
+    public async Task A_conflict_on_one_saving_does_not_stop_the_next_from_renewing()
+    {
+        var (client, bank) = await Account();
+        var first = await Add(client, Fdr(bank, Today.AddMonths(-12), held: true));
+        var second = await Add(client, Fdr(bank, Today.AddMonths(-12), held: true));
+
+        // The first FDR's excise duty for this renewal was already recorded on the phone.
+        var now = DateTimeOffset.UtcNow;
+        var excise = await SyncTests.Push(client, SyncTests.Change("transactions", new
+        {
+            id = Guid.CreateVersion7(), type = "Expense", amount = 300_000, fromWalletId = first.WalletId, toWalletId = (Guid?)null, categoryId = (Guid?)null,
+            personId = (Guid?)null, feeOfId = (Guid?)null, recurringRuleId = (Guid?)null, recurringDate = (DateOnly?)null, occurredAt = now, note = "Excise duty",
+            updatedAt = now, deletedAt = (DateTimeOffset?)null, savingId = first.Id, savingSeq = 1, savingPart = "Fee",
+        }));
+        Assert.Equal("accepted", Assert.Single(excise).Status);
+
+        await RunRecorder();
+
+        var renewed = (await Get(client, second.Id)).Saving;
+        Assert.Equal(Today, renewed.StartDate);
+        Assert.Equal(54_087_500, renewed.Amount);
+        Assert.Equal(Today.AddMonths(-12), (await Get(client, first.Id)).Saving.StartDate);
+    }
+
+    [Fact]
     public async Task An_FDR_that_does_not_renew_pays_into_the_account_and_closes()
     {
         var (client, bank) = await Account();
@@ -370,5 +395,27 @@ public class SavingTests(DatabaseFixture fixture)
         var profit = await SyncTests.Push(client, SyncTests.Change("transactions", Row("Income", 100, null, bank, "Profit", null)));
         Assert.Equal("accepted", Assert.Single(profit).Status);
         Assert.NotEqual(JsonValueKind.Null, profit[0].Current!.Value.GetProperty("categoryId").ValueKind);
+    }
+
+    [Fact]
+    public async Task A_phone_edit_cannot_unlink_a_row_from_its_saving()
+    {
+        var (client, bank) = await Account();
+        var fdr = await Add(client, Fdr(bank, Today));
+        var opened = (await Get(client, fdr.Id)).Activity.Single();
+        var later = DateTimeOffset.UtcNow.AddSeconds(1);
+
+        // An app that does not know savings sends the row back without its link.
+        var results = await SyncTests.Push(client, SyncTests.Change("transactions", new
+        {
+            id = opened.Id, type = "Transfer", amount = 50_000_000, fromWalletId = bank, toWalletId = fdr.WalletId, categoryId = (Guid?)null,
+            personId = (Guid?)null, feeOfId = (Guid?)null, recurringRuleId = (Guid?)null, recurringDate = (DateOnly?)null, occurredAt = later,
+            note = "Fixed note", updatedAt = later, deletedAt = (DateTimeOffset?)null,
+        }));
+
+        Assert.Equal("rejected", Assert.Single(results).Status);
+        var row = Assert.Single((await Get(client, fdr.Id)).Activity);
+        Assert.Equal(opened.Id, row.Id);
+        Assert.NotEqual("Fixed note", row.Note);
     }
 }

@@ -451,6 +451,15 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
             return "That recurring transaction does not exist.";
         }
 
+        // An edit keeps its link to a saving: an app that does not know savings would otherwise
+        // turn a profit row into plain income, and the recorder would record it again.
+        if (existing is not null
+            && (row.SavingId != existing.SavingId
+                || (row.SavingId is not null && (row.SavingSeq != existing.SavingSeq || row.SavingPart != existing.SavingPart))))
+        {
+            return "This is part of a saving or policy. Change it from Savings.";
+        }
+
         if (row.LoanId is { } loanId)
         {
             return row.SavingId is null ? await CheckLoanRowAsync(row, loanId, cancellationToken) : "This entry could not be read.";
@@ -691,8 +700,10 @@ internal sealed class SyncPush(AppDbContext db, Guid userId, DateTimeOffset now,
             return "Choose one of your own wallets for the money.";
         }
 
+        // The category may have just been made for this row (see TransactionAsync) and not saved yet.
         var kind = type == TransactionType.Income ? CategoryKind.Income : CategoryKind.Expense;
         return row.CategoryId is { } categoryId && type != TransactionType.Transfer
+            && !db.Categories.Local.Any(c => c.Id == categoryId && c.UserId == userId && c.Kind == kind && c.DeletedAt is null)
             && !await db.Categories.AnyAsync(c => c.Id == categoryId && c.UserId == userId && c.Kind == kind, cancellationToken)
             ? "Choose a category of the right kind."
             : type == TransactionType.Transfer && row.CategoryId is not null ? "Money moved into or out of a saving has no category." : null;

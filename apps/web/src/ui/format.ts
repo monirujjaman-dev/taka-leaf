@@ -103,6 +103,7 @@ export const WALLET_TYPE_LABEL: Record<WalletType, string> = {
   Lent: "Lent",
   Borrowed: "Borrowed",
   Loan: "Loan",
+  Savings: "Savings",
 };
 
 const UNIT = { Daily: "day", Weekly: "week", Monthly: "month", Yearly: "year" } as const;

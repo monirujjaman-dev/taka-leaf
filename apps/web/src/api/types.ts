@@ -18,7 +18,7 @@ export interface MessageResponse {
   message: string;
 }
 
-export type WalletType = "Cash" | "Bank" | "CreditCard" | "Mfs" | "Lent" | "Borrowed" | "Loan";
+export type WalletType = "Cash" | "Bank" | "CreditCard" | "Mfs" | "Lent" | "Borrowed" | "Loan" | "Savings";
 
 export interface Wallet {
   id: string;
@@ -74,6 +74,8 @@ export interface Transaction {
   recurringRuleId?: string | null;
   /** Set on rows that belong to a bank loan or card EMI; they change only from Loans. */
   loanId?: string | null;
+  /** Set on rows that belong to a saving or policy; they change only from Savings. */
+  savingId?: string | null;
 }
 
 export interface TransactionInput {
