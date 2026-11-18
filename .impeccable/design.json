@@ -83,6 +83,18 @@
       "sage-soft": {
         "role": "\"Leaf\" in the wordmark on forest panels",
         "cssVar": "--color-sage-soft"
+      },
+      "gold": {
+        "role": "savings kind tile: Sanchayapatra and prize bonds; a winning bond's border",
+        "cssVar": "--tl-gold / --tl-gold-tint",
+        "light": "#7A4F00 on #FBF0D9",
+        "dark": "#F2C46D on #3A2E12"
+      },
+      "blue": {
+        "role": "savings kind tile: insurance policies",
+        "cssVar": "--tl-blue / --tl-blue-tint",
+        "light": "#2C5F8A on #E4EEF7",
+        "dark": "#8DB8E2 on #18283A"
       }
     },
     "typographyMeta": {
@@ -257,6 +269,22 @@
       "name": "Loader",
       "description": "Option A \"Leaf assembly\": the four pieces of the leaf mark float apart in an isometric view, then turn face-on and lock together (3.2 s cycle) over a shadow that tightens; 150 px at start-up, 44 px in pages; assembled and fading with reduced motion.",
       "css": ".ds-loader{perspective:900px;display:flex;flex-direction:column;align-items:center;font-family:Inter,'Noto Sans Bengali',system-ui,sans-serif}.ds-loader-scene{position:relative;width:150px;height:150px;transform-style:preserve-3d;animation:ds-turn 3.2s cubic-bezier(.65,0,.35,1) infinite}.ds-loader-piece{position:absolute;inset:0;animation:ds-fly 3.2s cubic-bezier(.65,0,.35,1) infinite}@keyframes ds-turn{0%,18%,100%{transform:rotateX(58deg) rotateZ(-38deg)}50%,84%{transform:none}}@keyframes ds-fly{0%,18%,100%{transform:translate3d(var(--x),var(--y),var(--z))}50%,84%{transform:none}}@media (prefers-reduced-motion:reduce){.ds-loader-scene,.ds-loader-piece{animation:none;transform:none}}"
+    },
+    {
+      "name": "Savings kind tile",
+      "kind": "icon",
+      "refersTo": "kind-tile",
+      "description": "40 px rounded icon square for a saving: mint and forest for FDR and DPS, gold for Sanchayapatra and prize bonds, blue for policies.",
+      "html": "<span class=\"ds-kind ds-kind-gold\" aria-hidden=\"true\">◎</span>",
+      "css": ".ds-kind{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:14px}.ds-kind-gold{background:#FBF0D9;color:#7A4F00}.ds-kind-blue{background:#E4EEF7;color:#2C5F8A}"
+    },
+    {
+      "name": "DPS instalment grid",
+      "kind": "data",
+      "refersTo": "instalment-grid",
+      "description": "12 cells a row (a year), 18 px tall, 5 px radius and gap: forest filled paid, forest outline next, rust outline missed, track to come; read out as one sentence.",
+      "html": "<div class=\"ds-grid\" role=\"img\" aria-label=\"22 of 60 instalments paid\"><span class=\"p\"></span><span class=\"n\"></span><span></span></div>",
+      "css": ".ds-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:5px}.ds-grid span{height:18px;border-radius:5px;background:rgb(11 59 36/.08)}.ds-grid .p{background:#0F7A44}.ds-grid .n{background:#fff;border:2px solid #0F7A44}"
     }
   ],
   "narrative": {

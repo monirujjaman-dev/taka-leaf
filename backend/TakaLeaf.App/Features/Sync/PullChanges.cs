@@ -48,6 +48,7 @@ public static class PullChanges
         var budgets = await Changed(db.Budgets, userId, after, take).ToListAsync(cancellationToken);
         var rules = await Changed(db.RecurringRules, userId, after, take).ToListAsync(cancellationToken);
         var loans = await Changed(db.Loans, userId, after, take).ToListAsync(cancellationToken);
+        var savings = await Changed(db.Savings, userId, after, take).ToListAsync(cancellationToken);
 
         var sequence = wallets.Select(r => r.ServerSeq)
             .Concat(categories.Select(r => r.ServerSeq))
@@ -56,6 +57,7 @@ public static class PullChanges
             .Concat(budgets.Select(r => r.ServerSeq))
             .Concat(rules.Select(r => r.ServerSeq))
             .Concat(loans.Select(r => r.ServerSeq))
+            .Concat(savings.Select(r => r.ServerSeq))
             .Order()
             .ToList();
         var hasMore = sequence.Count > SyncRules.PageSize;
@@ -70,7 +72,8 @@ public static class PullChanges
             transactions.Where(r => r.ServerSeq <= last).Select(SyncRules.ToRow).ToList(),
             budgets.Where(r => r.ServerSeq <= last).Select(SyncRules.ToRow).ToList(),
             rules.Where(r => r.ServerSeq <= last).Select(SyncRules.ToRow).ToList(),
-            loans.Where(r => r.ServerSeq <= last).Select(SyncRules.ToRow).ToList()));
+            loans.Where(r => r.ServerSeq <= last).Select(SyncRules.ToRow).ToList(),
+            savings.Where(r => r.ServerSeq <= last).Select(SyncRules.ToRow).ToList()));
     }
 
     private static IQueryable<T> Changed<T>(DbSet<T> set, Guid userId, long after, int take)

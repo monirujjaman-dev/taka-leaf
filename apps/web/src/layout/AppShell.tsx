@@ -20,6 +20,7 @@ const NAV: { to: string; label: string; icon: IconName }[] = [
   { to: "/transactions", label: "Transactions", icon: "list" },
   { to: "/wallets", label: "Wallets", icon: "wallet" },
   { to: "/loans", label: "Loans", icon: "loan" },
+  { to: "/savings", label: "Savings", icon: "coins" },
   { to: "/people", label: "People and loans", icon: "people" },
   { to: "/categories", label: "Categories", icon: "tag" },
   { to: "/budgets", label: "Budgets", icon: "target" },
@@ -29,7 +30,7 @@ const NAV: { to: string; label: string; icon: IconName }[] = [
 ];
 
 /** Screens that live under the More tab on phones, so More stays lit on them. */
-const UNDER_MORE = ["/wallets", "/loans", "/people", "/categories", "/budgets", "/recurring", "/settings"];
+const UNDER_MORE = ["/wallets", "/loans", "/savings", "/people", "/categories", "/budgets", "/recurring", "/settings"];
 
 /** The primary "Add transaction" button for page headers on wide screens. */
 export function AddTransactionButton() {
