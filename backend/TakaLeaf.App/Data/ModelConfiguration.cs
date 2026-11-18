@@ -92,6 +92,38 @@ internal sealed class TransactionConfiguration : IEntityTypeConfiguration<Transa
 
         // Each EMI of a loan is paid once: one principal row, one interest row, one fee row at most.
         builder.HasIndex(e => new { e.LoanId, e.LoanEmi, e.LoanPart }).IsUnique().HasFilter("loan_emi IS NOT NULL AND deleted_at IS NULL");
+
+        builder.Property(e => e.SavingPart).HasConversion<string>().HasMaxLength(20);
+        builder.HasOne<Saving>().WithMany().HasForeignKey(e => e.SavingId).OnDelete(DeleteBehavior.Restrict);
+
+        // Each DPS instalment, profit payment or premium is recorded once.
+        builder.HasIndex(e => new { e.SavingId, e.SavingSeq, e.SavingPart }).IsUnique().HasFilter("saving_seq IS NOT NULL AND deleted_at IS NULL");
+    }
+}
+
+internal sealed class SavingConfiguration : IEntityTypeConfiguration<Saving>
+{
+    public void Configure(EntityTypeBuilder<Saving> builder)
+    {
+        builder.ConfigureSynced();
+        builder.ToTable(table =>
+        {
+            table.HasCheckConstraint("ck_savings_amount_positive", "amount > 0");
+            table.HasCheckConstraint("ck_savings_months", "months BETWEEN 0 AND 600");
+            table.HasCheckConstraint("ck_savings_rate", "rate_points BETWEEN 0 AND 10000");
+            table.HasCheckConstraint("ck_savings_tax", "tax_points BETWEEN 0 AND 10000");
+        });
+        builder.Property(e => e.Kind).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.Policy).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.Name).HasMaxLength(80);
+        builder.Property(e => e.Provider).HasMaxLength(80);
+        builder.Property(e => e.PolicyNumber).HasMaxLength(80);
+        builder.Property(e => e.Insured).HasMaxLength(80);
+        builder.Property(e => e.Nominee).HasMaxLength(80);
+        builder.Property(e => e.BondNumbers).HasMaxLength(8000);
+        builder.Property(e => e.Missed).HasMaxLength(2000);
+        builder.HasOne<Wallet>().WithMany().HasForeignKey(e => e.WalletId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Wallet>().WithMany().HasForeignKey(e => e.PayFromWalletId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 

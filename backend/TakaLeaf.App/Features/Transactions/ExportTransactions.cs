@@ -64,7 +64,7 @@ public static class ExportTransactions
                 Wallet(t.ToWalletId),
                 Category(t.CategoryId),
                 t.Note ?? "",
-                t.FeeOfId is not null ? "Transfer fee" : t.PersonId is not null ? "Loan" : t.LoanId is not null ? "Bank loan or card EMI" : t.RecurringRuleId is not null ? "Recurring" : "",
+                t.FeeOfId is not null ? "Transfer fee" : t.PersonId is not null ? "Loan" : t.LoanId is not null ? "Bank loan or card EMI" : t.SavingId is not null ? "Savings or insurance" : t.RecurringRuleId is not null ? "Recurring" : "",
             ]);
         }
 
@@ -78,7 +78,7 @@ public static class ExportTransactions
     public static string Taka(long poisha) =>
         $"{(poisha < 0 ? "-" : "")}{Math.Abs(poisha) / 100}.{Math.Abs(poisha) % 100:00}";
 
-    private static void AppendRow(StringBuilder csv, IReadOnlyList<string> cells)
+    internal static void AppendRow(StringBuilder csv, IReadOnlyList<string> cells)
     {
         for (var i = 0; i < cells.Count; i++)
         {

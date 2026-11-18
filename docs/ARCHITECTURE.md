@@ -109,11 +109,12 @@ These hold everywhere. Code that breaks one of them is a bug.
 | `sessions`, `refresh_tokens` | token hashes, used_at, revoked_at | One session per signed-in device. |
 | `user_tokens` | purpose (VerifyEmail / ResetPassword), token_hash, expires_at, used_at | Single-use email links. |
 | `outbox_messages` | type, payload (JSON, cleared when done), created_at, available_at, attempts, locked_until, last_error, processed_at, failed_at | System table (no user, not synced): work to do after a save. See "Outbox". |
-| `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed, Loan), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person; a Loan wallet belongs to a loan. Wallet endpoints refuse to create, change, archive or delete Loan wallets. |
+| `wallets` | type (Cash, Bank, CreditCard, Mfs, Lent, Borrowed, Loan, Savings), name, opening_balance, credit_limit, person_id, archived, excluded_from_total | Lent/Borrowed belong to a person; a Loan wallet belongs to a loan, a Savings wallet to a saving. Wallet endpoints refuse to create, change, archive or delete Loan and Savings wallets, and general transactions cannot move money into or out of a Savings wallet. |
 | `people` | name (unique per user, ignoring case), note | Each has one Lent and one Borrowed wallet. |
 | `categories` | kind (Income/Expense), name, parent_id, archived, sort_order | Two levels. Starter set created at registration. |
-| `transactions` | type (Income/Expense/Transfer), amount > 0, from/to wallet, category, person_id, fee_of_id, recurring_rule_id, recurring_date, loan_id, loan_emi, loan_part (Disbursement, Purchase, Principal, Interest, Fee), occurred_at, note | Unique (recurring_rule_id, recurring_date); unique (loan_id, loan_emi, loan_part) for live EMI rows. |
+| `transactions` | type (Income/Expense/Transfer), amount > 0, from/to wallet, category, person_id, fee_of_id, recurring_rule_id, recurring_date, loan_id, loan_emi, loan_part (Disbursement, Purchase, Principal, Interest, Fee), saving_id, saving_seq, saving_part (Deposit, Profit, Tax, Fee, Withdrawal, Premium, Prize, Payout), occurred_at, note | Unique (recurring_rule_id, recurring_date); unique (loan_id, loan_emi, loan_part) for live EMI rows; unique (saving_id, saving_seq, saving_part) for live numbered savings rows. |
 | `loans` | type (Bank, CardEmi), name, lender, wallet_id (its own Loan wallet), pay_from_wallet_id (a credit card for CardEmi), principal, rate_points (hundredths of a % a year: 950 = 9.50%), months, emi, first_due_date, paid_before, auto_record, closed_on | What is left is minus the Loan wallet's balance, never stored. Card EMIs always record automatically. |
+| `savings` | kind (Fdr, Dps, Certificate, PrizeBond, Insurance), name, provider, wallet_id (its own Savings wallet; null for a policy), pay_from_wallet_id, amount, rate_points, months, every_months, start_date, tax_points, charges_per_year, maturity_amount, cover, policy (Life, Health, Car, Other), policy_number, insured, nominee, bond_numbers, paid_before, auto_record, remind, renew, missed, seq_base, closed_on | The money in a saving is its Savings wallet's balance, never stored, so savings count as assets with no special case. An FDR always records automatically; `seq_base` keeps each renewed term's numbers unique. |
 | `budgets` | category_id (null = all spending), amount > 0 | One per category per user (nulls not distinct). |
 | `recurring_rules` | transaction fields, frequency, interval, start/end date, occurrences, next_date, auto_record, paused | |
 
@@ -134,8 +135,15 @@ These hold everywhere. Code that breaks one of them is a bug.
 | Extra payment | A `Principal` transfer with no `loan_emi` |
 | Early settlement | A `Principal` transfer of everything left, a `Fee` expense "Early settlement charge" (a % of what is left or an amount), and `closed_on` set |
 
-Fee rows, person loan rows and bank loan rows are refused by the general transaction endpoints. They
-are changed through their owner (the transfer, the person, or the loan).
+| Saving opened, DPS instalment, bonds bought | `Transfer` pay-from wallet → the saving's wallet (`Deposit`, `saving_seq` = N for an instalment). A saving already held opens its wallet at the amount. |
+| Profit (FDR, certificate) | `Income` under "Profit on savings" (`Profit`) into the pay-from wallet, or into the FDR's own wallet when it renews, and an `Expense` under "Tax at source" (`Tax`) |
+| FDR renewal | Profit and tax into the FDR's wallet, an "Excise duty" `Fee` expense, then a new term: `amount`, `start_date` and `seq_base` move on |
+| Maturity, encashment, bonds sold back | `Transfer` out of the saving's wallet (`Withdrawal`), an optional `Fee` ("Early encashment charge"), and `closed_on` set |
+| Prize bond prize | `Income` under "Prize bond prize" (`Prize`) and its `Tax` |
+| Policy premium / claim or maturity | `Expense` under "Insurance" (or its Life, Health or Car sub-category) (`Premium`) / `Income` under "Insurance payouts" (`Payout`) |
+
+Fee rows, person loan rows, bank loan rows and savings rows are refused by the general transaction
+endpoints. They are changed through their owner (the transfer, the person, the loan or the saving).
 
 **Loan arithmetic** (`Features/Loans/LoanMath.cs`, twin of `packages/shared/src/loan.ts`): reducing
 balance. A month's interest is balance × rate points / 120,000, rounded half up; the EMI is the
@@ -159,6 +167,7 @@ Everything is under `/api`. Every endpoint except health and the sign-in flows n
 | Reports | `GET /reports?period=Month&month=yyyy-MM` or `?period=Year&year=yyyy`: income, expense, saved, by category (with sub-categories), trend (6 or 12 months). Only income and expense count |
 | People | `GET/POST /people`, `GET/PUT/DELETE /people/{id}`, `POST /people/{id}/loans`, `PUT/DELETE /people/{id}/loans/{loanId}` (Lend, GotBack, Borrow, PaidBack) |
 | Loans | `GET/POST /loans` (list with summary and EMIs due), `GET/PUT/DELETE /loans/{id}` (detail: schedule, activity, card limit; delete removes its rows and wallet), `POST /loans/{id}/pay` (walletId, amount?, lateFee, occurredAt), `/extra`, `/settle` (charge or chargePoints), `DELETE /loans/{id}/emis/last` |
+| Savings | `GET/POST /savings` (list with summary, what is coming up and the tax year), `GET /savings/tax-year.csv`, `GET/PUT/DELETE /savings/{id}` (detail: schedule and activity; delete removes its rows and wallet), `POST /savings/{id}/deposit`, `/skip`, `/profit`, `/close`, `/renew`, `/prize`, `/sell`, `/premium`, `/payout`, `DELETE /savings/{id}/last` (undo the last entry) |
 | Budgets | `GET /budgets?month=`, `POST /budgets`, `PUT/DELETE /budgets/{id}` (status OnTrack / Near ≥ 80% / Over) |
 | Sync | `GET /sync/pull?cursor=&protocol=1` (rows changed after the cursor, deletions included, 500 a page, `cursor`, `hasMore`), `POST /sync/push` `{ protocol, changes: [{ mutationId, table, row }] }` (≤ 200; each `accepted` / `superseded` / `rejected` with a reason, plus `current`, the server's row); 426 for an outdated app |
 | Recurring | `GET /recurring`, `GET /recurring/due`, `GET/PUT/DELETE /recurring/{id}`, `POST /recurring`, `POST /{id}/record`, `/skip`, `/pause`, `/resume` |
@@ -238,6 +247,12 @@ a rule can't be recorded (for example its wallet was deleted), it stays in the u
 `LoanWorker` runs every `Loans:PollMinutes` (30) and records the due EMIs of loans with
 `auto_record` (all card EMIs, and bank loans the bank debits itself) at 9 AM local time on the due
 date. The unique EMI index makes it safe to run twice, or alongside a phone.
+
+`SavingWorker` runs every `Savings:PollMinutes` (30) and, at 9 AM local time on the day, records
+what banks do by themselves: automatic DPS instalments, FDR profit and maturity (renewing or paying
+out) and automatic certificate profit and maturity. Policies, prize bonds and a matured DPS are left
+to the user. The unique savings index makes it safe to run twice or alongside a phone; a conflict on
+one saving leaves it for the next run and does not stop the others.
 
 ### Cache
 
@@ -400,6 +415,11 @@ local transaction.
   are left to the server. Loan rows pushed from the phone are checked by part, and an interest row
   sent without a category gets "Loan interest" on the server. A pull page without a table (an
   older server) means no changes to it.
+- **Savings** are the eighth synced table. The phone records by hand offline; automatic entries are
+  left to the server. Savings rows pushed from the phone are checked by part, and a profit, tax,
+  fee, premium, prize or payout row sent without a category gets the server's. An edit that changes
+  or drops a row's `savingId`, `savingSeq` or `savingPart` is rejected, so an app that does not know
+  savings cannot turn a savings row into a plain one.
 - **Recurring**: a date is recorded once per (rule, date); the unique index already enforces this on
   the server, so phone and server cannot both create it.
 - **New phone**: sign in, then one full pull from an empty cursor.

@@ -62,7 +62,42 @@ public sealed record TransactionRow(
     long ServerSeq = 0,
     Guid? LoanId = null,
     int? LoanEmi = null,
-    LoanPart? LoanPart = null);
+    LoanPart? LoanPart = null,
+    Guid? SavingId = null,
+    int? SavingSeq = null,
+    SavingPart? SavingPart = null);
+
+public sealed record SavingRow(
+    Guid Id,
+    SavingKind Kind,
+    string Name,
+    string? Provider,
+    Guid? WalletId,
+    Guid PayFromWalletId,
+    long Amount,
+    int RatePoints,
+    int Months,
+    int EveryMonths,
+    DateOnly StartDate,
+    int TaxPoints,
+    long ChargesPerYear,
+    long? MaturityAmount,
+    long? Cover,
+    PolicyType? Policy,
+    string? PolicyNumber,
+    string? Insured,
+    string? Nominee,
+    string? BondNumbers,
+    int PaidBefore,
+    bool AutoRecord,
+    bool Remind,
+    bool Renew,
+    string? Missed,
+    int SeqBase,
+    DateOnly? ClosedOn,
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? DeletedAt,
+    long ServerSeq = 0);
 
 public sealed record LoanRow(
     Guid Id,
@@ -122,7 +157,8 @@ public sealed record PullResponse(
     List<TransactionRow> Transactions,
     List<BudgetRow> Budgets,
     List<RecurringRuleRow> RecurringRules,
-    List<LoanRow> Loans);
+    List<LoanRow> Loans,
+    List<SavingRow> Savings);
 
 /// <param name="Protocol">The sync version the app speaks; see <see cref="SyncRules.Protocol"/>.</param>
 /// <param name="Changes">Oldest first. A change to a row the server already has replaces all of its fields.</param>
@@ -190,7 +226,13 @@ internal static class SyncRules
 
     public static TransactionRow ToRow(Transaction t) => new(
         t.Id, t.Type, t.Amount, t.FromWalletId, t.ToWalletId, t.CategoryId, t.PersonId, t.FeeOfId, t.RecurringRuleId,
-        t.RecurringDate, t.OccurredAt, t.Note, t.UpdatedAt, t.DeletedAt, t.ServerSeq, t.LoanId, t.LoanEmi, t.LoanPart);
+        t.RecurringDate, t.OccurredAt, t.Note, t.UpdatedAt, t.DeletedAt, t.ServerSeq, t.LoanId, t.LoanEmi, t.LoanPart,
+        t.SavingId, t.SavingSeq, t.SavingPart);
+
+    public static SavingRow ToRow(Saving s) => new(
+        s.Id, s.Kind, s.Name, s.Provider, s.WalletId, s.PayFromWalletId, s.Amount, s.RatePoints, s.Months, s.EveryMonths, s.StartDate,
+        s.TaxPoints, s.ChargesPerYear, s.MaturityAmount, s.Cover, s.Policy, s.PolicyNumber, s.Insured, s.Nominee, s.BondNumbers, s.PaidBefore,
+        s.AutoRecord, s.Remind, s.Renew, s.Missed, s.SeqBase, s.ClosedOn, s.UpdatedAt, s.DeletedAt, s.ServerSeq);
 
     public static LoanRow ToRow(Loan l) => new(
         l.Id, l.Type, l.Name, l.Lender, l.WalletId, l.PayFromWalletId, l.Principal, l.RatePoints, l.Months, l.Emi, l.FirstDueDate,
