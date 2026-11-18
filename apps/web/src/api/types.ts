@@ -356,3 +356,168 @@ export interface UpdateBankLoanInput {
   emi: number;
   autoRecord: boolean;
 }
+
+// Savings and insurance
+
+export type SavingKind = "Fdr" | "Dps" | "Certificate" | "PrizeBond" | "Insurance";
+export type PolicyType = "Life" | "Health" | "Car" | "Other";
+/** Auto: recorded on the day. Record: the user records it. Pay: a premium. Close: matured. Draw: a prize bond draw. */
+export type SavingAction = "Auto" | "Record" | "Pay" | "Close" | "Draw";
+
+export interface SavingNext {
+  number: number | null;
+  date: string;
+  label: string;
+  amount: number | null;
+  action: SavingAction;
+  overdue: boolean;
+}
+
+export interface Saving {
+  id: string;
+  kind: SavingKind;
+  name: string;
+  provider: string | null;
+  walletId: string | null;
+  payFromWalletId: string;
+  payFromWalletName: string | null;
+  amount: number;
+  ratePoints: number;
+  months: number;
+  everyMonths: number;
+  startDate: string;
+  taxPoints: number;
+  chargesPerYear: number;
+  maturityAmount: number | null;
+  cover: number | null;
+  policy: PolicyType | null;
+  policyNumber: string | null;
+  insured: string | null;
+  nominee: string | null;
+  bondNumbers: string[];
+  paidBefore: number;
+  autoRecord: boolean;
+  remind: boolean;
+  renew: boolean;
+  missed: number[];
+  closedOn: string | null;
+  balance: number;
+  closed: boolean;
+  maturesOn: string | null;
+  done: number;
+  total: number | null;
+  next: SavingNext | null;
+  profitReceived: number;
+  taxTaken: number;
+  paidSoFar: number;
+  estimate: number | null;
+  daysDone: number;
+  daysTotal: number;
+  bondCount: number;
+  bondsInDraw: number;
+  nextDraw: string | null;
+  graceEnds: string | null;
+}
+
+export interface ComingUp {
+  savingId: string;
+  kind: SavingKind;
+  policy: PolicyType | null;
+  name: string;
+  date: string;
+  label: string;
+  detail: string | null;
+  amount: number | null;
+  action: SavingAction;
+  overdue: boolean;
+}
+
+export interface TaxYear {
+  from: string;
+  to: string;
+  invested: number;
+  profit: number;
+  tax: number;
+}
+
+export interface SavingList {
+  summary: {
+    saved: number;
+    deposits: number;
+    certificates: number;
+    prizeBonds: number;
+    cover: number;
+    policies: number;
+    taxYear: TaxYear;
+    nextToMature: string | null;
+    nextToMatureOn: string | null;
+  };
+  comingUp: ComingUp[];
+  savings: Saving[];
+}
+
+export type SavingScheduleStatus = "Paid" | "PaidBefore" | "Missed" | "Due" | "Upcoming";
+
+export interface SavingScheduleRow {
+  number: number;
+  date: string;
+  status: SavingScheduleStatus;
+  amount: number;
+  tax: number;
+  paidAt: string | null;
+  paidFrom: string | null;
+}
+
+export interface SavingDetail {
+  saving: Saving;
+  schedule: SavingScheduleRow[];
+  activity: Transaction[];
+}
+
+export interface AddSavingInput {
+  kind: SavingKind;
+  name: string;
+  provider: string | null;
+  payFromWalletId: string;
+  fromWalletId: string | null;
+  alreadyHeld: boolean;
+  amount: number | null;
+  bondCount: number | null;
+  ratePoints: number;
+  months: number;
+  everyMonths: number;
+  startDate: string;
+  taxPoints: number | null;
+  chargesPerYear: number | null;
+  maturityAmount: number | null;
+  cover: number | null;
+  policy: PolicyType | null;
+  policyNumber: string | null;
+  insured: string | null;
+  nominee: string | null;
+  bondNumbers: string[] | null;
+  paidBefore: number;
+  autoRecord: boolean;
+  remind: boolean;
+  renew: boolean;
+}
+
+export interface UpdateSavingInput {
+  name: string;
+  provider: string | null;
+  payFromWalletId: string;
+  amount: number | null;
+  ratePoints: number | null;
+  taxPoints: number | null;
+  chargesPerYear: number | null;
+  maturityAmount: number | null;
+  cover: number | null;
+  policy: PolicyType | null;
+  policyNumber: string | null;
+  insured: string | null;
+  nominee: string | null;
+  bondNumbers: string[] | null;
+  autoRecord: boolean | null;
+  remind: boolean | null;
+  renew: boolean | null;
+}

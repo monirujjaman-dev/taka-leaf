@@ -66,6 +66,7 @@ export function WalletsPage() {
   const lent = everything.filter((w) => w.type === "Lent" && w.balance !== 0);
   const borrowed = everything.filter((w) => w.type === "Borrowed" && w.balance !== 0);
   const bankLoans = everything.filter((w) => w.type === "Loan" && w.balance !== 0);
+  const savings = everything.filter((w) => w.type === "Savings" && w.balance !== 0);
   const sum = (list: Wallet[]) => list.reduce((total, w) => total + Math.abs(w.balance), 0);
   const openAdd = () => setParams({ add: "1" }, { replace: true });
   const closeForm = () => {
@@ -128,7 +129,7 @@ export function WalletsPage() {
               );
             })}
 
-            {lent.length + borrowed.length + bankLoans.length > 0 ? (
+            {lent.length + borrowed.length + bankLoans.length + savings.length > 0 ? (
               <section aria-labelledby="group-loans" className="flex flex-col gap-2">
                 <SectionHeading id="group-loans" title="Loans" />
                 <ListCard>
@@ -137,6 +138,7 @@ export function WalletsPage() {
                       { list: lent, label: "Lent to others", icon: "moneyOut" as const, to: "/people", count: people(lent.length) },
                       { list: borrowed, label: "Borrowed", icon: "moneyIn" as const, to: "/people", count: people(borrowed.length) },
                       { list: bankLoans, label: "Bank loans and card EMIs", icon: "loan" as const, to: "/loans", count: `${bankLoans.length} ${bankLoans.length === 1 ? "loan" : "loans"}` },
+                      { list: savings, label: "Savings", icon: "coins" as const, to: "/savings", count: `${savings.length} ${savings.length === 1 ? "saving" : "savings"}` },
                     ]
                       .filter((row) => row.list.length > 0)
                       .map((row) => (
